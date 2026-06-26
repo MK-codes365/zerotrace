@@ -35,7 +35,7 @@ def list_volumes():
     return volumes
 
 def list_all_wipeable_targets():
-    return list_volumes()
+    return list_volumes() + list_physical_drives()
 
 def list_physical_drives():
     c = wmi.WMI()

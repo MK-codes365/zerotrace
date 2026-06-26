@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Hero = () => {
   const scrollToDownloads = () => {
     document.getElementById('downloads').scrollIntoView({ behavior: 'smooth' });
@@ -14,7 +12,7 @@ const Hero = () => {
         </h1>
         <p style={styles.subtitle}>
           The Ultimate Data Destruction Tool. <br />
-          Securely erase everything. Leave nos trace.
+          Securely erase everything. Leave no trace.
         </p>
         <div style={styles.badge}>NIST SP 800-88 Compliant</div>
         <button onClick={scrollToDownloads} style={styles.ctaButton}>
@@ -34,7 +32,9 @@ const styles = {
     textAlign: 'center',
     position: 'relative',
     overflow: 'hidden',
-    background: 'radial-gradient(circle at center, #1a1a1a 0%, #050505 70%)',
+    backgroundImage: `linear-gradient(rgba(5, 5, 5, 0.8), rgba(5, 5, 5, 0.95)), url('/hero-bg.png')`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
   },
   container: {
     position: 'relative',

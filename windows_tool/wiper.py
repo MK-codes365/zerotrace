@@ -33,7 +33,7 @@ except:
 METHOD_MAP = {
     "NIST 800-88 Clear": 0,
     "NIST 800-88-2 Purge": 1,
-    "DoD 5220.22-M (3-Pass):": 2,
+    "DoD 5220.22-M (3-Pass)": 2,
     "DoD 5220.22-M ECE (7-Pass)": 3,
     "Peter Gutmann (35-Pass)": 4,
 }
