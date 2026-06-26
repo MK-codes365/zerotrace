@@ -5,7 +5,6 @@ import { useCart } from '../context/CartContext';
 const Checkout = () => {
   const { cart, getCartTotal, clearCart } = useCart();
   const location = useLocation();
-  const navigate = useLocation();
 
   // Retrieve discount passed from Cart page
   const discount = location.state?.discount || 0;
@@ -479,7 +478,7 @@ const Checkout = () => {
                   Your Activated License Keys
                 </h3>
                 <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px', lineHeight: '1.4'}}>
-                  Copy these keys and enter them into the **ZeroTrace Desktop App** settings menu (Admin -> Activate Key) to unlock professional features.
+                  Copy these keys and enter them into the **ZeroTrace Desktop App** settings menu (Admin &rarr; Activate Key) to unlock professional features.
                 </p>
 
                 {generatedKeys.map((item, index) => (
