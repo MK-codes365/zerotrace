@@ -35,8 +35,8 @@ const Pricing = () => {
       name: 'Professional',
       desc: 'Advanced data destruction and priority tools for power users.',
       price: {
-        monthly: 15,
-        annual: 12,
+        monthly: 1299,
+        annual: 999,
       },
       features: [
         'All Community features',
@@ -55,8 +55,8 @@ const Pricing = () => {
       name: 'Enterprise',
       desc: 'Full-scale compliance, automation, and support for organizations.',
       price: {
-        monthly: 119,
-        annual: 99,
+        monthly: 9999,
+        annual: 7999,
       },
       features: [
         'All Professional features',
@@ -389,7 +389,7 @@ const Pricing = () => {
                 {/* Price displays */}
                 <div style={styles.priceContainer}>
                   <span style={styles.priceNumber}>
-                    {plan.price.monthly === 0 ? '$0' : `$${currentPrice}`}
+                    {plan.price.monthly === 0 ? '₹0' : `₹${currentPrice}`}
                   </span>
                   {plan.price.monthly > 0 && (
                     <span style={styles.pricePeriod}>/ month</span>
@@ -426,7 +426,7 @@ const Pricing = () => {
                 {/* Savings Notice */}
                 {billingCycle === 'annual' && plan.price.monthly > 0 && (
                   <span style={styles.savingsLabel}>
-                    Save ${ (plan.price.monthly - plan.price.annual) * 12 }/yr (billed annually)
+                    Save ₹${ (plan.price.monthly - plan.price.annual) * 12 }/yr (billed annually)
                   </span>
                 )}
               </div>

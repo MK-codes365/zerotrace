@@ -308,7 +308,7 @@ const Cart = () => {
                           </div>
                         </td>
                         <td style={{...styles.td, fontFamily: 'monospace', fontSize: '1rem', color: '#ccc'}}>
-                          ${item.price}
+                          ₹{item.price}
                         </td>
                         <td style={styles.td}>
                           <div style={styles.qtyControls}>
@@ -329,7 +329,7 @@ const Cart = () => {
                           </div>
                         </td>
                         <td style={{...styles.td, fontFamily: 'monospace', fontSize: '1.05rem', color: '#fff', fontWeight: 'bold'}}>
-                          ${item.price * item.quantity}
+                          ₹{item.price * item.quantity}
                         </td>
                         <td style={{...styles.td, textAlign: 'center'}}>
                           <button 
@@ -353,24 +353,24 @@ const Cart = () => {
                   
                   <div style={styles.summaryRow}>
                     <span>Subtotal</span>
-                    <span style={{fontFamily: 'monospace'}}>${subtotal.toFixed(2)}</span>
+                    <span style={{fontFamily: 'monospace'}}>₹{subtotal.toFixed(2)}</span>
                   </div>
 
                   {discount > 0 && (
                     <div style={{...styles.summaryRow, color: 'var(--accent-primary)'}}>
                       <span>Discount (20%)</span>
-                      <span style={{fontFamily: 'monospace'}}>-${discountAmount.toFixed(2)}</span>
+                      <span style={{fontFamily: 'monospace'}}>-₹{discountAmount.toFixed(2)}</span>
                     </div>
                   )}
 
                   <div style={styles.summaryRow}>
                     <span>VAT / Taxes (10%)</span>
-                    <span style={{fontFamily: 'monospace'}}>${tax.toFixed(2)}</span>
+                    <span style={{fontFamily: 'monospace'}}>₹{tax.toFixed(2)}</span>
                   </div>
 
                   <div style={styles.totalRow}>
                     <span>Total</span>
-                    <span style={{color: 'var(--accent-primary)'}}>${total.toFixed(2)}</span>
+                    <span style={{color: 'var(--accent-primary)'}}>₹{total.toFixed(2)}</span>
                   </div>
 
                   <button 

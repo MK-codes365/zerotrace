@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+/dist
+/build
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python Cache & Bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local configuration / secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Desktop App local keys & certificates
+windows_tool/license.json
+windows_tool/*.pdf
+windows_tool/*.json
+*.pdf
+*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

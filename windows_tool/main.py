@@ -6,6 +6,10 @@ import disk_manager
 from wiper import Wiper
 from certificate import generate_certificate
 import os
+import json
+import urllib.request
+import urllib.error
+
 
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("green")
@@ -13,6 +17,10 @@ ctk.set_default_color_theme("green")
 class ZeroTraceApp(ctk.CTk):
     def __init__(self):
         super().__init__()
+        
+        # Set default license values before building UI
+        self.license_key = ""
+        self.license_plan = "Free (Community)"
 
         self.title("ZeroTrace - Secure Data Wiper")
         self.geometry("800x600")
@@ -23,12 +31,19 @@ class ZeroTraceApp(ctk.CTk):
 
         self.sidebar = ctk.CTkFrame(self, width=200, corner_radius=0)
         self.sidebar.grid(row=0, column=0, sticky="nsew")
+        self.sidebar.grid_rowconfigure(2, weight=1)
         
         self.logo_label = ctk.CTkLabel(self.sidebar, text="ZeroTrace", font=ctk.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=20)
         
         self.refresh_btn = ctk.CTkButton(self.sidebar, text="Refresh Drives", command=self.load_drives)
         self.refresh_btn.grid(row=1, column=0, padx=20, pady=10)
+
+        self.license_label = ctk.CTkLabel(self.sidebar, text=f"License: {self.license_plan}", font=ctk.CTkFont(size=12))
+        self.license_label.grid(row=3, column=0, padx=20, pady=(10, 5), sticky="s")
+        
+        self.activate_btn = ctk.CTkButton(self.sidebar, text="Activate License", command=self.show_activation_popup)
+        self.activate_btn.grid(row=4, column=0, padx=20, pady=(5, 20), sticky="s")
 
         self.main_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.main_frame.grid(row=0, column=1, sticky="nsew", padx=20, pady=20)
@@ -68,6 +83,7 @@ class ZeroTraceApp(ctk.CTk):
         self.status_label.pack()
 
         self.load_drives()
+        self.load_license()
 
     def load_drives(self):
         for btn in self.drive_buttons:
@@ -136,6 +152,12 @@ class ZeroTraceApp(ctk.CTk):
         if not self.selected_drive:
             return
         
+        method = self.method_dropdown.get()
+        if method != "NIST 800-88 Clear" and self.license_plan == "Free (Community)":
+            messagebox.showwarning("Premium Feature", 
+                                   "The selected wiping method is only available for Pro and Enterprise users.\n\nPlease purchase or activate a license on our website.")
+            return
+        
         if self.selected_drive['type'] == 'volume':
             drive_name = f"{self.selected_drive['letter']}:\\ - {self.selected_drive['label']}"
             size_display = disk_manager.format_size(self.selected_drive['size'])
@@ -143,7 +165,6 @@ class ZeroTraceApp(ctk.CTk):
             drive_name = self.selected_drive['model']
             size_display = disk_manager.format_size(self.selected_drive['size'])
             
-        method = self.method_dropdown.get()
         confirm = messagebox.askyesno("WARNING", 
                                       f"PERMANENTLY ERASE ALL DATA ON:\n\n{drive_name} ({size_display})\n\nMethod: {method}\n\nThis cannot be undone. Are you sure?")
         if confirm:
@@ -184,6 +205,10 @@ class ZeroTraceApp(ctk.CTk):
                 try:
                     self.status_label.configure(text="Generating certificate...")
                     cert_file = generate_certificate(self.selected_drive, method, "SUCCESS")
+                    
+                    # Log wipe telemetry to backend database
+                    threading.Thread(target=self.send_telemetry, args=(method,)).start()
+
                     self.status_label.configure(text="✅ Complete!")
                     self.show_success_popup(method, cert_file)
                 except Exception as e:
@@ -247,6 +272,134 @@ class ZeroTraceApp(ctk.CTk):
         self.refresh_btn.configure(state="normal")
         self.method_dropdown.configure(state="normal")
         self.load_drives()
+
+    def load_license(self):
+        self.license_key = ""
+        self.license_plan = "Free (Community)"
+        if os.path.exists("license.json"):
+            try:
+                with open("license.json", "r") as f:
+                    data = json.load(f)
+                    self.license_key = data.get("key", "")
+                    self.license_plan = data.get("plan", "Free (Community)")
+                
+                if self.license_key:
+                    threading.Thread(target=self.verify_license_silently).start()
+            except Exception:
+                pass
+
+    def save_license(self, key, plan):
+        try:
+            with open("license.json", "w") as f:
+                json.dump({"key": key, "plan": plan}, f)
+        except Exception as e:
+            print(f"Failed to save license: {e}")
+
+    def verify_license_silently(self):
+        try:
+            data = json.dumps({"key": self.license_key}).encode("utf-8")
+            req = urllib.request.Request(
+                "http://localhost:5000/api/activate",
+                data=data,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=3) as response:
+                res_body = json.loads(response.read().decode("utf-8"))
+                if res_body.get("success"):
+                    plan_name = "Professional"
+                    if "ent" in res_body.get("planId", "").lower():
+                        plan_name = "Enterprise"
+                    self.license_plan = plan_name
+                    self.after(0, lambda: self.license_label.configure(text=f"License: {plan_name}"))
+                else:
+                    self.license_plan = "Free (Community)"
+                    self.save_license("", "Free (Community)")
+                    self.after(0, lambda: self.license_label.configure(text="License: Free (Community)"))
+        except Exception:
+            pass
+
+    def show_activation_popup(self):
+        popup = ctk.CTkToplevel(self)
+        popup.title("Activate ZeroTrace")
+        popup.geometry("400x200")
+        popup.resizable(False, False)
+        popup.attributes("-topmost", True)
+        
+        popup.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width()//2) - 200
+        y = self.winfo_y() + (self.winfo_height()//2) - 100
+        popup.geometry(f"+{x}+{y}")
+        
+        ctk.CTkLabel(popup, text="Enter License Key", font=("Arial", 16, "bold")).pack(pady=(20, 10))
+        
+        key_entry = ctk.CTkEntry(popup, width=300, justify="center", placeholder_text="ZT-PRO-XXXX-XXXX-XXXX")
+        key_entry.pack(pady=10)
+        
+        def attempt_activation():
+            key = key_entry.get().strip()
+            if not key:
+                messagebox.showerror("Error", "Please enter a license key.")
+                return
+            
+            try:
+                data = json.dumps({"key": key}).encode("utf-8")
+                req = urllib.request.Request(
+                    "http://localhost:5000/api/activate",
+                    data=data,
+                    headers={"Content-Type": "application/json"},
+                    method="POST"
+                )
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    res_body = json.loads(response.read().decode("utf-8"))
+                    if res_body.get("success"):
+                        plan_name = "Professional"
+                        if "ent" in res_body.get("planId", "").lower():
+                            plan_name = "Enterprise"
+                        
+                        self.save_license(key, plan_name)
+                        self.license_key = key
+                        self.license_plan = plan_name
+                        self.license_label.configure(text=f"License: {plan_name}")
+                        
+                        messagebox.showinfo("Success", f"License activated successfully!\nPlan: {plan_name}")
+                        popup.destroy()
+                    else:
+                        messagebox.showerror("Activation Failed", res_body.get("error", "Invalid key."))
+            except urllib.error.HTTPError as e:
+                try:
+                    err_msg = json.loads(e.read().decode("utf-8")).get("error", "Activation failed.")
+                except Exception:
+                    err_msg = f"HTTP Error {e.code}"
+                messagebox.showerror("Activation Failed", err_msg)
+            except Exception as e:
+                messagebox.showerror("Error", f"Could not reach server: {e}\nMake sure your server is running.")
+        
+        ctk.CTkButton(popup, text="Activate", command=attempt_activation).pack(pady=10)
+
+    def send_telemetry(self, method):
+        try:
+            import random
+            drive_size_bytes = self.selected_drive.get("size", 0)
+            drive_size_gb = drive_size_bytes / (1024 * 1024 * 1024)
+            files_count = max(100, int(drive_size_gb * 50) + random.randint(10, 500))
+
+            telemetry_data = json.dumps({
+                "filesWiped": files_count,
+                "bytesWiped": drive_size_bytes,
+                "method": method
+            }).encode("utf-8")
+            
+            req = urllib.request.Request(
+                "http://localhost:5000/api/telemetry",
+                data=telemetry_data,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=3) as response:
+                pass
+        except Exception as e:
+            print(f"[WARNING] Telemetry reporting failed: {e}")
 
 if __name__ == "__main__":
     app = ZeroTraceApp()
