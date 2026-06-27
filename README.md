@@ -49,7 +49,6 @@ zero-trace/
 │   ├── disk_manager.py        # Drive detection via WMI
 │   ├── certificate.py         # PDF certificate generation
 │   └── popup_code.py          # Success popup dialog
-└── linux_tool/            # Linux version (in progress)
 ```
 
 ---
