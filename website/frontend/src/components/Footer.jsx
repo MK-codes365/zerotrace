@@ -10,6 +10,8 @@ const Footer = () => {
           <Link to="/terms" style={styles.link} onMouseOver={(e) => e.target.style.color = '#fff'} onMouseOut={(e) => e.target.style.color = 'var(--text-secondary)'}>Terms & Conditions</Link>
           <span style={styles.separator}>|</span>
           <Link to="/privacy" style={styles.link} onMouseOver={(e) => e.target.style.color = '#fff'} onMouseOut={(e) => e.target.style.color = 'var(--text-secondary)'}>Privacy Policy</Link>
+          <span style={styles.separator}>|</span>
+          <Link to="/contact" style={styles.link} onMouseOver={(e) => e.target.style.color = '#fff'} onMouseOut={(e) => e.target.style.color = 'var(--text-secondary)'}>Contact Support</Link>
         </div>
       </div>
     </footer>

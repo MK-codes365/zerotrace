@@ -27,6 +27,7 @@ const Navbar = () => {
           <Link to="/" style={location.pathname === '/' ? styles.activeLink : styles.link}>Home</Link>
           <Link to="/about" style={location.pathname === '/about' ? styles.activeLink : styles.link}>About</Link>
           <a href="/#downloads" style={styles.link}>Download</a>
+          <Link to="/contact" style={location.pathname === '/contact' ? styles.activeLink : styles.link}>Contact</Link>
           <Link to="/cart" style={location.pathname === '/cart' ? styles.activeCartLink : styles.cartLink}>
             🛒
             {cartCount > 0 && (
