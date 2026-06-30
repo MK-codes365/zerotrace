@@ -18,7 +18,7 @@ try:
     wiper_dll.wipe_drive.argtypes = [c_char_p, c_int, ProgressCallbackType]
     wiper_dll.wipe_drive.restype = c_int
     
-    wiper_dll.verify_drive.argtypes = [c_char_p, c_int]
+    wiper_dll.verify_drive.argtypes = [c_char_p, c_int, c_int]
     wiper_dll.verify_drive.restype = ctypes.c_bool
     
     wiper_dll.cancel_wipe.argtypes = []
@@ -109,8 +109,9 @@ class NativeCppWiper:
         self.is_running = False
         wiper_dll.cancel_wipe()
 
-    def verify_wipe(self, num_checks=10):
-        return wiper_dll.verify_drive(self.device_id.encode('utf-8'), num_checks)
+    def verify_wipe(self, method_name, num_checks=10):
+        method_id = METHOD_MAP.get(method_name, 0)
+        return wiper_dll.verify_drive(self.device_id.encode('utf-8'), method_id, num_checks)
 
 
 class CtypesWiper:
@@ -232,7 +233,8 @@ class CtypesWiper:
     def stop(self):
         self.is_running = False
 
-    def verify_wipe(self, num_checks=10):
+    def verify_wipe(self, method_name, num_checks=10):
+        method_id = METHOD_MAP.get(method_name, 0)
         handle = INVALID_HANDLE_VALUE
         try:
             handle = self.kernel32.CreateFileW(
@@ -240,22 +242,35 @@ class CtypesWiper:
             
             if handle == INVALID_HANDLE_VALUE: return False
             total_size = self._get_size(handle)
-            if total_size == 0: return False
+            if total_size < 512: return False
             
-            buffer = ctypes.create_string_buffer(1)
+            buffer = ctypes.create_string_buffer(512)
             bytes_read = wintypes.DWORD(0)
             
             for _ in range(num_checks):
-                offset = random.randint(0, total_size - 1)
+                offset = random.randint(0, total_size - 512)
                 self.kernel32.SetFilePointerEx(handle, ctypes.c_longlong(offset), None, 0)
-                self.kernel32.ReadFile(handle, buffer, 1, ctypes.byref(bytes_read), None)
-                if bytes_read.value == 1 and buffer.raw != b'\x00':
+                success = self.kernel32.ReadFile(handle, buffer, 512, ctypes.byref(bytes_read), None)
+                if not success or bytes_read.value != 512:
                     self.kernel32.CloseHandle(handle)
                     return False
+                
+                raw_bytes = buffer.raw[:512]
+                if method_id == 0:
+                    # NIST Clear: must be all zeros
+                    if any(b != 0 for b in raw_bytes):
+                        self.kernel32.CloseHandle(handle)
+                        return False
+                else:
+                    # Other methods: must not be all zeros and not all 0xFF
+                    if all(b == 0 for b in raw_bytes) or all(b == 255 for b in raw_bytes):
+                        self.kernel32.CloseHandle(handle)
+                        return False
             
             self.kernel32.CloseHandle(handle)
             return True
-        except:
+        except Exception as e:
+            print(f"Verification Error: {e}")
             if handle != INVALID_HANDLE_VALUE: self.kernel32.CloseHandle(handle)
             return False
 

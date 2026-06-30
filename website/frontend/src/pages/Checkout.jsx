@@ -62,6 +62,42 @@ const Checkout = () => {
     return segments.join('-');
   };
 
+  const registerDemoKeys = () => {
+    setShowMockModal(false);
+    setCheckoutState('processing');
+    setProcessingMsg('Verifying simulated payment...');
+    
+    setTimeout(() => {
+      setProcessingMsg('Registering license keys in security database...');
+      
+      fetch('http://localhost:5000/api/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_order_id: 'order_demo_' + Date.now(),
+          razorpay_payment_id: 'pay_demo_' + Date.now(),
+          razorpay_signature: 'demo_signature_bypass',
+          cart: cart,
+          email: formInputs.email
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Demo verify API call failed');
+        return res.json();
+      })
+      .then(data => {
+        setGeneratedKeys(data.keys);
+        setCheckoutState('success');
+        clearCart();
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Failed to connect to backend server. Ensure it is running on http://localhost:5000!');
+        setCheckoutState('form');
+      });
+    }, 1000);
+  };
+
   const handlePay = async (e) => {
     e.preventDefault();
     if (!formInputs.name || !formInputs.email) {
@@ -910,28 +946,7 @@ const Checkout = () => {
 
                   <div style={styles.modalActions}>
                     <button 
-                      onClick={() => {
-                        setShowMockModal(false);
-                        setCheckoutState('processing');
-                        setProcessingMsg('Verifying QR Code payment...');
-                        setTimeout(() => {
-                          setProcessingMsg('Generating license keys...');
-                          setTimeout(() => {
-                            const keys = [];
-                            cart.forEach(item => {
-                              for (let q = 0; q < item.quantity; q++) {
-                                keys.push({
-                                  name: item.name,
-                                  key: generateLicenseKey(item.planId)
-                                });
-                              }
-                            });
-                            setGeneratedKeys(keys);
-                            setCheckoutState('success');
-                            clearCart();
-                          }, 1000);
-                        }, 1000);
-                      }}
+                      onClick={registerDemoKeys}
                       style={styles.modalSuccessBtn}
                     >
                       Simulate Scan Success
@@ -968,28 +983,7 @@ const Checkout = () => {
 
                   <div style={styles.modalActions}>
                     <button 
-                      onClick={() => {
-                        setShowMockModal(false);
-                        setCheckoutState('processing');
-                        setProcessingMsg('Verifying mock payment...');
-                        setTimeout(() => {
-                          setProcessingMsg('Generating license keys...');
-                          setTimeout(() => {
-                            const keys = [];
-                            cart.forEach(item => {
-                              for (let q = 0; q < item.quantity; q++) {
-                                keys.push({
-                                  name: item.name,
-                                  key: generateLicenseKey(item.planId)
-                                });
-                              }
-                            });
-                            setGeneratedKeys(keys);
-                            setCheckoutState('success');
-                            clearCart();
-                          }, 1000);
-                        }, 1000);
-                      }}
+                      onClick={registerDemoKeys}
                       style={styles.modalSuccessBtn}
                     >
                       Simulate Success

@@ -1,7 +1,8 @@
 # Dependencies
 node_modules/
 /dist
-/build
+build/
+*.egg-info/
 
 # Virtual Environment
 .venv/

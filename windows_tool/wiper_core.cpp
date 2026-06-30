@@ -212,7 +212,7 @@ int wipe_drive(const char* device_path, int method, ProgressCallback callback) {
 }
 
 extern "C" __declspec(dllexport)
-BOOL verify_drive(const char* device_path, int num_checks) {
+BOOL verify_drive(const char* device_path, int method, int num_checks) {
     
     HANDLE hDrive = CreateFileA(device_path, GENERIC_READ, FILE_SHARE_READ, 
                                 NULL, OPEN_EXISTING, 0, NULL);
@@ -228,24 +228,47 @@ BOOL verify_drive(const char* device_path, int num_checks) {
     }
     
     uint64_t total_size = lengthInfo.Length.QuadPart;
-    BYTE check_byte;
+    if (total_size < 512) {
+        CloseHandle(hDrive);
+        return FALSE;
+    }
+    
+    BYTE buffer[512];
     DWORD bytes_read;
     
     for (int i = 0; i < num_checks; i++) {
-        uint64_t offset = ((uint64_t)rand() << 32 | rand()) % total_size;
+        uint64_t offset = ((uint64_t)rand() << 32 | rand()) % (total_size - 512);
         
         LARGE_INTEGER pos;
         pos.QuadPart = offset;
         SetFilePointerEx(hDrive, pos, NULL, FILE_BEGIN);
         
-        if (!ReadFile(hDrive, &check_byte, 1, &bytes_read, NULL)) {
+        if (!ReadFile(hDrive, buffer, 512, &bytes_read, NULL) || bytes_read != 512) {
             CloseHandle(hDrive);
             return FALSE;
         }
         
-        if (check_byte != 0x00) {
-            CloseHandle(hDrive);
-            return FALSE;
+        if (method == METHOD_NIST_CLEAR) {
+            // NIST Clear: must be all zeros
+            for (DWORD j = 0; j < bytes_read; j++) {
+                if (buffer[j] != 0x00) {
+                    CloseHandle(hDrive);
+                    return FALSE;
+                }
+            }
+        } else {
+            // Other methods write random data or non-zero patterns.
+            // Check that the block is NOT all zeros and NOT all ones (0xFF).
+            BOOL all_zeros = TRUE;
+            BOOL all_ones = TRUE;
+            for (DWORD j = 0; j < bytes_read; j++) {
+                if (buffer[j] != 0x00) all_zeros = FALSE;
+                if (buffer[j] != 0xFF) all_ones = FALSE;
+            }
+            if (all_zeros || all_ones) {
+                CloseHandle(hDrive);
+                return FALSE;
+            }
         }
     }
     

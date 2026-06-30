@@ -149,28 +149,36 @@ class ZeroTraceApp(ctk.CTk):
         
 
     def confirm_wipe(self):
-        if not self.selected_drive:
-            return
-        
-        method = self.method_dropdown.get()
-        if method != "NIST 800-88 Clear" and self.license_plan == "Free (Community)":
-            messagebox.showwarning("Premium Feature", 
-                                   "The selected wiping method is only available for Pro and Enterprise users.\n\nPlease purchase or activate a license on our website.")
-            return
-        
-        if self.selected_drive['type'] == 'volume':
-            drive_name = f"{self.selected_drive['letter']}:\\ - {self.selected_drive['label']}"
-            size_display = disk_manager.format_size(self.selected_drive['size'])
-        else:
-            drive_name = self.selected_drive['model']
-            size_display = disk_manager.format_size(self.selected_drive['size'])
+        try:
+            if not self.selected_drive:
+                return
             
-        confirm = messagebox.askyesno("WARNING", 
-                                      f"PERMANENTLY ERASE ALL DATA ON:\n\n{drive_name} ({size_display})\n\nMethod: {method}\n\nThis cannot be undone. Are you sure?")
-        if confirm:
-            confirm2 = messagebox.askyesno("FINAL WARNING", "This is your last chance. All data will be destroyed. Proceed?")
-            if confirm2:
-                self.start_wipe()
+            method = self.method_dropdown.get()
+            
+            # Wiping methods unlocked for testing purposes
+            if False and method != "NIST 800-88 Clear" and self.license_plan == "Free (Community)":
+                messagebox.showwarning("Premium Feature", 
+                                       "The selected wiping method is only available for Pro and Enterprise users.\n\nPlease purchase or activate a license on our website.", parent=self)
+                return
+            
+            if self.selected_drive['type'] == 'volume':
+                drive_name = f"{self.selected_drive['letter']}:\\ - {self.selected_drive['label']}"
+                size_display = disk_manager.format_size(self.selected_drive['size'])
+            else:
+                drive_name = self.selected_drive['model']
+                size_display = disk_manager.format_size(self.selected_drive['size'])
+                
+            confirm = messagebox.askyesno("WARNING", 
+                                          f"PERMANENTLY ERASE ALL DATA ON:\n\n{drive_name} ({size_display})\n\nMethod: {method}\n\nThis cannot be undone. Are you sure?", parent=self)
+            if confirm:
+                confirm2 = messagebox.askyesno("FINAL WARNING", "This is your last chance. All data will be destroyed. Proceed?", parent=self)
+                if confirm2:
+                    self.start_wipe()
+        except Exception as e:
+            import traceback
+            err_msg = f"Error in confirm_wipe:\n{e}\n\n{traceback.format_exc()}"
+            print(err_msg)
+            messagebox.showerror("Execution Error", err_msg, parent=self)
 
     def start_wipe(self):
         self.wipe_btn.configure(state="disabled")
@@ -183,89 +191,74 @@ class ZeroTraceApp(ctk.CTk):
         threading.Thread(target=self.run_wipe_process).start()
 
     def run_wipe_process(self):
-        wiper = Wiper(self.selected_drive["device_id"])
-        method = self.method_dropdown.get()
-        
-        def update_progress(ratio, total, current, pass_num, total_passes):
-            if ratio >= 0.99:
-                ratio = 1.0
+        try:
+            wiper = Wiper(self.selected_drive["device_id"])
+            method = self.method_dropdown.get()
             
-            percentage = int(ratio * 100)
-            text = f"Wiping ({method}): Pass {pass_num}/{total_passes} - {percentage}%"
+            def update_progress(ratio, total, current, pass_num, total_passes):
+                if ratio >= 0.99:
+                    ratio = 1.0
+                
+                percentage = int(ratio * 100)
+                text = f"Wiping ({method}): Pass {pass_num}/{total_passes} - {percentage}%"
+                
+                self.after(0, lambda: self.progress_bar.set(ratio))
+                self.after(0, lambda: self.status_label.configure(text=text))
             
-            self.after(0, lambda: self.progress_bar.set(ratio))
-            self.after(0, lambda: self.status_label.configure(text=text))
-        
-        success = wiper.run_wipe(method, progress_callback=update_progress)
-        
-        if success:
-            def on_success():
-                self.progress_bar.set(1.0)
-                self.status_label.configure(text="✅ Complete!")
-                try:
-                    self.status_label.configure(text="Generating certificate...")
-                    cert_file = generate_certificate(self.selected_drive, method, "SUCCESS")
+            success = wiper.run_wipe(method, progress_callback=update_progress)
+            
+            if success:
+                self.after(0, lambda: self.status_label.configure(text="Verifying wipe..."))
+                verified = wiper.verify_wipe(method)
+                
+                def on_success():
+                    self.progress_bar.set(1.0)
+                    if verified:
+                        self.status_label.configure(text="✅ Complete & Verified!")
+                    else:
+                        self.status_label.configure(text="⚠️ Complete (Verification Failed)")
                     
-                    # Log wipe telemetry to backend database
-                    threading.Thread(target=self.send_telemetry, args=(method,)).start()
+                    try:
+                        status_str = "SUCCESS" if verified else "FAILED_VERIFICATION"
+                        cert_file = generate_certificate(self.selected_drive, method, status_str, verified=verified)
+                        
+                        # Log wipe telemetry to backend database
+                        threading.Thread(target=self.send_telemetry, args=(method,)).start()
 
-                    self.status_label.configure(text="✅ Complete!")
-                    self.show_success_popup(method, cert_file)
-                except Exception as e:
-                    messagebox.showwarning("Wipe Success", f"Wipe done but certificate failed: {e}")
-                finally:
+                        self.show_success_popup(method, cert_file)
+                        
+                        if not verified:
+                            messagebox.showwarning(
+                                "Verification Failed", 
+                                "Wipe completed, but the random sector verification check failed.\n\n"
+                                "Some data might remain or sectors were inaccessible. Please check the drive status.", parent=self
+                            )
+                    except Exception as e:
+                        messagebox.showwarning("Wipe Done", f"Wipe completed but certificate generation failed: {e}", parent=self)
+                    finally:
+                        self.reset_ui()
+                
+                self.after(0, on_success)
+            else:
+                def on_fail():
+                    self.status_label.configure(text="Wipe Failed!", text_color="red")
+                    messagebox.showerror("Error", "Failed to wipe drive. Check permissions.", parent=self)
                     self.reset_ui()
-            
-            self.after(0, on_success)
-        else:
-            def on_fail():
-                self.status_label.configure(text="Wipe Failed!", text_color="red")
-                messagebox.showerror("Error", "Failed to wipe drive. Check permissions.")
+                
+                self.after(0, on_fail)
+        except Exception as e:
+            import traceback
+            err_msg = f"Thread Error in run_wipe_process:\n{e}\n\n{traceback.format_exc()}"
+            print(err_msg)
+            def on_thread_err():
+                self.status_label.configure(text="Thread Error!", text_color="red")
+                messagebox.showerror("Thread Error", err_msg, parent=self)
                 self.reset_ui()
-            
-            self.after(0, on_fail)
+            self.after(0, on_thread_err)
 
     def show_success_popup(self, method, cert_file):
-        popup = ctk.CTkToplevel(self)
-        popup.title("Success!")
-        popup.geometry("450x350")
-        popup.resizable(False, False)
-        popup.attributes("-topmost", True)  
-        
-        popup.update_idletasks()
-        x = self.winfo_x() + (self.winfo_width()//2) - 225
-        y = self.winfo_y() + (self.winfo_height()//2) - 175
-        popup.geometry(f"+{x}+{y}")
-        
-        ctk.CTkLabel(popup, text="✅", font=("Arial", 60)).pack(pady=(20, 10))
-        ctk.CTkLabel(popup, text="Drive Wiped Successfully!", font=("Arial", 20, "bold")).pack(pady=5)
-        
-        info_frame = ctk.CTkFrame(popup, fg_color="transparent")
-        info_frame.pack(pady=10, padx=20, fill="x")
-        
-        ctk.CTkLabel(info_frame, text=f"Method: {method}", font=("Arial", 12)).pack()
-        ctk.CTkLabel(info_frame, text="Certificate Generated:", font=("Arial", 12, "bold")).pack(pady=(10, 5))
-        
-        path = os.path.abspath(cert_file)
-        cert_entry = ctk.CTkEntry(info_frame, width=350, justify="center")
-        cert_entry.insert(0, path)
-        cert_entry.configure(state="readonly")
-        cert_entry.pack(pady=5)
-        
-        def open_folder():
-            folder = os.path.dirname(path)
-            os.startfile(folder)
-            popup.destroy()
-            
-        def open_cert():
-            os.startfile(path)
-            popup.destroy()
-            
-        btn_frame = ctk.CTkFrame(popup, fg_color="transparent")
-        btn_frame.pack(pady=20)
-        
-        ctk.CTkButton(btn_frame, text="Open PDF", command=open_cert, width=120).pack(side="left", padx=10)
-        ctk.CTkButton(btn_frame, text="Open Folder", command=open_folder, width=120, fg_color="gray").pack(side="left", padx=10)
+        from popup_code import show_success_popup
+        show_success_popup(self, method, cert_file)
 
     def reset_ui(self):
         self.wipe_btn.configure(state="disabled")

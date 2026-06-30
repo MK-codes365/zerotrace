@@ -18,7 +18,7 @@ build_exe_options = {
 
 base = None
 if sys.platform == "win32":
-    base = "Win32GUI"
+    base = "gui"
 
 setup(
     name="ZeroTrace",
