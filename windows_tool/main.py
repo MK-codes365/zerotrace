@@ -1,399 +1,254 @@
-import customtkinter as ctk
+"""
+ZeroTrace — Unified Defensive Forensics & Data Sanitization Workstation
+Developed according to NTRO SIH26149 specifications.
+Integrates:
+1. Module 1: Secure Drive Eraser (Nwipe & ShredOS Inspired)
+2. Module 2: Secure File & Folder Eraser (Selective Shredding & Metadata Cleansing)
+3. Module 3: Advanced File Carving & Recovery (Scalpel & SleuthKit & TestDisk/PhotoRec)
+4. Recovery Workbench & Hex Inspector
+5. Partition Diagnostics & External Forensic Suite Launcher
+6. Tamper-Evident Hash-Chained Audit Trail & Chain of Custody
+"""
+
+import os
+import sys
+
+# 1. Ensure local tool directory is in sys.path
+_current_dir = os.path.dirname(os.path.abspath(__file__))
+if _current_dir not in sys.path:
+    sys.path.insert(0, _current_dir)
+
+# 2. Check and add local .venv site-packages if present (handles running outside activated venv)
+_venv_site = os.path.join(_current_dir, ".venv", "Lib", "site-packages")
+if os.path.isdir(_venv_site) and _venv_site not in sys.path:
+    sys.path.insert(0, _venv_site)
+
+# 3. Check and add user site-packages if running in an elevated Admin shell where user site is excluded
+try:
+    import site
+    _user_site = site.getusersitepackages()
+    if isinstance(_user_site, str) and os.path.isdir(_user_site) and _user_site not in sys.path:
+        sys.path.insert(0, _user_site)
+except Exception:
+    pass
+
+# 4. Check known user Python314 site-packages
+for _cand in [
+    os.path.expanduser(r"~\AppData\Local\Programs\Python\Python314\Lib\site-packages"),
+    r"C:\Users\mukui\AppData\Local\Programs\Python\Python314\Lib\site-packages",
+]:
+    if os.path.isdir(_cand) and _cand not in sys.path:
+        sys.path.append(_cand)
+
 import tkinter as tk
 from tkinter import messagebox
-import threading
-import disk_manager
-from wiper import Wiper
-from certificate import generate_certificate
-import os
-import json
-import urllib.request
-import urllib.error
 
+try:
+    import customtkinter as ctk
+except ModuleNotFoundError:
+    import subprocess
+    print("[*] customtkinter not found in current environment. Attempting automatic installation...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "customtkinter", "wmi", "pywin32", "fpdf", "darkdetect", "pillow"])
+        import customtkinter as ctk
+    except Exception as _e:
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror(
+            "ZeroTrace Dependency Error",
+            f"Missing required package 'customtkinter'.\n\nPlease run:\n{sys.executable} -m pip install customtkinter\n\nError: {_e}"
+        )
+        sys.exit(1)
+
+from ui.theme import (
+    COLOR_BG_DARK, COLOR_SIDEBAR, COLOR_CARD, COLOR_BORDER,
+    COLOR_ACCENT_CYAN, COLOR_ACCENT_GREEN, COLOR_ACCENT_RED, COLOR_ACCENT_AMBER,
+    COLOR_ACCENT_BLUE, COLOR_TEXT_PRIMARY, COLOR_TEXT_SECONDARY, COLOR_TEXT_MUTED
+)
+from core.audit import AuditService
+from core.case_manager import CaseManager
+from ui.drive_wiper_tab import DriveWiperTab
+from ui.file_shredder_tab import FileShredderTab
+from ui.carver_recovery_tab import CarverRecoveryTab
+from ui.workbench_tab import WorkbenchTab
+from ui.partition_tab import PartitionTab
+from ui.audit_tab import AuditTab
 
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("green")
 
-class ZeroTraceApp(ctk.CTk):
+
+class ZeroTraceForensicsApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        
-        # Set default license values before building UI
-        self.license_key = ""
-        self.license_plan = "Free (Community)"
 
-        self.title("ZeroTrace - Secure Data Wiper")
-        self.geometry("800x600")
-        self.resizable(False, False)
+        self.title("ZeroTrace — Defensive Cybersecurity, Forensics & Data Sanitization Platform")
+        self.geometry("1180x760")
+        self.minsize(1040, 680)
 
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-
-        self.sidebar = ctk.CTkFrame(self, width=200, corner_radius=0)
-        self.sidebar.grid(row=0, column=0, sticky="nsew")
-        self.sidebar.grid_rowconfigure(2, weight=1)
-        
-        self.logo_label = ctk.CTkLabel(self.sidebar, text="ZeroTrace", font=ctk.CTkFont(size=20, weight="bold"))
-        self.logo_label.grid(row=0, column=0, padx=20, pady=20)
-        
-        self.refresh_btn = ctk.CTkButton(self.sidebar, text="Refresh Drives", command=self.load_drives)
-        self.refresh_btn.grid(row=1, column=0, padx=20, pady=10)
-
-        self.license_label = ctk.CTkLabel(self.sidebar, text=f"License: {self.license_plan}", font=ctk.CTkFont(size=12))
-        self.license_label.grid(row=3, column=0, padx=20, pady=(10, 5), sticky="s")
-        
-        self.activate_btn = ctk.CTkButton(self.sidebar, text="Activate License", command=self.show_activation_popup)
-        self.activate_btn.grid(row=4, column=0, padx=20, pady=(5, 20), sticky="s")
-
-        self.main_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.main_frame.grid(row=0, column=1, sticky="nsew", padx=20, pady=20)
-        
-        self.label_title = ctk.CTkLabel(self.main_frame, text="Select Drive to Wipe", font=ctk.CTkFont(size=24, weight="bold"))
-        self.label_title.pack(pady=10)
-        
-        self.drive_list_frame = ctk.CTkScrollableFrame(self.main_frame, width=500, height=250)
-        self.drive_list_frame.pack(pady=10)
-        
-        self.method_label = ctk.CTkLabel(self.main_frame, text="Wiping Method:", font=ctk.CTkFont(size=14))
-        self.method_label.pack(pady=(10, 0))
-        
-        self.wipe_methods = [
-            "NIST 800-88 Clear",
-            "NIST 800-88-2 Purge",
-            "DoD 5220.22-M (3-Pass)",
-            "DoD 5220.22-M ECE (7-Pass)",
-            "Peter Gutmann (35-Pass)"
-        ]
-        self.method_dropdown = ctk.CTkComboBox(self.main_frame, values=self.wipe_methods, width=250)
-        self.method_dropdown.set("NIST 800-88 Clear")
-        self.method_dropdown.pack(pady=5)
-        
-        self.selected_drive = None
-        self.drive_buttons = []
-        
-        self.wipe_btn = ctk.CTkButton(self.main_frame, text="WIPE SELECTED DRIVE", fg_color="red", hover_color="#cc0000", state="disabled", command=self.confirm_wipe)
-        self.wipe_btn.pack(pady=20)
-        
-        self.progress_bar = ctk.CTkProgressBar(self.main_frame, width=400)
-        self.progress_bar.set(0)
-        self.progress_bar.pack(pady=10)
-        self.progress_bar.pack_forget() 
-
-        self.status_label = ctk.CTkLabel(self.main_frame, text="")
-        self.status_label.pack()
-
-        self.load_drives()
-        self.load_license()
-
-    def load_drives(self):
-        for btn in self.drive_buttons:
-            btn.destroy()
-        self.drive_buttons = []
-        self.selected_drive = None
-        self.wipe_btn.configure(state="disabled")
-        
-        try:
-            self.drives = disk_manager.list_all_wipeable_targets()
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to list drives: {e}")
-            return
-
-        for drive in self.drives:
-            text = ""
-            is_protected = drive.get('is_system', False)
-
-            if drive['type'] == 'volume':
-                label = drive.get('label', 'No Label')
-                letter = drive.get('letter', '')
-                size_str = disk_manager.format_size(drive['size'])
-                
-                text = f"{letter}:\\ - {label} ({size_str})"
-                if is_protected:
-                    text += " [SYSTEM - PROTECTED]"
-            else: 
-                model = drive.get('model', 'Unknown Disk')
-                size_str = disk_manager.format_size(drive['size'])
-                
-                text = f"{model} ({size_str})"
-                if is_protected:
-                    text += " [SYSTEM DISK - PROTECTED]"
-                else:
-                    text += " [ENTIRE DISK]"
-            
-            if is_protected:
-                color = "gray"
-                state = "disabled"
-            else:
-                color = "#2b2b2b"
-                state = "normal"
-            
-            btn = ctk.CTkButton(self.drive_list_frame, text=text, 
-                                command=lambda d=drive: self.select_drive(d),
-                                fg_color=color, 
-                                border_width=2,
-                                border_color="#333",
-                                hover_color="#3a3a3a" if not is_protected else "gray",
-                                state=state)
-            btn.pack(fill="x", pady=5, padx=5)
-            self.drive_buttons.append(btn)
-
-    def select_drive(self, drive):
-        self.selected_drive = drive
-        if drive['type'] == 'volume':
-            display_name = f"{drive['letter']}:\\ - {drive['label']}"
-        else:
-            display_name = drive['model']
-        
-        self.label_title.configure(text=f"Selected: {display_name}")
-        self.wipe_btn.configure(state="normal")
-        
-
-    def confirm_wipe(self):
-        try:
-            if not self.selected_drive:
-                return
-            
-            method = self.method_dropdown.get()
-            
-            # Wiping methods unlocked for testing purposes
-            if False and method != "NIST 800-88 Clear" and self.license_plan == "Free (Community)":
-                messagebox.showwarning("Premium Feature", 
-                                       "The selected wiping method is only available for Pro and Enterprise users.\n\nPlease purchase or activate a license on our website.", parent=self)
-                return
-            
-            if self.selected_drive['type'] == 'volume':
-                drive_name = f"{self.selected_drive['letter']}:\\ - {self.selected_drive['label']}"
-                size_display = disk_manager.format_size(self.selected_drive['size'])
-            else:
-                drive_name = self.selected_drive['model']
-                size_display = disk_manager.format_size(self.selected_drive['size'])
-                
-            confirm = messagebox.askyesno("WARNING", 
-                                          f"PERMANENTLY ERASE ALL DATA ON:\n\n{drive_name} ({size_display})\n\nMethod: {method}\n\nThis cannot be undone. Are you sure?", parent=self)
-            if confirm:
-                confirm2 = messagebox.askyesno("FINAL WARNING", "This is your last chance. All data will be destroyed. Proceed?", parent=self)
-                if confirm2:
-                    self.start_wipe()
-        except Exception as e:
-            import traceback
-            err_msg = f"Error in confirm_wipe:\n{e}\n\n{traceback.format_exc()}"
-            print(err_msg)
-            messagebox.showerror("Execution Error", err_msg, parent=self)
-
-    def start_wipe(self):
-        self.wipe_btn.configure(state="disabled")
-        self.refresh_btn.configure(state="disabled")
-        self.method_dropdown.configure(state="disabled")
-        self.progress_bar.pack(pady=10)
-        self.progress_bar.set(0)
-        self.status_label.configure(text="Initializing Wipe...")
-        
-        threading.Thread(target=self.run_wipe_process).start()
-
-    def run_wipe_process(self):
-        try:
-            wiper = Wiper(self.selected_drive["device_id"])
-            method = self.method_dropdown.get()
-            
-            def update_progress(ratio, total, current, pass_num, total_passes):
-                if ratio >= 0.99:
-                    ratio = 1.0
-                
-                percentage = int(ratio * 100)
-                text = f"Wiping ({method}): Pass {pass_num}/{total_passes} - {percentage}%"
-                
-                self.after(0, lambda: self.progress_bar.set(ratio))
-                self.after(0, lambda: self.status_label.configure(text=text))
-            
-            success = wiper.run_wipe(method, progress_callback=update_progress)
-            
-            if success:
-                self.after(0, lambda: self.status_label.configure(text="Verifying wipe..."))
-                verified = wiper.verify_wipe(method)
-                
-                def on_success():
-                    self.progress_bar.set(1.0)
-                    if verified:
-                        self.status_label.configure(text="✅ Complete & Verified!")
-                    else:
-                        self.status_label.configure(text="⚠️ Complete (Verification Failed)")
-                    
-                    try:
-                        status_str = "SUCCESS" if verified else "FAILED_VERIFICATION"
-                        cert_file = generate_certificate(self.selected_drive, method, status_str, verified=verified)
-                        
-                        # Log wipe telemetry to backend database
-                        threading.Thread(target=self.send_telemetry, args=(method,)).start()
-
-                        self.show_success_popup(method, cert_file)
-                        
-                        if not verified:
-                            messagebox.showwarning(
-                                "Verification Failed", 
-                                "Wipe completed, but the random sector verification check failed.\n\n"
-                                "Some data might remain or sectors were inaccessible. Please check the drive status.", parent=self
-                            )
-                    except Exception as e:
-                        messagebox.showwarning("Wipe Done", f"Wipe completed but certificate generation failed: {e}", parent=self)
-                    finally:
-                        self.reset_ui()
-                
-                self.after(0, on_success)
-            else:
-                def on_fail():
-                    self.status_label.configure(text="Wipe Failed!", text_color="red")
-                    messagebox.showerror("Error", "Failed to wipe drive. Check permissions.", parent=self)
-                    self.reset_ui()
-                
-                self.after(0, on_fail)
-        except Exception as e:
-            import traceback
-            err_msg = f"Thread Error in run_wipe_process:\n{e}\n\n{traceback.format_exc()}"
-            print(err_msg)
-            def on_thread_err():
-                self.status_label.configure(text="Thread Error!", text_color="red")
-                messagebox.showerror("Thread Error", err_msg, parent=self)
-                self.reset_ui()
-            self.after(0, on_thread_err)
-
-    def show_success_popup(self, method, cert_file):
-        from popup_code import show_success_popup
-        show_success_popup(self, method, cert_file)
-
-    def reset_ui(self):
-        self.wipe_btn.configure(state="disabled")
-        self.refresh_btn.configure(state="normal")
-        self.method_dropdown.configure(state="normal")
-        self.load_drives()
-
-    def load_license(self):
-        self.license_key = ""
-        self.license_plan = "Free (Community)"
-        if os.path.exists("license.json"):
+        # Set App Icon if present
+        icon_path = os.path.join(os.path.dirname(__file__), "icon.ico")
+        if os.path.exists(icon_path):
             try:
-                with open("license.json", "r") as f:
-                    data = json.load(f)
-                    self.license_key = data.get("key", "")
-                    self.license_plan = data.get("plan", "Free (Community)")
-                
-                if self.license_key:
-                    threading.Thread(target=self.verify_license_silently).start()
+                self.iconbitmap(icon_path)
             except Exception:
                 pass
 
-    def save_license(self, key, plan):
-        try:
-            with open("license.json", "w") as f:
-                json.dump({"key": key, "plan": plan}, f)
-        except Exception as e:
-            print(f"Failed to save license: {e}")
+        # Core Services
+        self.audit_service = AuditService()
+        self.case_manager = CaseManager()
 
-    def verify_license_silently(self):
-        try:
-            data = json.dumps({"key": self.license_key}).encode("utf-8")
-            req = urllib.request.Request(
-                "http://localhost:5000/api/activate",
-                data=data,
-                headers={"Content-Type": "application/json"},
-                method="POST"
+        # License state
+        self.license_plan = "Enterprise Forensic Edition"
+
+        # Grid configuration
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+
+        # ── Sidebar Navigation ─────────────────────────────────
+        self.sidebar = ctk.CTkFrame(self, width=240, corner_radius=0, fg_color=COLOR_SIDEBAR)
+        self.sidebar.grid(row=0, column=0, sticky="nsew")
+        self.sidebar.grid_propagate(False)
+
+        # Sidebar Logo & Title
+        logo_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
+        logo_frame.pack(fill="x", padx=15, pady=(20, 15))
+
+        ctk.CTkLabel(
+            logo_frame,
+            text="⚡ ZERO-TRACE",
+            font=ctk.CTkFont(size=20, weight="bold"),
+            text_color=COLOR_ACCENT_CYAN
+        ).pack(anchor="w")
+
+        ctk.CTkLabel(
+            logo_frame,
+            text="Defensive Forensic & Sanitization Suite",
+            font=ctk.CTkFont(size=10, weight="bold"),
+            text_color=COLOR_TEXT_SECONDARY
+        ).pack(anchor="w")
+
+        # Nav Buttons Container
+        self.nav_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
+        self.nav_frame.pack(fill="x", padx=10, pady=10)
+
+        self.nav_buttons = {}
+        tabs = [
+            ("drive_wiper", "🛡️ Secure Drive Eraser", "Module 1"),
+            ("file_shredder", "🗂️ File & Folder Eraser", "Module 2"),
+            ("carver", "🔍 File Carving & Recovery", "Module 3"),
+            ("workbench", "🧩 Recovery Workbench", "Analyzer"),
+            ("partition", "🛠️ Partition & TestDisk", "Diagnostics"),
+            ("audit", "📜 Audit & Chain of Custody", "Compliance"),
+        ]
+
+        for tab_id, label, badge in tabs:
+            btn = ctk.CTkButton(
+                self.nav_frame,
+                text=f"{label}",
+                anchor="w",
+                font=ctk.CTkFont(size=12, weight="bold"),
+                fg_color="transparent",
+                hover_color="#212a36",
+                text_color=COLOR_TEXT_SECONDARY,
+                height=42,
+                corner_radius=6,
+                command=lambda tid=tab_id: self.select_tab(tid)
             )
-            with urllib.request.urlopen(req, timeout=3) as response:
-                res_body = json.loads(response.read().decode("utf-8"))
-                if res_body.get("success"):
-                    plan_name = "Professional"
-                    if "ent" in res_body.get("planId", "").lower():
-                        plan_name = "Enterprise"
-                    self.license_plan = plan_name
-                    self.after(0, lambda: self.license_label.configure(text=f"License: {plan_name}"))
-                else:
-                    self.license_plan = "Free (Community)"
-                    self.save_license("", "Free (Community)")
-                    self.after(0, lambda: self.license_label.configure(text="License: Free (Community)"))
-        except Exception:
-            pass
+            btn.pack(fill="x", pady=2)
+            self.nav_buttons[tab_id] = btn
 
-    def show_activation_popup(self):
-        popup = ctk.CTkToplevel(self)
-        popup.title("Activate ZeroTrace")
-        popup.geometry("400x200")
-        popup.resizable(False, False)
-        popup.attributes("-topmost", True)
-        
-        popup.update_idletasks()
-        x = self.winfo_x() + (self.winfo_width()//2) - 200
-        y = self.winfo_y() + (self.winfo_height()//2) - 100
-        popup.geometry(f"+{x}+{y}")
-        
-        ctk.CTkLabel(popup, text="Enter License Key", font=("Arial", 16, "bold")).pack(pady=(20, 10))
-        
-        key_entry = ctk.CTkEntry(popup, width=300, justify="center", placeholder_text="ZT-PRO-XXXX-XXXX-XXXX")
-        key_entry.pack(pady=10)
-        
-        def attempt_activation():
-            key = key_entry.get().strip()
-            if not key:
-                messagebox.showerror("Error", "Please enter a license key.")
-                return
-            
-            try:
-                data = json.dumps({"key": key}).encode("utf-8")
-                req = urllib.request.Request(
-                    "http://localhost:5000/api/activate",
-                    data=data,
-                    headers={"Content-Type": "application/json"},
-                    method="POST"
-                )
-                with urllib.request.urlopen(req, timeout=5) as response:
-                    res_body = json.loads(response.read().decode("utf-8"))
-                    if res_body.get("success"):
-                        plan_name = "Professional"
-                        if "ent" in res_body.get("planId", "").lower():
-                            plan_name = "Enterprise"
-                        
-                        self.save_license(key, plan_name)
-                        self.license_key = key
-                        self.license_plan = plan_name
-                        self.license_label.configure(text=f"License: {plan_name}")
-                        
-                        messagebox.showinfo("Success", f"License activated successfully!\nPlan: {plan_name}")
-                        popup.destroy()
-                    else:
-                        messagebox.showerror("Activation Failed", res_body.get("error", "Invalid key."))
-            except urllib.error.HTTPError as e:
-                try:
-                    err_msg = json.loads(e.read().decode("utf-8")).get("error", "Activation failed.")
-                except Exception:
-                    err_msg = f"HTTP Error {e.code}"
-                messagebox.showerror("Activation Failed", err_msg)
-            except Exception as e:
-                messagebox.showerror("Error", f"Could not reach server: {e}\nMake sure your server is running.")
-        
-        ctk.CTkButton(popup, text="Activate", command=attempt_activation).pack(pady=10)
+        # Sidebar Footer (Case & License details)
+        footer_frame = ctk.CTkFrame(self.sidebar, fg_color="#10151c", corner_radius=6, border_width=1, border_color=COLOR_BORDER)
+        footer_frame.pack(side="bottom", fill="x", padx=10, pady=15)
 
-    def send_telemetry(self, method):
-        try:
-            import random
-            drive_size_bytes = self.selected_drive.get("size", 0)
-            drive_size_gb = drive_size_bytes / (1024 * 1024 * 1024)
-            files_count = max(100, int(drive_size_gb * 50) + random.randint(10, 500))
+        case = self.case_manager.get_active_case()
+        ctk.CTkLabel(footer_frame, text=f"CASE: {case.get('case_id', 'DEFAULT')}", font=ctk.CTkFont(size=10, weight="bold"), text_color=COLOR_ACCENT_GREEN).pack(anchor="w", padx=10, pady=(6, 2))
+        ctk.CTkLabel(footer_frame, text=f"Tier: {self.license_plan}", font=ctk.CTkFont(size=9), text_color=COLOR_TEXT_MUTED).pack(anchor="w", padx=10, pady=(0, 6))
 
-            telemetry_data = json.dumps({
-                "filesWiped": files_count,
-                "bytesWiped": drive_size_bytes,
-                "method": method
-            }).encode("utf-8")
-            
-            req = urllib.request.Request(
-                "http://localhost:5000/api/telemetry",
-                data=telemetry_data,
-                headers={"Content-Type": "application/json"},
-                method="POST"
+        # ── Main Content Area ──────────────────────────────────
+        self.content_container = ctk.CTkFrame(self, fg_color=COLOR_BG_DARK, corner_radius=0)
+        self.content_container.grid(row=0, column=1, sticky="nsew")
+
+        # Top System Status Bar
+        top_bar = ctk.CTkFrame(self.content_container, height=36, fg_color="#121820", corner_radius=0)
+        top_bar.pack(fill="x")
+
+        ctk.CTkLabel(
+            top_bar,
+            text="ZEROTRACE FORENSIC WORKSTATION • DEFENSIVE CYBERSECURITY & MEDIA SANITIZATION",
+            font=ctk.CTkFont(size=9, weight="bold"),
+            text_color=COLOR_TEXT_MUTED
+        ).pack(side="left", padx=15, pady=8)
+
+        self.sys_status_badge = ctk.CTkLabel(
+            top_bar,
+            text="🟢 SECURE SYSTEM READY",
+            font=ctk.CTkFont(size=9, weight="bold"),
+            text_color=COLOR_ACCENT_GREEN
+        )
+        self.sys_status_badge.pack(side="right", padx=15, pady=8)
+
+        # Tab Views Holder
+        self.tab_views = {}
+
+        self.drive_wiper_view = DriveWiperTab(self.content_container, self.audit_service, self.case_manager)
+        self.tab_views["drive_wiper"] = self.drive_wiper_view
+
+        self.file_shredder_view = FileShredderTab(self.content_container, self.audit_service, self.case_manager)
+        self.tab_views["file_shredder"] = self.file_shredder_view
+
+        self.workbench_view = WorkbenchTab(self.content_container, self.audit_service, self.case_manager)
+        self.tab_views["workbench"] = self.workbench_view
+
+        self.carver_view = CarverRecoveryTab(
+            self.content_container,
+            self.audit_service,
+            self.case_manager,
+            on_files_recovered_callback=self._on_files_recovered
+        )
+        self.tab_views["carver"] = self.carver_view
+
+        self.partition_view = PartitionTab(self.content_container, self.audit_service)
+        self.tab_views["partition"] = self.partition_view
+
+        self.audit_view = AuditTab(self.content_container, self.audit_service, self.case_manager)
+        self.tab_views["audit"] = self.audit_view
+
+        # Default Tab
+        self.current_tab_id = None
+        self.select_tab("drive_wiper")
+
+    def select_tab(self, tab_id: str):
+        if self.current_tab_id == tab_id:
+            return
+
+        # Hide current tab
+        if self.current_tab_id and self.current_tab_id in self.tab_views:
+            self.tab_views[self.current_tab_id].pack_forget()
+            self.nav_buttons[self.current_tab_id].configure(
+                fg_color="transparent",
+                text_color=COLOR_TEXT_SECONDARY
             )
-            with urllib.request.urlopen(req, timeout=3) as response:
-                pass
-        except Exception as e:
-            print(f"[WARNING] Telemetry reporting failed: {e}")
+
+        # Show new tab
+        self.current_tab_id = tab_id
+        if tab_id in self.tab_views:
+            self.tab_views[tab_id].pack(fill="both", expand=True)
+            self.nav_buttons[tab_id].configure(
+                fg_color="#1e293b",
+                text_color=COLOR_ACCENT_CYAN
+            )
+
+    def _on_files_recovered(self, files: list):
+        """Pass discovered files from Carver to Workbench."""
+        self.workbench_view.set_recovered_files(files)
+
+
+def main():
+    app = ZeroTraceForensicsApp()
+    app.mainloop()
+
 
 if __name__ == "__main__":
-    app = ZeroTraceApp()
-    app.mainloop()
+    main()

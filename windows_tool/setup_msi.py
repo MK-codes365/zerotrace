@@ -6,13 +6,18 @@ dll_path = "wiper_core.dll"
 dll_exists = os.path.exists(dll_path)
 
 build_exe_options = {
-    "packages": ["customtkinter", "wmi", "win32com", "fpdf", "os", "sys", "threading", "tkinter", "ctypes"],
+    "packages": ["customtkinter", "wmi", "win32com", "fpdf", "os", "sys", "threading", "tkinter", "ctypes", "core", "engines", "ui", "cryptography"],
     "excludes": [],
     "include_files": [
         ("disk_manager.py", "disk_manager.py"),
         ("wiper.py", "wiper.py"),
         ("certificate.py", "certificate.py"),
-        ("icon.ico", "icon.ico")
+        ("icon.ico", "icon.ico"),
+        ("core", "core"),
+        ("engines", "engines"),
+        ("ui", "ui"),
+        ("scalpel.conf", "scalpel.conf"),
+        ("forensic_cases.json", "forensic_cases.json")
     ] + ([(dll_path, dll_path)] if dll_exists else [])
 }
 

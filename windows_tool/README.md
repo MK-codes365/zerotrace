@@ -1,375 +1,84 @@
-# 🔥 ZeroTrace Windows Tool
+# 🔥 ZeroTrace — Unified Forensic & Data Sanitization Workstation
 
 <div align="center">
 
-![ZeroTrace Icon](icon.ico)
-
-**Professional Data Wiping Solution for Windows**
-
-[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/yourusername/zerotrace)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
+**Enterprise Digital Forensics & Secure Data Sanitization Platform**  
+*Professional Defensive Forensics & Certified Media Destruction*
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## 🎯 Architecture & Integrated Repositories
 
-- [Overview](#-overview)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Wiping Methods](#-wiping-methods)
-- [Architecture](#-architecture)
-- [Development](#-development)
-- [Contributing](#-contributing)
+This desktop application combines the algorithmic and forensic capabilities of the top 5 industry-standard digital forensics and data sanitization suites:
 
----
-
-## 🎯 Overview
-
-**ZeroTrace** is a robust, enterprise-grade data wiping tool that ensures permanent data destruction on Windows systems. Built with a hybrid C++/Python architecture, it combines maximum performance with ease of use.
-
-### ✨ Key Highlights
-
-- 🚀 **20-40% faster** than pure Python solutions
-- 🔒 **5 industry-standard** wiping algorithms
-- 📜 **Cryptographic proof** generation (PDF + JSON certificates)
-- 🎨 **Modern UI** with real-time progress tracking
-- 🛡️ **System drive protection** to prevent accidents
+| Repository / Engine | Role in ZeroTrace Desktop | Module |
+|:---|:---|:---|
+| **Nwipe & ShredOS** (`nwipe`, `shredos.x86_64`) | Multi-pass sanitization (NIST 800-88 Clear/Purge, DoD 5220.22-M 3/7-Pass, Gutmann 35-Pass), real-time throughput telemetry (MB/s), ETA countdown, bad sector tracking, post-wipe verification sampling. | **Module 1: Secure Drive Eraser** |
+| **Forensic File Shredder** | Selective & batch file/folder shredding, metadata & timestamp zeroing to epoch (1970-01-01), cluster slack space wiping, UUID filename scrambling before unlinking. | **Module 2: File & Folder Eraser** |
+| **Scalpel** (`scalpel`) | High-speed signature-based carving engine using `scalpel.conf` rules (covering JPEG, PNG, GIF, BMP, PDF, ZIP/DOCX/XLSX, RAR, 7Z, MP4, MP3, WAV, SQLite, EVTX, Registry hives) with sliding-window extraction. | **Module 3: Advanced File Carving** |
+| **The Sleuth Kit** (`sleuthkit`) | Filesystem metadata analysis, NTFS $MFT / FAT deleted record recovery, and Recycle Bin remnant exploration for recovering files with original names and directory paths. | **Module 3: Filesystem Recovery** |
+| **TestDisk & PhotoRec** (`testdisk`, `autopsy/thirdparty/photorec_exec`) | Partition table (MBR/GPT) inspection, deep structural validation (JPEG SOF/EOI, PNG IHDR/IEND, PDF xref/trailer, ZIP central directory), confidence scoring (0-100%), and 1-click bridge to bundled 64-bit TestDisk & QPhotoRec tools. | **Structure Validation & Partition Suite** |
+| **Autopsy** (`autopsy`) | Case management (Case ID, Investigator, Agency), automatic classification into evidence categories (Images, Documents, Media, Archives, Databases), live Hex & ASCII viewer, and tamper-evident hash-chained audit logging. | **Workbench, Case & Audit Trail** |
 
 ---
 
-## 🚀 Features
+## 🚀 Workstation Features
 
-### 🔐 Security Features
+### 🛡️ Module 1: Secure Drive Eraser
+- **Target Selection**: Detects physical drives and mounted volumes via WMI & Win32 APIs.
+- **Media-Aware Classification**: Categorizes drives as HDD (Rotational), SSD (NVMe / Flash), USB (Removable), or SD Card.
+- **Safety Protection**: Flags Windows system drive (`C:`, `PhysicalDrive0`) with explicit confirmation gates to prevent accidental system destruction.
+- **Real-Time Telemetry**:
+  - Live Throughput Speed (MB/s) and moving average speed.
+  - Overall Progress % and Current Pass Buffer Progress %.
+  - Time remaining (ETA) formatted in `HH:MM:SS`.
+  - Bad sector detection and error counters.
+  - Independent post-wipe verification sampling.
+- **Certification**: Generates tamper-resistant PDF certificates and JSON verification records with HMAC-SHA256 digital signatures.
 
-✅ **Multi-Algorithm Support**
+### 🗂️ Module 2: Secure File & Folder Eraser
+- **Selective & Batch Operations**: Multi-select individual files or recursively shred entire directory trees.
+- **Residual Trace Cleansing**:
+  - Scrambles filenames to random UUIDs before unlinking to eliminate directory entry / MFT remnants.
+  - Resets Creation, Last Access, and Last Modified timestamps to Epoch (1970-01-01).
+  - Wipes unallocated cluster slack space past EOF.
+  - Truncates files to 0 bytes before removal.
+- **Standards Supported**: NIST 800-88, DoD 5220.22-M (3-Pass & 7-Pass), Gutmann (35-Pass), Cryptographic Random, Zero Fill.
 
-- NIST 800-88 Clear (1-Pass)
-- NIST 800-88-2 Purge (Random)
-- DoD 5220.22-M (3-Pass)
-- DoD 5220.22-M ECE (7-Pass)
-- Peter Gutmann (35-Pass)
+### 🔍 Module 3: Advanced File Carving & Recovery
+- **Multi-Strategy Carving**:
+  - **Scalpel Deep Signature Carver**: Scans raw unallocated sectors or forensic disk images (`.dd`, `.raw`, `.img`, `.vhd`, `.iso`) without filesystem metadata.
+  - **SleuthKit Filesystem Undelete**: Recovers deleted files using residual MFT and directory records, restoring original names and paths.
+  - **Hybrid Consensus Mode**: Merges both engines for maximum file recovery yield.
+- **Real-Time Stream**: Live table streaming carved files as they are identified with byte offsets, estimated sizes, and cryptographic SHA-256 digests.
 
-✅ **Safety Mechanisms**
+### 🧩 Recovery Workbench & Hex Inspector
+- **Autopsy-Style Evidence Classifier**: Group discovered files by category (Images, Documents, Media, Archives, Databases, Filesystem).
+- **Confidence Scoring Meter**: Multi-metric scoring (0% to 100%) computed from header match (30%), footer match (25%), structural validation (25%), Shannon entropy (10%), and size plausibility (10%).
+- **Raw Hex & ASCII Inspector**: Inspect the first 512 bytes of any carved artifact with offset, hex bytes, and ASCII representation.
+- **Evidence Extraction**: Single-file export or batch extraction organizing recovered artifacts into categorized forensic folders.
+- **Forensic PDF Case Reports**: Export official court-admissible recovery reports with digital signatures.
 
-- Automatic system drive detection & blocking
-- Volume locking & dismounting
-- Drive access privilege elevation
-- Confirmation dialogs
+### 🛠️ Partition & TestDisk Tools
+- Partition table (MBR/GPT) and boot sector diagnostic inspection.
+- Direct launch of bundled 64-bit TestDisk (console terminal) and QPhotoRec (Qt GUI).
+- Integrated `fidentify` magic-byte signature tester.
 
-### 📊 Performance Features
-
-✅ **Hybrid C++/Python Core**
-
-- Native C++ DLL for maximum speed
-- Automatic fallback to Python ctypes
-- Hardware-accelerated random generation
-- 4MB optimized write buffers
-
-✅ **Real-Time Monitoring**
-
-- Live progress bar (0-100%)
-- Pass-by-pass tracking (e.g., "Pass 7/35")
-- Write speed display (MB/s)
-- Time estimation
-
-### 📜 Documentation & Proof
-
-✅ **Wipe Certificates**
-
-- PDF certificate (digitally signed)
-- JSON certificate (machine-readable)
-- Includes: Drive info, method, timestamp, verification result
-
----
-
-## 🛠️ Tech Stack
-
-<div align="center">
-
-### Core Technologies
-
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![C++](https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
-![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
-
-### Libraries & Frameworks
-
-| Technology                                                                                                 | Purpose              | Version  |
-| ---------------------------------------------------------------------------------------------------------- | -------------------- | -------- |
-| ![CustomTkinter](https://img.shields.io/badge/CustomTkinter-2962FF?style=flat&logo=python&logoColor=white) | Modern GUI Framework | 5.2.0+   |
-| ![WMI](https://img.shields.io/badge/WMI-0078D4?style=flat&logo=windows&logoColor=white)                    | Drive Detection      | Latest   |
-| ![PyWin32](https://img.shields.io/badge/PyWin32-FCC624?style=flat&logo=windows&logoColor=black)            | Windows API Access   | Latest   |
-| ![FPDF](https://img.shields.io/badge/FPDF-FF6B6B?style=flat&logo=adobe&logoColor=white)                    | PDF Generation       | Latest   |
-| ![ctypes](https://img.shields.io/badge/ctypes-3776AB?style=flat&logo=python&logoColor=white)               | C++ DLL Integration  | Built-in |
-
-### Development Tools
-
-| Tool                   | Purpose                |
-| ---------------------- | ---------------------- |
-| **Visual Studio 2026** | C++ compilation        |
-| **cx_Freeze**          | MSI installer creation |
-| **Windows API**        | Direct disk I/O        |
-| **kernel32.dll**       | Low-level operations   |
-
-</div>
+### 📜 Tamper-Evident Hash Chain Audit Trail
+- Every operation (Drive Wipe, File Shred, Carving, Recovery, Export) is recorded in an immutable append-only hash chain:
+  $$\text{Event}[n].\text{hash} = \text{SHA256}(\text{Event}[n-1].\text{hash} + \text{Timestamp} + \text{Action} + \text{Target} + \text{Details})$$
+- Cryptographic verification button validates ledger integrity across all blocks.
 
 ---
 
-## 📦 Installation
+## 💻 Running the Application
 
-### Option 1: MSI Installer (Recommended)
+Activate the environment and run:
 
-1. Download `ZeroTrace-1.3.0-win64.msi` from `dist/` folder
-2. Double-click to install
-3. Desktop shortcut created automatically
-
-### Option 2: From Source
-
-```bash
-# Clone repository
-git clone https://github.com/yourusername/zerotrace.git
-cd zerotrace/windows_tool
-
-# Install dependencies
-pip install customtkinter wmi pywin32 fpdf
-
-# Run application
+```powershell
+cd e:\zero-trace\windows_tool
+.\.venv\Scripts\Activate.ps1
 python main.py
 ```
-
-> ⚠️ **IMPORTANT:** Always run as Administrator for drive access!
-
----
-
-## 🎯 Usage
-
-### Step 1: Launch as Administrator
-
-Right-click **ZeroTrace** → **Run as administrator**
-
-### Step 2: Select Drive
-
-Choose the drive you want to wipe from the dropdown list.
-
-> 🛡️ **Safety:** System drive (C:) is automatically disabled
-
-### Step 3: Choose Method
-
-Select wiping standard from dropdown:
-
-- NIST 800-88 Clear (fastest, 1 pass)
-- Peter Gutmann (most secure, 35 passes)
-
-### Step 4: Confirm & Wipe
-
-Click **"WIPE SELECTED DRIVE"** and confirm in dialog.
-
-### Step 5: Get Certificate
-
-After completion, PDF and JSON certificates are automatically generated.
-
----
-
-## 🔬 Wiping Methods
-
-### 📊 Comparison Table
-
-| Method         | Passes | Speed      | Security     | Use Case                 |
-| -------------- | ------ | ---------- | ------------ | ------------------------ |
-| **NIST Clear** | 1      | ⚡⚡⚡⚡⚡ | 🔒🔒🔒       | Quick wipe before resale |
-| **NIST Purge** | 1      | ⚡⚡⚡⚡   | 🔒🔒🔒🔒     | Government standard      |
-| **DoD 3-Pass** | 3      | ⚡⚡⚡     | 🔒🔒🔒🔒     | Military standard        |
-| **DoD 7-Pass** | 7      | ⚡⚡       | 🔒🔒🔒🔒🔒   | High security            |
-| **Gutmann**    | 35     | ⚡         | 🔒🔒🔒🔒🔒🔒 | Maximum security         |
-
-### 🔍 Technical Details
-
-#### NIST 800-88 Clear
-
-```
-Pass 1: Zeros (0x00)
-```
-
-#### DoD 5220.22-M (3-Pass)
-
-```
-Pass 1: Zeros (0x00)
-Pass 2: Ones  (0xFF)
-Pass 3: Random
-```
-
-#### Peter Gutmann (35-Pass)
-
-```
-Pass 1-4:   Random
-Pass 5-31:  Alternating patterns (0x55/0xAA)
-Pass 32-35: Random
-```
-
----
-
-## 🏗️ Architecture
-
-### Hybrid Design
-
-```
-┌─────────────────────────────────────┐
-│   Python Layer (UI & Logic)         │
-│   - CustomTkinter GUI               │
-│   - Drive detection (WMI)           │
-│   - Certificate generation          │
-└──────────────┬──────────────────────┘
-               │
-               ▼
-      ┌────────┴────────┐
-      │  Auto-Detect    │
-      └────────┬────────┘
-               │
-      ┌────────┴────────────────┐
-      │                         │
-      ▼                         ▼
-┌─────────────┐         ┌──────────────┐
-│  C++ Core   │         │ Python Core  │
-│ (Fast)      │         │ (Fallback)   │
-└─────────────┘         └──────────────┘
-```
-
-### C++ Performance Core
-
-**File:** `wiper_core.cpp` (10KB)
-
-**Features:**
-
-- Direct Windows API calls
-- Hardware-accelerated random (`RtlGenRandom`)
-- 4MB buffered I/O
-- Real-time progress callbacks
-- Privilege elevation (`SE_MANAGE_VOLUME`)
-
-**Performance:**
-
-- Sequential: ~450 MB/s
-- Random: ~380 MB/s
-- CPU: 15-25%
-
-### Python Fallback Core
-
-**File:** `wiper.py` (10KB)
-
-**Features:**
-
-- Pure Python ctypes implementation
-- Same algorithms as C++
-- 100% compatible interface
-
-**Performance:**
-
-- Sequential: ~420 MB/s
-- Random: ~180 MB/s
-- CPU: 40-60%
-
----
-
-## 🔧 Development
-
-### Building the C++ DLL
-
-#### Prerequisites
-
-- Visual Studio 2022/2026 (Community or Build Tools)
-- Desktop development with C++ workload
-
-#### Compilation
-
-```bash
-.\compile_final.bat
-```
-
-Output: `wiper_core.dll` (103 KB)
-
-### Building the Installer
-
-```bash
-python setup_msi.py bdist_msi
-```
-
-Output: `dist/ZeroTrace-1.3.0-win64.msi`
-
-### Project Structure
-
-```
-windows_tool/
-├── main.py              # GUI application entry point
-├── wiper.py             # Hybrid wiping core
-├── wiper_core.cpp       # C++ performance engine
-├── disk_manager.py      # Drive detection & safety
-├── certificate.py       # PDF/JSON certificate generator
-├── setup_msi.py         # MSI installer builder
-├── build_dll.bat        # DLL compilation script
-├── icon.ico             # Application icon
-└── dist/
-    └── ZeroTrace-1.3.0-win64.msi
-```
-
----
-
-## ⚠️ Important Notes
-
-### Safety
-
-- ⚠️ **Data wiping is PERMANENT and IRREVERSIBLE**
-- ✅ System drive (C:) is automatically protected
-- ✅ Requires explicit user confirmation
-- ✅ Admin privileges required
-
-### Troubleshooting
-
-**Error 5 (Access Denied):**
-
-1. Run as Administrator
-2. Check drive write-protection switch
-3. Try different USB drive (some have firmware protection)
-
-**DLL Not Found:**
-
-- App automatically uses Python fallback
-- Performance: ~20% slower for random patterns
-
----
-
-## 📄 License
-
-MIT License - See [LICENSE](LICENSE) file
-
----
-
-## 👥 Contributing
-
-Contributions welcome! Please:
-
-1. Fork the repository
-2. Create feature branch
-3. Submit pull request
-
----
-
-## 📞 Support
-
-- 📧 Email: support@zerotrace.com
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/zerotrace/issues)
-- 📚 Docs: [Wiki](https://github.com/yourusername/zerotrace/wiki)
-
----
-
-<div align="center">
-
-**Made with ❤️ for Data Security**
-
-[⬆ Back to Top](#-zerotrace-windows-tool)
-
-</div>

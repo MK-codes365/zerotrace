@@ -1,0 +1,17 @@
+{
+  "active_case_id": "CASE-ZT-2026-001",
+  "cases": {
+    "CASE-ZT-2026-001": {
+      "case_id": "CASE-ZT-2026-001",
+      "title": "ZeroTrace Digital Forensic Investigation & Media Sanitization",
+      "agency": "ZeroTrace Forensic Laboratories",
+      "investigator": "Lead Investigator",
+      "description": "Forensic examination and secure sanitization verification audit.",
+      "created_at": "2026-09-30T09:20:28.089987+00:00",
+      "status": "OPEN",
+      "evidence_items": [],
+      "recovered_files_count": 0,
+      "sanitizations_count": 0
+    }
+  }
+}

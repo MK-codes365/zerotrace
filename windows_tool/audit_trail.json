@@ -1,0 +1,193 @@
+[
+  {
+    "index": 0,
+    "timestamp": "2026-09-30T09:20:28.089403+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "SYSTEM_GENESIS",
+    "target": "ZeroTrace Platform",
+    "details": {
+      "system": "NTRO SIH26149 Digital Forensics Platform Initialized"
+    },
+    "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "event_hash": "875956cdc4c07e3c4f5aa74ab0af597a43e489bd42c0cdac5bf69dee1a91c636",
+    "signature": "3d2eb93ec4c9331c0d7298ab3f06997cf4d06a60f48411d209350d44c613431c"
+  },
+  {
+    "index": 1,
+    "timestamp": "2026-09-30T09:21:05.685810+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "TEST_DIAGNOSTIC",
+    "target": "SYSTEM",
+    "details": {
+      "status": "ONLINE",
+      "problem_statement": "SIH26149"
+    },
+    "prev_hash": "875956cdc4c07e3c4f5aa74ab0af597a43e489bd42c0cdac5bf69dee1a91c636",
+    "event_hash": "e9e95a8aef5aa0e343ea08bdefbc4f0883e8f18a168bd6f33338ce1ce2eb060c",
+    "signature": "604dba492566e1461dfbbe097e15aaf8d985ee8739fb96adac0d4eb51b19869e"
+  },
+  {
+    "index": 2,
+    "timestamp": "2026-09-30T09:21:24.865102+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "DIAGNOSTIC_RUN",
+    "target": "WORKSTATION",
+    "details": {
+      "status": "ONLINE",
+      "problem_statement": "NTRO SIH26149"
+    },
+    "prev_hash": "e9e95a8aef5aa0e343ea08bdefbc4f0883e8f18a168bd6f33338ce1ce2eb060c",
+    "event_hash": "0890d4390938cffb4e92b171e9acb41d310af3d9b8a6825c6a5f7b261d0635ee",
+    "signature": "06fc56f6a4de7254e79f29fcead5df708a830bade3924dc35f64866919cb2427"
+  },
+  {
+    "index": 3,
+    "timestamp": "2026-09-30T09:21:54.198621+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "DIAGNOSTIC_RUN",
+    "target": "WORKSTATION",
+    "details": {
+      "status": "ONLINE",
+      "problem_statement": "NTRO SIH26149"
+    },
+    "prev_hash": "0890d4390938cffb4e92b171e9acb41d310af3d9b8a6825c6a5f7b261d0635ee",
+    "event_hash": "45b9fe414c1aef538a48c5d2100de3cea0c3bff2987f0d36085fd9a1789e92e6",
+    "signature": "34aa7c34bc085d9c403620e3083691411958da555db9ae9a8bdd72b14b7e24ab"
+  },
+  {
+    "index": 4,
+    "timestamp": "2026-09-30T09:22:07.628076+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "DIAGNOSTIC_RUN",
+    "target": "WORKSTATION",
+    "details": {
+      "status": "ONLINE",
+      "problem_statement": "NTRO SIH26149"
+    },
+    "prev_hash": "45b9fe414c1aef538a48c5d2100de3cea0c3bff2987f0d36085fd9a1789e92e6",
+    "event_hash": "85b3b59da2f0ae8a63a8de0afe22147d45b569ec92ba597035d1f99e475a1403",
+    "signature": "e64b39f64a099e728ffed984478d3625f67f827f3b5643a334b9e445866df203"
+  },
+  {
+    "index": 5,
+    "timestamp": "2026-09-30T09:22:34.614325+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "DIAGNOSTIC_RUN",
+    "target": "WORKSTATION",
+    "details": {
+      "status": "ONLINE",
+      "problem_statement": "NTRO SIH26149"
+    },
+    "prev_hash": "85b3b59da2f0ae8a63a8de0afe22147d45b569ec92ba597035d1f99e475a1403",
+    "event_hash": "1e7f989c9430b1164ba0fe5b86819bf26daffc062fa4fd313ee4b9f029a5f6f0",
+    "signature": "1c9e596deb06ae0fd6feb0243483b8bc698733cef5823aa3ca15a4514aa6656d"
+  },
+  {
+    "index": 6,
+    "timestamp": "2026-09-30T09:30:57.923385+00:00",
+    "case_id": "CASE-NTRO-26149",
+    "operator": "mukui",
+    "action": "DRIVE_SANITIZATION_STARTED",
+    "target": "\\\\.\\F:",
+    "details": {
+      "method": "NIST 800-88 Clear (1-Pass Zeros)",
+      "total_passes": 1,
+      "target_size_bytes": 15502147584,
+      "hardware_mode": "Direct Win32 Kernel I/O"
+    },
+    "prev_hash": "1e7f989c9430b1164ba0fe5b86819bf26daffc062fa4fd313ee4b9f029a5f6f0",
+    "event_hash": "33c93f0fe484ec1c6f28828f8ad46cce0a4a7085297df099f8df210e4217ce58",
+    "signature": "74f8a082c12d8102b45c16c389f227c1a192cab537dd0919575b1abe1ea07231"
+  },
+  {
+    "index": 7,
+    "timestamp": "2026-09-30T09:31:13.242966+00:00",
+    "case_id": "CASE-NTRO-26149",
+    "operator": "mukui",
+    "action": "DRIVE_SANITIZATION_CANCELLED",
+    "target": "\\\\.\\F:",
+    "details": {
+      "success": false,
+      "status": "CANCELLED",
+      "target": "\\\\.\\F:",
+      "method": "NIST 800-88 Clear (1-Pass Zeros)",
+      "total_passes": 1,
+      "bytes_written": 176160768,
+      "duration_seconds": 15.35,
+      "avg_speed_mb_s": 10.94,
+      "bad_sectors": 0,
+      "verified": false,
+      "verification_details": {},
+      "is_simulated": false,
+      "timestamp": "2026-09-30 15:01:13"
+    },
+    "prev_hash": "33c93f0fe484ec1c6f28828f8ad46cce0a4a7085297df099f8df210e4217ce58",
+    "event_hash": "c31bdb5dabec5be9cdbb0854bae76012b62f656b01f824bba4616cc11dcb920a",
+    "signature": "33e6effad31b7c9acfd8da2bcf518c198ad659edef711ef00aa004a2b581fed3"
+  },
+  {
+    "index": 8,
+    "timestamp": "2026-09-30T09:38:45.280598+00:00",
+    "case_id": "CASE-NTRO-26149",
+    "operator": "mukui",
+    "action": "DRIVE_SANITIZATION_STARTED",
+    "target": "\\\\.\\F:",
+    "details": {
+      "method": "Quick Zero-Fill (1-Pass)",
+      "total_passes": 1,
+      "target_size_bytes": 15502147584,
+      "hardware_mode": "Direct Win32 Kernel I/O"
+    },
+    "prev_hash": "c31bdb5dabec5be9cdbb0854bae76012b62f656b01f824bba4616cc11dcb920a",
+    "event_hash": "2d2064b14bb29b95c047917f6ff4cb2df7f34d949f091f1f29150754d3431041",
+    "signature": "1fc6ec6a38bc98425cf2104612f4a57079ad630587493a95616c031be922db52"
+  },
+  {
+    "index": 9,
+    "timestamp": "2026-09-30T09:38:56.181747+00:00",
+    "case_id": "CASE-NTRO-26149",
+    "operator": "mukui",
+    "action": "DRIVE_SANITIZATION_CANCELLED",
+    "target": "\\\\.\\F:",
+    "details": {
+      "success": false,
+      "status": "CANCELLED",
+      "target": "\\\\.\\F:",
+      "method": "Quick Zero-Fill (1-Pass)",
+      "total_passes": 1,
+      "bytes_written": 125829120,
+      "duration_seconds": 10.91,
+      "avg_speed_mb_s": 11.0,
+      "bad_sectors": 0,
+      "verified": false,
+      "verification_details": {},
+      "is_simulated": false,
+      "timestamp": "2026-09-30 15:08:56"
+    },
+    "prev_hash": "2d2064b14bb29b95c047917f6ff4cb2df7f34d949f091f1f29150754d3431041",
+    "event_hash": "889e597cc075340e37bc683730b766d0ee9e6e751eec48ae8e1a112026f908f1",
+    "signature": "f4eb4bbfd90ef9afa7ba1f7b9b5516dcea4325568ed1298c96e8ed2eff9d3ed6"
+  },
+  {
+    "index": 10,
+    "timestamp": "2026-09-30T09:39:40.580344+00:00",
+    "case_id": "CASE-NTRO-26149",
+    "operator": "mukui",
+    "action": "FILE_SHRED_BATCH_STARTED",
+    "target": "1 item(s) selected",
+    "details": {
+      "total_files": 25655,
+      "total_bytes": 526935677,
+      "method": "DoD 5220.22-M (3-Pass: 0x00, 0xFF, Random)"
+    },
+    "prev_hash": "889e597cc075340e37bc683730b766d0ee9e6e751eec48ae8e1a112026f908f1",
+    "event_hash": "539da596400767cedb499683af3c051959529a881bd7207b6b2db1a9a3f380d3",
+    "signature": "89f80fe952626df904a2288468dfa89055fd738a30bf0fa1568c2ac8088c6122"
+  }
+]

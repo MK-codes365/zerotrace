@@ -1,8 +1,13 @@
 # Dependencies
 node_modules/
-/dist
+**/node_modules/
+dist/
+**/dist/
 build/
+**/build/
 *.egg-info/
+reference_repos/
+cloned_repos/
 
 # Virtual Environment
 .venv/
@@ -12,9 +17,13 @@ env/
 
 # Python Cache & Bytecode
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.obj
+*.lib
+*.exp
 .pytest_cache/
 
 # Local configuration / secrets
@@ -23,13 +32,6 @@ __pycache__/
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Desktop App local keys & certificates
-windows_tool/license.json
-windows_tool/*.pdf
-windows_tool/*.json
-*.pdf
-*.json
 
 # OS files
 .DS_Store
