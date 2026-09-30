@@ -27,6 +27,11 @@
 [🌐 Live Web Platform](#-web-dashboard) • [💻 Desktop Application](#-windows-desktop-tool) • [🛡️ Cryptographic Engine](#-core-algorithms) • [⚡ Quickstart](#-quickstart)
 
 ---
+<img width="1891" height="922" alt="Screenshot 2026-09-30 180546" src="https://github.com/user-attachments/assets/eb20769c-d77d-4400-9b38-6532dd84ff10" />
+<img width="1892" height="902" alt="Screenshot 2026-09-30 180559" src="https://github.com/user-attachments/assets/b7292e5a-3246-441a-a16c-da32650e8828" />
+<img width="1897" height="907" alt="Screenshot 2026-09-30 180608" src="https://github.com/user-attachments/assets/0470990e-df60-41f8-a89a-0b51f061166a" />
+
+
 
 </div>
 
@@ -61,6 +66,7 @@
 | **⛓️ Hash Chain** | Tamper-evident chronological custody ledger | [`windows_tool/core/audit.py`](windows_tool/core/audit.py) |
 
 ---
+
 
 ## 💻 ZeroTrace Desktop Tool
 
