@@ -1,220 +1,155 @@
-# ZeroTrace
-
 <div align="center">
 
-**Secure Data Destruction Tool with NIST-Compliant Wiping**
+<img src="platform/frontend/public/logo.png" alt="ZeroTrace Logo" width="80" height="80" style="border-radius: 16px; margin-bottom: 8px;" />
 
-[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://reactjs.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb)](https://mongodb.com/)
-[![Python](https://img.shields.io/badge/Python-CustomTkinter-3776AB?logo=python)](https://python.org/)
+# ZeroTrace®
+
+### **Integrated Defense-Grade Data Sanitization & Forensic File Recovery Platform**
+*National Forensic & Cybersecurity Platform — NTRO SIH26149*
+
+<p align="center">
+  <a href="https://github.com/MK-codes365/zerotrace/stargazers"><img src="https://img.shields.io/github/stars/MK-codes365/zerotrace?color=2563eb&style=for-the-badge&logo=starship&logoColor=white" alt="Stars" /></a>
+  <a href="https://github.com/MK-codes365/zerotrace/network/members"><img src="https://img.shields.io/github/forks/MK-codes365/zerotrace?color=4f46e5&style=for-the-badge&logo=git&logoColor=white" alt="Forks" /></a>
+  <a href="https://github.com/MK-codes365/zerotrace/issues"><img src="https://img.shields.io/github/issues/MK-codes365/zerotrace?color=0284c7&style=for-the-badge&logo=github&logoColor=white" alt="Issues" /></a>
+  <a href="https://github.com/MK-codes365/zerotrace/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-059669?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License" /></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/FastAPI-0.110-009688?style=flat-square&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/GSAP-3.15-88CE02?style=flat-square&logo=greensock&logoColor=white" />
+  <img src="https://img.shields.io/badge/TailwindCSS-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vercel-Hosted-000000?style=flat-square&logo=vercel&logoColor=white" />
+</p>
+
+[🌐 Live Web Platform](#-web-dashboard) • [💻 Desktop Application](#-windows-desktop-tool) • [🛡️ Cryptographic Engine](#-core-algorithms) • [⚡ Quickstart](#-quickstart)
+
+---
 
 </div>
 
----
+## 🌟 Executive Overview
 
-## What is ZeroTrace?
-
-ZeroTrace is a data wiping tool that permanently erases drives using military and government-grade standards. It ships as a Windows desktop application with a marketing website and a backend server for license management and telemetry.
-
-### Wiping Methods Supported
-
-| Method | Passes | Standard |
-|--------|--------|----------|
-| NIST 800-88 Clear | 1 | Zero-fill |
-| NIST 800-88-2 Purge | 1 | Random data |
-| DoD 5220.22-M | 3 | US Department of Defense |
-| DoD 5220.22-M ECE | 7 | Extended DoD |
-| Peter Gutmann | 35 | Maximum security |
-
----
-
-## Project Structure
+**ZeroTrace®** unifies irreversible media erasure and forensic-grade data recovery into a single tamper-evident ecosystem. Engineered for defense agencies, law enforcement digital forensic units, and enterprise cybersecurity operations.
 
 ```
-zero-trace/
-├── website/
-│   ├── frontend/          # React + Vite marketing site
-│   │   ├── src/
-│   │   │   ├── components/    # Hero, Features, Pricing, StatsCounter, etc.
-│   │   │   ├── pages/         # Home, About, Cart, Checkout, Privacy, Terms
-│   │   │   └── context/       # CartContext for state management
-│   │   └── public/
-│   └── backend/           # Express + MongoDB API server
-│       └── index.js           # Orders, payments, licenses, telemetry
-├── windows_tool/          # Python desktop application
-│   ├── main.py                # GUI (CustomTkinter)
-│   ├── wiper.py               # Wiping engine (C++ DLL + Python fallback)
-│   ├── wiper_core.dll         # Native C++ wiping core
-│   ├── disk_manager.py        # Drive detection via WMI
-│   ├── certificate.py         # PDF certificate generation
-│   └── popup_code.py          # Success popup dialog
+┌────────────────────────────────────────────────────────────────────────┐
+│                        ZeroTrace® Ecosystem                            │
+├───────────────────────────────────┬────────────────────────────────────┤
+│   🛡️ Military-Grade Sanitization  │    🔍 Forensic File Recovery       │
+│   • NIST SP 800-88 Clear & Purge  │    • Scalpel Signature Carving     │
+│   • DoD 5220.22-M (3/7-Pass)      │    • Bi-Directional Fragment Graph │
+│   • Peter Gutmann (35-Pass)       │    • Structural Consensus Scoring  │
+├───────────────────────────────────┴────────────────────────────────────┤
+│   ⛓️ Cryptographic Ledger: Merkle Tree Roots + SHA-256 Hash Chains     │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Tech Stack
+## ⚡ Core Algorithmic Architecture
 
-### Desktop App (Windows)
-- **Python 3** with CustomTkinter for the GUI
-- **C++ native DLL** for high-performance disk I/O (with Python ctypes fallback)
-- **WMI** for drive/volume detection
-- **fpdf** for PDF certificate generation
-
-### Website Frontend
-- **React 18** with Vite
-- **Vanilla CSS** with dark theme and neon accents
-- **Razorpay** payment integration (INR)
-- **Real-time stats** fetched from backend API
-
-### Backend Server
-- **Node.js** with Express
-- **MongoDB** with Mongoose ODM
-- **Razorpay** signature verification
-- **License key** generation and activation tracking
-- **Telemetry** aggregation for live dashboard stats
+| 🔮 Algorithm / Engine | 🎯 Operational Purpose | 📍 Code Implementation |
+| :--- | :--- | :--- |
+| **⚙️ Master–Worker** | Parallel sector overwriting & multi-threaded carving | [`windows_tool/engines/nwipe_engine.py`](windows_tool/engines/nwipe_engine.py) |
+| **🗺️ MapReduce** | Splits multi-GB disk streams into chunks with overlap windows | [`windows_tool/engines/scalpel_carver.py`](windows_tool/engines/scalpel_carver.py) |
+| **🎯 Consensus Scoring** | Evaluates header, footer, chunk syntax & entropy | [`windows_tool/engines/structure_validator.py`](windows_tool/engines/structure_validator.py) |
+| **🕸️ Fragment Graph** | Reconstructs non-contiguous clusters across disk gaps | [`windows_tool/engines/scalpel_carver.py`](windows_tool/engines/scalpel_carver.py) |
+| **🌲 Merkle Tree** | $O(\log N)$ block integrity proofs for digital certificates | [`windows_tool/core/crypto.py`](windows_tool/core/crypto.py) |
+| **⛓️ Hash Chain** | Tamper-evident chronological custody ledger | [`windows_tool/core/audit.py`](windows_tool/core/audit.py) |
 
 ---
 
-## Getting Started
+## 💻 ZeroTrace Desktop Tool
 
-### Prerequisites
+<details open>
+<summary><b>🛠️ Desktop Capabilities & Features</b></summary>
+<br>
 
-- Node.js v16+
-- Python 3.10+
-- MongoDB (local or Atlas)
+* 🔌 **Low-Level Sector I/O**: Direct Windows raw disk handle access (`\\.\PhysicalDriveX`).
+* 🧹 **Certified Sanitizer**: Automated pattern overwriting with zero residual magnetization checks.
+* 🔎 **Scalpel Engine**: Deep file carving across raw images (`.E01`, `.DD`, `.RAW`) and damaged drives.
+* 📜 **Signed Certificates**: Instant PDF compliance certificates with SHA-256 hashes and QR verification.
 
-### 1. Clone the repo
+```powershell
+# Run ZeroTrace Desktop App
+cd windows_tool
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python main.py
+```
+</details>
+
+---
+
+## 🌐 Web Dashboard & Central Hub
+
+<details open>
+<summary><b>📊 Real-Time Web Platform Features</b></summary>
+<br>
+
+* 📈 **Live Telemetry Feed**: Real-time I/O throughput (MB/s), sector counters, and active wipe passes.
+* 📁 **Desktop Case Sync**: Real-time inspection of cases recorded in `forensic_cases.json`.
+* 🛡️ **Client-Side Cryptography**: In-browser Merkle Tree Root computation via Web Crypto API.
+* 📜 **Immutable Audit Trail**: Chronological chain validation (`#0 Genesis` to latest block).
 
 ```bash
-git clone https://github.com/MK-codes365/zerotrace.git
-cd zerotrace
-```
-
-### 2. Website Frontend
-
-```bash
-cd website/frontend
+# Run Frontend Locally
+cd platform/frontend
 npm install
 npm run dev
 ```
+</details>
 
-Open `http://localhost:5173`
+---
 
-### 3. Backend Server
+## 🚀 Quickstart Guide
 
 ```bash
-cd website/backend
+# 1. Clone Repository
+git clone https://github.com/MK-codes365/zerotrace.git
+cd zerotrace
+
+# 2. Start Web Platform (Vite + React)
+cd platform/frontend
 npm install
+npm run dev
 
-# Create .env file (copy from example)
-cp .env.example .env
-# Edit .env with your Razorpay keys and MongoDB URI
-
-npm start
-```
-
-Server runs on `http://localhost:5000`
-
-### 4. Desktop App
-
-```bash
-cd windows_tool
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install customtkinter wmi pywin32 fpdf
+# 3. Launch Desktop Workstation (Admin PowerShell)
+cd ../../windows_tool
 python main.py
 ```
 
-> **Note:** The desktop app requires Administrator privileges to access raw disk handles for wiping.
-
 ---
 
-## Environment Variables
+## 📦 Directory Structure
 
-### Backend (`website/backend/.env`)
-
-```env
-PORT=5000
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-MONGODB_URI=mongodb://127.0.0.1:27017/zerotrace
 ```
-
-### Frontend (`website/frontend/.env`)
-
-```env
-VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
-VITE_API_URL=http://localhost:5000
+zero-trace/
+├── platform/
+│   ├── frontend/             # 🌐 React 19 + Vite + GSAP + TailwindCSS v4
+│   │   ├── src/components/   # Blue & White Dashboard, Navbar, Footer
+│   │   ├── src/sections/     # Hero (60 FPS Video), StickyCols, Welcome
+│   │   └── public/           # Live Telemetry, Audit Trail & MSI / EXE Downloads
+│   └── backend/              # ⚡ FastAPI + SQLAlchemy + SQLite Engine
+├── windows_tool/             # 💻 Python Desktop Application (ZeroTrace.exe)
+│   ├── core/                 # Merkle Tree, Hash Chain, Backend Sync, Case Manager
+│   ├── engines/              # Scalpel Carver, Nwipe Sanitizer, Structure Validator
+│   └── ui/                   # Modern CustomTkinter Forensic Workbench
+└── vercel.json               # 🚀 Vercel Production Deployment Configuration
 ```
-
----
-
-## API Endpoints
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| POST | `/api/orders` | Create a Razorpay payment order |
-| POST | `/api/verify` | Verify payment and generate license keys |
-| POST | `/api/activate` | Activate a license key on a device |
-| POST | `/api/telemetry` | Log wipe statistics from desktop app |
-| GET | `/api/stats` | Get aggregated stats for homepage counters |
-
----
-
-## How It Works
-
-### Payment Flow
-1. User selects a plan on the website and proceeds to checkout.
-2. Frontend creates an order via `POST /api/orders`.
-3. Razorpay payment modal opens. User pays.
-4. On success, `POST /api/verify` validates the payment signature and generates license key(s).
-5. Keys are stored in MongoDB and displayed to the user.
-
-### License Activation
-1. User opens the desktop app and clicks "Activate License".
-2. App sends the key to `POST /api/activate`.
-3. Server checks if the key exists, is active, and hasn't exceeded its activation limit.
-4. On success, the app unlocks premium wiping methods (DoD, Gutmann, etc.).
-
-### Live Telemetry
-1. Desktop app completes a wipe successfully.
-2. A background thread sends `{ filesWiped, bytesWiped, method }` to `POST /api/telemetry`.
-3. The website homepage polls `GET /api/stats` every 10 seconds.
-4. Stats counters (Files Wiped, Data Secured, Active Users) update in real-time.
-
----
-
-## License Tiers
-
-| Feature | Free | Pro | Enterprise |
-|---------|------|-----|------------|
-| NIST 800-88 Clear | ✅ | ✅ | ✅ |
-| DoD 5220.22-M | ❌ | ✅ | ✅ |
-| Peter Gutmann (35-Pass) | ❌ | ✅ | ✅ |
-| PDF Certificate | ✅ | ✅ | ✅ |
-| Max Activations | — | 1 | 5 |
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Commit your changes (`git commit -m 'Add my feature'`)
-4. Push to the branch (`git push origin feature/my-feature`)
-5. Open a Pull Request
-
----
-
-## License
-
-MIT License
 
 ---
 
 <div align="center">
 
-**Built by [MK-codes365](https://github.com/MK-codes365)**
+### 🛡️ Verified Defense Compliance Standards
+`NIST SP 800-88 Rev 1` • `DoD 5220.22-M` • `ISO/IEC 27037` • `Peter Gutmann 35-Pass`
+
+<br>
+
+**Built with pride by [MK-codes365](https://github.com/MK-codes365)**
 
 </div>
