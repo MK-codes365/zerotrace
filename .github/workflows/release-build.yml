@@ -1,0 +1,89 @@
+name: Windows Desktop Tool Packaging & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: "Publish as GitHub Release"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows-binaries:
+    name: Build Windows Standalone (.EXE & .MSI)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Desktop Build Dependencies
+        working-directory: windows_tool
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller cx_Freeze cryptography
+
+      - name: Build Standalone Executable (PyInstaller)
+        working-directory: windows_tool
+        run: |
+          pyinstaller ZeroTrace.spec --clean --noconfirm
+
+      - name: Build Windows Installer Package (cx_Freeze MSI)
+        working-directory: windows_tool
+        run: |
+          python setup_msi.py bdist_msi
+
+      - name: Stage Distributables & Calculate Cryptographic Checksums
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release-artifacts
+          
+          # Copy standalone executable
+          Copy-Item -Path "windows_tool/dist/ZeroTrace.exe" -Destination "release-artifacts/ZeroTrace.exe"
+          
+          # Find and copy generated MSI installer
+          $msiFile = Get-ChildItem -Path "windows_tool/dist" -Filter "*.msi" | Select-Object -First 1
+          if ($msiFile) {
+            Copy-Item -Path $msiFile.FullName -Destination "release-artifacts/ZeroTrace-Setup.msi"
+          }
+
+          # Generate SHA-256 Checksums for forensic auditability
+          Get-ChildItem -Path release-artifacts | Where-Object { -not $_.PSIsContainer } | ForEach-Object {
+            $hash = (Get-FileHash -Path $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)" | Out-File -FilePath release-artifacts/SHA256SUMS.txt -Append -Encoding ascii
+          }
+
+          Get-Content release-artifacts/SHA256SUMS.txt
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZeroTrace-Windows-Binaries
+          path: release-artifacts/*
+          retention-days: 14
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.publish_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-artifacts/ZeroTrace.exe
+            release-artifacts/ZeroTrace-Setup.msi
+            release-artifacts/SHA256SUMS.txt
+          generate_release_notes: true
+          draft: false
+          prerelease: false
