@@ -2,15 +2,19 @@
 
 > Defensive Cybersecurity, Digital Forensics & Media Sanitization Platform.
 
-## Overview
-ZeroTrace provides defense-grade data sanitization (NIST SP 800-88 Clear/Purge, DoD 5220.22-M) and forensic file carving (Scalpel signature engine, SleuthKit undelete, and cryptographic hash chain verification).
+ZeroTrace provides military-grade data sanitization (NIST SP 800-88 Clear and Purge, DoD 5220.22-M) and advanced forensic file carving.
 
-## Key Capabilities
-- **Secure Drive & Partition Sanitization**: 1-Pass Zeros, Random Overwrite, DoD 5220.22-M 3-Pass, Gutmann 35-Pass.
-- **Forensic File Carving**: Signature detection (Scalpel/SleuthKit), reverse footer scanning, SHA-256 verification.
-- **Recovery Workbench**: Deep Hex & ASCII payload viewer, structural validation, candidate confidence scoring.
-- **Tamper-Evident Audit Chains**: SHA-256 Merkle tree verification and PDF chain-of-custody certificates.
+## Core Documentation
 
-## Downloads
-- Windows Executable (Standalone): https://zerotrace-gamma.vercel.app/ZeroTrace.exe
-- Windows MSI Installer: https://zerotrace-gamma.vercel.app/ZeroTrace-Setup.msi
+- [ZeroTrace Platform Home](https://zerotrace-gamma.vercel.app/): Main landing page with capabilities, architecture, and live audit telemetry.
+- [About ZeroTrace](https://zerotrace-gamma.vercel.app/about): Company mission, cryptographic principles, and defense standards.
+- [Secure Communications](https://zerotrace-gamma.vercel.app/contact): PGP-encrypted contact and security inquiries.
+- [Terms of Service](https://zerotrace-gamma.vercel.app/terms): Platform license terms and compliance agreements.
+- [Privacy Policy](https://zerotrace-gamma.vercel.app/privacy): Air-gapped privacy guarantees and zero-telemetry policy.
+- [API Documentation](http://localhost:8000/docs): Interactive OpenAPI swagger specifications for backend daemon.
+
+## Software Downloads
+
+- [ZeroTrace Standalone Executable](https://zerotrace-gamma.vercel.app/ZeroTrace.exe): Portable Windows x64 binary for instant deployment.
+- [ZeroTrace MSI Installer](https://zerotrace-gamma.vercel.app/ZeroTrace-Setup.msi): Windows x64 enterprise installer with desktop integration.
+- [GitHub Repository](https://github.com/MK-codes365/zerotrace): Open-source core engines, audit tools, and web interface.

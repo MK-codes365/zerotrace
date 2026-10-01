@@ -5,6 +5,15 @@ import { useMediaQuery } from "react-responsive";
 
 const HeroSection = ({ onOpenDashboard }) => {
     const isMobile = useMediaQuery({ query: "(max-width:768px)" });
+    const [loadVideo, setLoadVideo] = React.useState(false);
+
+    React.useEffect(() => {
+        // Defer video streaming to allow critical LCP & FCP to complete without large network payload
+        const timer = setTimeout(() => {
+            setLoadVideo(true);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, []);
 
     useGSAP(() => {
         if (!isMobile) {
@@ -32,7 +41,7 @@ const HeroSection = ({ onOpenDashboard }) => {
                     loop
                     muted
                     playsInline
-                    preload="metadata"
+                    preload="none"
                     poster="/hero-bg.webp"
                     disablePictureInPicture
                     disableRemotePlayback
@@ -43,7 +52,7 @@ const HeroSection = ({ onOpenDashboard }) => {
                         WebkitBackfaceVisibility: "hidden",
                     }}
                 >
-                    <source src="/hero.mp4" type="video/mp4" />
+                    {loadVideo && <source src="/hero.mp4" type="video/mp4" />}
                 </video>
 
                 {/* Ambient dark gradient overlay for optimal text contrast */}
