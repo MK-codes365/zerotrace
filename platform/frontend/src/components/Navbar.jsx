@@ -67,7 +67,15 @@ const Navbar = ({ onOpenDashboard, onScrollToSection }) => {
                             className="w-full py-2 px-4 rounded-2xl font-medium text-xs text-center border border-[#2a2725]/20 hover:bg-[#2a2725]/5 transition-colors block"
                             style={{ color: "#181717" }}
                         >
-                            Download Installer (.EXE)
+                            Download Standalone (.EXE)
+                        </a>
+                        <a
+                            href="/ZeroTrace-Setup.msi"
+                            download="ZeroTrace-Setup.msi"
+                            className="w-full py-2 px-4 rounded-2xl font-medium text-xs text-center border border-[#2a2725]/20 hover:bg-[#2a2725]/5 transition-colors block"
+                            style={{ color: "#181717" }}
+                        >
+                            Download Installer (.MSI)
                         </a>
                     </div>
                 </div>

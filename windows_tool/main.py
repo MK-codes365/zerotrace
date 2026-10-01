@@ -234,6 +234,8 @@ class ZeroTraceForensicsApp(ctk.CTk):
         # Show new tab
         self.current_tab_id = tab_id
         if tab_id in self.tab_views:
+            if tab_id == "workbench" and hasattr(self, "carver_view") and getattr(self.carver_view, "discovered_files", None):
+                self.workbench_view.set_recovered_files(self.carver_view.discovered_files)
             self.tab_views[tab_id].pack(fill="both", expand=True)
             self.nav_buttons[tab_id].configure(
                 fg_color="#1e293b",

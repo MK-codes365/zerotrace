@@ -339,6 +339,9 @@ class CarverRecoveryTab(ctk.CTkFrame):
         )
 
     def _open_workbench(self):
+        # Ensure discovered files are passed to workbench
+        if self.on_files_recovered_callback and self.discovered_files:
+            self.on_files_recovered_callback(self.discovered_files)
         # Notify master window to switch to workbench tab
         if hasattr(self.master.master, "select_tab"):
             self.master.master.select_tab("workbench")

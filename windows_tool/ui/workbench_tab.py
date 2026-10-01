@@ -164,6 +164,9 @@ class WorkbenchTab(ctk.CTkFrame):
             )
             row.pack(fill="x", pady=1)
 
+        if filtered and not self.selected_file:
+            self._select_file(filtered[0])
+
     def _select_file(self, item):
         self.selected_file = item
         self.export_single_btn.configure(state="normal")

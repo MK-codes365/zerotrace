@@ -35,7 +35,15 @@ const CtaSection = ({ onOpenDashboard }) => {
                         download="ZeroTrace.exe"
                         className="px-8 py-4 rounded-full font-bold text-sm text-[#f4efe7] border border-[#b1a696]/40 hover:bg-[#f4efe7]/10 transition-all flex items-center gap-2 cursor-pointer"
                     >
-                        <span>Download Desktop Tool (.EXE)</span>
+                        <span>Download Standalone (.EXE)</span>
+                    </a>
+
+                    <a
+                        href="/ZeroTrace-Setup.msi"
+                        download="ZeroTrace-Setup.msi"
+                        className="px-8 py-4 rounded-full font-bold text-sm text-[#b1a696] border border-[#b1a696]/40 hover:bg-[#b1a696]/10 transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                        <span>Download Installer (.MSI)</span>
                     </a>
                 </div>
 

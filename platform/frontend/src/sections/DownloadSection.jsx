@@ -89,7 +89,7 @@ const DownloadSection = () => {
                                 <span>Download Standalone (.EXE)</span>
                             </a>
                             <div className="text-[10px] text-[#b1a696] -mt-2">
-                                ~33.4 MB · Portable (No installation required)
+                                ~33.5 MB · Portable (No installation required)
                             </div>
 
                             <a
@@ -100,7 +100,7 @@ const DownloadSection = () => {
                                 <span>Download Installer (.MSI)</span>
                             </a>
                             <div className="text-[10px] text-[#b1a696] -mt-2">
-                                ~14.2 MB · Desktop & Start Menu Shortcut
+                                ~31.7 MB · Desktop & Start Menu Shortcut
                             </div>
 
                             <div className="text-[10px] text-[#b1a696] pt-1">
