@@ -18,6 +18,7 @@ const StickyColsSection = () => {
                 start: "top 20%",
                 end: "+=90%",
                 pin: true,
+                anticipatePin: 1,
                 scrub: 1,
             },
         });
@@ -56,7 +57,7 @@ const StickyColsSection = () => {
     });
 
     return (
-        <section className="sticky-cols w-screen h-dvh overflow-hidden bg-[#181717] lg:mb-20">
+        <section className="sticky-cols w-full h-dvh overflow-hidden bg-[#181717] lg:mb-20">
             <div className="sticky-cols-wrapper relative w-full h-screen">
                 {/* Col 1: Text Content */}
                 <div className="col col-1">
@@ -108,7 +109,7 @@ const StickyColsSection = () => {
                             />
                         </div>
                     </div>
-                    <div className="col col-img-2 p-2">
+                    <div className="col-img col-img-2">
                         <div className="col-img-wrapper">
                             <img
                                 src="/col-img-2.webp"

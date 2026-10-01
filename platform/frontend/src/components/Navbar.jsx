@@ -83,7 +83,7 @@ const Navbar = ({ onOpenDashboard, onScrollToSection }) => {
 
             {/* Main Floating Navbar Pill */}
             <nav
-                className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.45)] backdrop-blur-md transition-all duration-300"
+                className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors duration-200"
                 style={{
                     backgroundColor: "#f4efe7",
                     color: "#181717",

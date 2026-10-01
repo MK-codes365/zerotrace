@@ -33,12 +33,15 @@ const Home = () => {
         }
     };
 
-    // Refresh ScrollTrigger when switching to landing
+    // Refresh ScrollTrigger only when returning from dashboard view
+    const isInitialMount = React.useRef(true);
     useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
         if (viewMode === "landing") {
-            setTimeout(() => {
-                ScrollTrigger.refresh();
-            }, 200);
+            ScrollTrigger.refresh();
         }
     }, [viewMode]);
 

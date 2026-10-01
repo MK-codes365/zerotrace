@@ -25,14 +25,6 @@ const ChooseSection = ({ onOpenDashboard }) => {
             ease: "power1.inOut",
         });
 
-        if (!isMobile) {
-            tl.fromTo(
-                ".title-part",
-                { height: "10vh" },
-                { height: `${isMobile ? "22vh" : "50vh"}`, ease: "none" }
-            );
-        }
-
         tl.to(
             lines,
             {
@@ -40,16 +32,17 @@ const ChooseSection = ({ onOpenDashboard }) => {
                 ease: "none",
                 stagger: 0.2,
                 duration: 1,
-            },
-            "<"
+            }
         );
 
         if (!isMobile) {
             tl.from(
                 ".choose-sec",
                 {
-                    yPercent: 100,
-                    duration: 1,
+                    opacity: 0,
+                    y: 40,
+                    duration: 0.8,
+                    ease: "power2.out",
                 },
                 "<"
             );

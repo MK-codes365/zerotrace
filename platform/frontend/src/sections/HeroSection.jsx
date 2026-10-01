@@ -24,7 +24,7 @@ const HeroSection = ({ onOpenDashboard }) => {
     }, [isMobile]);
 
     return (
-        <section className="hero-section w-dvw md:h-dvh h-[100vh] md:p-2 p-2.5 mb-20">
+        <section className="hero-section w-full md:h-dvh h-[100vh] md:p-2 p-2.5 mb-20">
             <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden bg-[#181717]">
                 {/* 60 FPS Hardware-Accelerated Video background */}
                 <video
