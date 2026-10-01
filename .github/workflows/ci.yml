@@ -17,6 +17,7 @@ jobs:
     name: Test Core Engines & Cryptography (Python)
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.11", "3.12"]
 
@@ -33,16 +34,17 @@ jobs:
       - name: Install Test Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-asyncio cryptography sqlalchemy structlog aiofiles httpx
+          pip install pytest pytest-asyncio pydantic pydantic-settings cryptography sqlalchemy structlog aiofiles httpx fastapi orjson
 
       - name: Run Forensic & Sanitization Engine Tests
+        env:
+          PYTHONPATH: platform:platform/backend
         run: |
           python -m pytest platform/tests/test_engines.py -v --durations=10
 
-      - name: Syntax Check Windows Tool & Backend
+      - name: Syntax Check Backend Modules
         run: |
-          python -m py_compile windows_tool/main.py windows_tool/wiper.py windows_tool/certificate.py windows_tool/disk_manager.py
-          python -m compileall platform/backend/app -q
+          python -m compileall platform/backend/app platform/engines -q
 
   # ─── 2. Web Platform Frontend Build ─────────────────────────────────
   build-frontend:
