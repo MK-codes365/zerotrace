@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Agentic Crawlers & AI Search Engines
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://zerotrace-gamma.vercel.app/sitemap.xml

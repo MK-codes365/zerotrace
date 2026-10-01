@@ -63,7 +63,7 @@ const ChooseSection = ({ onOpenDashboard }) => {
             </p>
             <div className="lg:mt-10 mt-7 title-part origin-bottom">
                 {chooseLines.map((line, index) => (
-                    <h1
+                    <h2
                         key={index}
                         className="choose-heading text-[#f4efe7] lg:text-[9.5rem] text-[3rem] leading-[0.9] font-medium tracking-tighter"
                     >
@@ -77,7 +77,7 @@ const ChooseSection = ({ onOpenDashboard }) => {
                                 {line}
                             </span>
                         </span>
-                    </h1>
+                    </h2>
                 ))}
             </div>
             <div className="choose-sec w-full flex lg:flex-row flex-col justify-center items-start gap-10 lg:mt-0">

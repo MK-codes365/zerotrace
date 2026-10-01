@@ -1,0 +1,16 @@
+# ZeroTrace
+
+> Defensive Cybersecurity, Digital Forensics & Media Sanitization Platform.
+
+## Overview
+ZeroTrace provides defense-grade data sanitization (NIST SP 800-88 Clear/Purge, DoD 5220.22-M) and forensic file carving (Scalpel signature engine, SleuthKit undelete, and cryptographic hash chain verification).
+
+## Key Capabilities
+- **Secure Drive & Partition Sanitization**: 1-Pass Zeros, Random Overwrite, DoD 5220.22-M 3-Pass, Gutmann 35-Pass.
+- **Forensic File Carving**: Signature detection (Scalpel/SleuthKit), reverse footer scanning, SHA-256 verification.
+- **Recovery Workbench**: Deep Hex & ASCII payload viewer, structural validation, candidate confidence scoring.
+- **Tamper-Evident Audit Chains**: SHA-256 Merkle tree verification and PDF chain-of-custody certificates.
+
+## Downloads
+- Windows Executable (Standalone): https://zerotrace-gamma.vercel.app/ZeroTrace.exe
+- Windows MSI Installer: https://zerotrace-gamma.vercel.app/ZeroTrace-Setup.msi

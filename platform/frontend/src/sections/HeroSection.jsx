@@ -32,7 +32,8 @@ const HeroSection = ({ onOpenDashboard }) => {
                     loop
                     muted
                     playsInline
-                    preload="auto"
+                    preload="metadata"
+                    poster="/hero-bg.webp"
                     disablePictureInPicture
                     disableRemotePlayback
                     className="hero-video absolute inset-0 w-full h-full object-cover z-0 will-change-transform transform-gpu translate-z-0"
@@ -43,7 +44,6 @@ const HeroSection = ({ onOpenDashboard }) => {
                     }}
                 >
                     <source src="/hero.mp4" type="video/mp4" />
-                    <source src="/Hero.mp4" type="video/mp4" />
                 </video>
 
                 {/* Ambient dark gradient overlay for optimal text contrast */}

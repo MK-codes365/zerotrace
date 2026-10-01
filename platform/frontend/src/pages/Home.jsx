@@ -54,36 +54,39 @@ const Home = () => {
                 onScrollToSection={scrollToSection}
             />
 
-            {/* Hero - Capsule style rounded card with video */}
-            <HeroSection onOpenDashboard={() => setViewMode("dashboard")} />
+            {/* Main Content Landmark for Accessibility & Agentic Crawlers */}
+            <main id="main-content" role="main">
+                {/* Hero - Capsule style rounded card with video */}
+                <HeroSection onOpenDashboard={() => setViewMode("dashboard")} />
 
-            {/* Welcome - Clip-path text reveal on scroll */}
-            <WelcomeSection />
+                {/* Welcome - Clip-path text reveal on scroll */}
+                <WelcomeSection />
 
-            {/* Choose - Gradient section with clip title reveal */}
-            <ChooseSection onOpenDashboard={() => setViewMode("dashboard")} />
+                {/* Choose - Gradient section with clip title reveal */}
+                <ChooseSection onOpenDashboard={() => setViewMode("dashboard")} />
 
-            {/* Sticky Columns - Pinned multi-column animation */}
-            <StickyColsSection />
+                {/* Sticky Columns - Pinned multi-column animation */}
+                <StickyColsSection />
 
-            {/* Features Grid */}
-            <FeaturesSection
-                onOpenDashboard={() => setViewMode("dashboard")}
-            />
+                {/* Features Grid */}
+                <FeaturesSection
+                    onOpenDashboard={() => setViewMode("dashboard")}
+                />
 
-            {/* How It Works Pipeline */}
-            <HowItWorksSection />
+                {/* How It Works Pipeline */}
+                <HowItWorksSection />
 
-            {/* Use Cases */}
-            <UseCasesSection
-                onOpenDashboard={() => setViewMode("dashboard")}
-            />
+                {/* Use Cases */}
+                <UseCasesSection
+                    onOpenDashboard={() => setViewMode("dashboard")}
+                />
 
-            {/* Download Desktop Tool */}
-            <DownloadSection />
+                {/* Download Desktop Tool */}
+                <DownloadSection />
 
-            {/* Final CTA */}
-            <CtaSection onOpenDashboard={() => setViewMode("dashboard")} />
+                {/* Final CTA */}
+                <CtaSection onOpenDashboard={() => setViewMode("dashboard")} />
+            </main>
 
             {/* Footer */}
             <Footer

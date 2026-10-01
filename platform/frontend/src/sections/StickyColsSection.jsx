@@ -62,7 +62,7 @@ const StickyColsSection = () => {
                 <div className="col col-1">
                     <div className="col-content">
                         <div className="col-content-wrapper">
-                            <h1 className="text-2xl text-[#b1a696] font-bold leading-auto">
+                            <h2 className="text-2xl text-[#b1a696] font-bold leading-auto">
                                 Certified data
                                 <br />
                                 sanitization—with
@@ -70,7 +70,7 @@ const StickyColsSection = () => {
                                 NIST SP 800-88
                                 <br />
                                 compliance
-                            </h1>
+                            </h2>
                             <div className="col-content-para flex items-center gap-4 justify-between">
                                 <div className="flex items-center gap-0 justify-center">
                                     <h3 className="border-1 px-3 py-1 rounded-full text-[#aaa091]">
@@ -96,12 +96,26 @@ const StickyColsSection = () => {
                 <div className="col col-2">
                     <div className="col-img col-img-1">
                         <div className="col-img-wrapper">
-                            <img src="/col-img-1.jpg" alt="Forensic analysis" />
+                            <img
+                                src="/col-img-1.webp"
+                                alt="Forensic analysis workstation"
+                                loading="lazy"
+                                decoding="async"
+                                width="600"
+                                height="800"
+                            />
                         </div>
                     </div>
                     <div className="col col-img-2 p-2">
                         <div className="col-img-wrapper">
-                            <img src="/col-img-2.jpg" alt="Server room" />
+                            <img
+                                src="/col-img-2.webp"
+                                alt="Secure server room cluster"
+                                loading="lazy"
+                                decoding="async"
+                                width="600"
+                                height="800"
+                            />
                         </div>
                     </div>
                 </div>
@@ -109,7 +123,7 @@ const StickyColsSection = () => {
                 {/* Col 3: Text Content (second phase) */}
                 <div className="col col-3">
                     <div className="col-content-wrapper">
-                        <h1 className="text-2xl font-bold leading-auto">
+                        <h2 className="text-2xl font-bold leading-auto">
                             Advanced file
                             <br />
                             carving—with deep
@@ -117,7 +131,7 @@ const StickyColsSection = () => {
                             signature-based
                             <br />
                             recovery
-                        </h1>
+                        </h2>
                         <div
                             className={`col-content-para flex items-center gap-4 justify-between ${reveal ? "ml-0" : "ml-6"}`}
                         >
@@ -137,7 +151,7 @@ const StickyColsSection = () => {
                         </div>
                     </div>
                     <div className="col-content-wrapper-2">
-                        <h1 className="text-2xl font-bold leading-auto">
+                        <h2 className="text-2xl font-bold leading-auto">
                             Merkle tree
                             <br />
                             integrity—tamper
@@ -145,7 +159,7 @@ const StickyColsSection = () => {
                             evident hash
                             <br />
                             chain proof
-                        </h1>
+                        </h2>
                         <div className="col-content-para flex items-center gap-4 justify-between">
                             <div className="flex items-center gap-0 justify-center">
                                 <h3 className="border-1 px-3 py-1 rounded-full text-[#aaa091]">
@@ -169,7 +183,14 @@ const StickyColsSection = () => {
                 <div className="col col-4">
                     <div className="col-img col-img-1">
                         <div className="col-img-wrapper">
-                            <img src="/col-img-3.jpg" alt="Forensic workstation" />
+                            <img
+                                src="/col-img-3.webp"
+                                alt="Digital forensic extraction workstation"
+                                loading="lazy"
+                                decoding="async"
+                                width="600"
+                                height="800"
+                            />
                         </div>
                     </div>
                 </div>

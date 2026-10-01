@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer = ({ onOpenDashboard, onScrollToSection }) => {
     return (
-        <section className="w-screen min-h-dvh px-6 mt-10 bg-[#181717] relative">
+        <footer className="w-screen min-h-dvh px-6 mt-10 bg-[#181717] relative" role="contentinfo">
             <p className="text-[.7rem] text-[#eae5dd] mt-10">
                 Ready to secure your digital evidence?
                 <br />
@@ -66,7 +66,8 @@ const Footer = ({ onOpenDashboard, onScrollToSection }) => {
                     <a
                         href="https://github.com/MK-codes365/zerotrace"
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
+                        aria-label="ZeroTrace GitHub Source Code"
                         className="border-[1px] border-[#c4c1b9] rounded-full p-3 text-[#f2ede5] hover:bg-[#f2ede5]/10 transition-colors"
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -76,7 +77,8 @@ const Footer = ({ onOpenDashboard, onScrollToSection }) => {
                     <a
                         href="http://localhost:8000/docs"
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
+                        aria-label="ZeroTrace API Documentation"
                         className="border-[1px] border-[#c4c1b9] rounded-full p-3 text-[#f2ede5] hover:bg-[#f2ede5]/10 transition-colors"
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -111,12 +113,12 @@ const Footer = ({ onOpenDashboard, onScrollToSection }) => {
                 </div>
 
                 <div className="footer-title">
-                    <h1 className="text-[18vw] font-bold text-[#f4efe7]">
+                    <div className="text-[18vw] font-bold text-[#f4efe7]" aria-hidden="true">
                         ZeroTrace<sub>®</sub>
-                    </h1>
+                    </div>
                 </div>
             </div>
-        </section>
+        </footer>
     );
 };
 
