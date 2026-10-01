@@ -100,6 +100,8 @@ const Navbar = ({ onOpenDashboard, onScrollToSection }) => {
                     <img
                         src="/logo.png"
                         alt="ZeroTrace Logo"
+                        width="20"
+                        height="20"
                         className="w-5 h-5 object-contain rounded-sm shrink-0"
                     />
                     <span

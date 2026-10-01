@@ -103,6 +103,8 @@ const StickyColsSection = () => {
                                 decoding="async"
                                 width="600"
                                 height="800"
+                                className="w-full h-full object-cover"
+                                style={{ aspectRatio: "3 / 4" }}
                             />
                         </div>
                     </div>
@@ -115,6 +117,8 @@ const StickyColsSection = () => {
                                 decoding="async"
                                 width="600"
                                 height="800"
+                                className="w-full h-full object-cover"
+                                style={{ aspectRatio: "3 / 4" }}
                             />
                         </div>
                     </div>
@@ -190,6 +194,8 @@ const StickyColsSection = () => {
                                 decoding="async"
                                 width="600"
                                 height="800"
+                                className="w-full h-full object-cover"
+                                style={{ aspectRatio: "3 / 4" }}
                             />
                         </div>
                     </div>
