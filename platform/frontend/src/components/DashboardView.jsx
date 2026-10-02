@@ -105,6 +105,7 @@ const IconSettings = ({ className = "w-4 h-4" }) => (
 
 const DashboardView = ({ onBackToLanding }) => {
     const [activeTab, setActiveTab] = useState("overview");
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCase, setSelectedCase] = useState(null);
     const [copiedHash, setCopiedHash] = useState(null);
@@ -275,77 +276,124 @@ const DashboardView = ({ onBackToLanding }) => {
             <div className="fixed bottom-0 right-10 w-[500px] h-[500px] bg-blue-600/[0.03] rounded-full blur-[140px] pointer-events-none -z-10" />
 
             {/* ── SIDEBAR ────────────────────────────────────────────── */}
-            <aside className="w-72 bg-[#101116]/98 backdrop-blur-2xl border-r border-white/[0.08] flex flex-col justify-between shrink-0 z-20 sticky top-0 h-screen shadow-[15px_0_50px_rgba(0,0,0,0.6)]">
+            <aside className={`${isSidebarOpen ? "w-72" : "w-20"} bg-[#101116]/98 backdrop-blur-2xl border-r border-white/[0.08] flex flex-col justify-between shrink-0 z-20 sticky top-0 h-screen shadow-[15px_0_50px_rgba(0,0,0,0.6)] transition-all duration-300 ease-in-out`}>
                 <div className="flex-1 overflow-y-auto no-scrollbar">
-                    {/* Header Brand */}
-                    <div className="h-18 px-5 border-b border-white/[0.08] flex items-center justify-between bg-[#13141d]/80 sticky top-0 z-10 backdrop-blur-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="relative group">
-                                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
-                                <div className="relative w-9 h-9 rounded-xl bg-[#171922] border border-white/10 p-1.5 flex items-center justify-center shadow-md">
-                                    <img src="/logo.png" alt="ZeroTrace" className="w-full h-full object-contain" />
+                    {/* Header Brand & Collapse Button */}
+                    <div className={`h-18 border-b border-white/[0.08] flex items-center bg-[#13141d]/80 sticky top-0 z-10 backdrop-blur-xl transition-all ${isSidebarOpen ? "px-4 justify-between" : "px-2 justify-center"}`}>
+                        {isSidebarOpen ? (
+                            <>
+                                <div className="flex items-center gap-3">
+                                    <div className="relative group">
+                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+                                        <div className="relative w-9 h-9 rounded-xl bg-[#171922] border border-white/10 p-1.5 flex items-center justify-center shadow-md">
+                                            <img src="/logo.png" alt="ZeroTrace" className="w-full h-full object-contain" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-1.5">
+                                            <h1 className="font-black text-sm tracking-wider text-white uppercase font-sans">
+                                                ZeroTrace
+                                            </h1>
+                                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                                                v1.4
+                                            </span>
+                                        </div>
+                                        <p className="text-[#8e8a83] text-[10px] tracking-wider uppercase font-mono mt-0.5">
+                                            Forensic Command Hub
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-1.5">
-                                    <h1 className="font-black text-sm tracking-wider text-white uppercase font-sans">
-                                        ZeroTrace
-                                    </h1>
-                                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                                        v1.4
-                                    </span>
+
+                                {/* Sidebar Close Button */}
+                                <button
+                                    onClick={() => setIsSidebarOpen(false)}
+                                    className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-cyan-500/20 text-[#8e8a83] hover:text-cyan-400 border border-white/[0.06] hover:border-cyan-500/30 flex items-center justify-center transition-all cursor-pointer group shadow-sm"
+                                    title="Close Sidebar"
+                                    aria-label="Close Sidebar"
+                                >
+                                    <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect width="18" height="18" x="3" y="3" rx="2" />
+                                        <path d="M9 3v18" />
+                                        <path d="m14 9-3 3 3 3" />
+                                    </svg>
+                                </button>
+                            </>
+                        ) : (
+                            /* Sidebar Open Button (Icon + Chevron) */
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="relative group w-11 h-11 rounded-xl bg-[#171922] hover:bg-cyan-500/15 border border-white/10 hover:border-cyan-400/40 p-2 flex items-center justify-center transition-all cursor-pointer shadow-md"
+                                title="Open Sidebar"
+                                aria-label="Open Sidebar"
+                            >
+                                <img src="/logo.png" alt="ZeroTrace" className="w-full h-full object-contain" />
+                                <div className="absolute -right-1.5 -bottom-1.5 w-5 h-5 rounded-full bg-cyan-400 text-[#0e0f13] flex items-center justify-center text-xs font-black shadow-[0_0_8px_#00f0ff] transition-transform group-hover:scale-110">
+                                    ›
                                 </div>
-                                <p className="text-[#8e8a83] text-[10px] tracking-wider uppercase font-mono mt-0.5">
-                                    Forensic Command Hub
-                                </p>
-                            </div>
-                        </div>
+                            </button>
+                        )}
                     </div>
 
                     {/* Agent Live Connectivity Status Card */}
-                    <div className="mx-3.5 my-3.5 p-3.5 rounded-2xl bg-gradient-to-b from-[#181a24] via-[#14151e] to-[#0f1015] border border-white/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.35)] relative overflow-hidden group">
-                        <div className={`absolute top-0 right-0 w-28 h-28 rounded-full blur-2xl pointer-events-none transition-opacity duration-500 ${isAgentOnline ? "bg-emerald-500/[0.08]" : "bg-amber-500/[0.08]"}`} />
-                        
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2.5">
-                                <span className="relative flex h-2.5 w-2.5">
-                                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isAgentOnline ? "bg-emerald-400" : "bg-amber-400"}`}></span>
-                                    <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isAgentOnline ? "bg-emerald-400 shadow-[0_0_10px_#10b981]" : "bg-amber-400"}`}></span>
-                                </span>
-                                <div>
-                                    <span className="text-xs font-bold tracking-tight text-white block">
-                                        Desktop Engine
+                    {isSidebarOpen ? (
+                        <div className="mx-3.5 my-3.5 p-3.5 rounded-2xl bg-gradient-to-b from-[#181a24] via-[#14151e] to-[#0f1015] border border-white/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.35)] relative overflow-hidden group">
+                            <div className={`absolute top-0 right-0 w-28 h-28 rounded-full blur-2xl pointer-events-none transition-opacity duration-500 ${isAgentOnline ? "bg-emerald-500/[0.08]" : "bg-amber-500/[0.08]"}`} />
+                            
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2.5">
+                                    <span className="relative flex h-2.5 w-2.5">
+                                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isAgentOnline ? "bg-emerald-400" : "bg-amber-400"}`}></span>
+                                        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isAgentOnline ? "bg-emerald-400 shadow-[0_0_10px_#10b981]" : "bg-amber-400"}`}></span>
                                     </span>
-                                    <span className={`text-[10px] font-mono font-semibold block ${isAgentOnline ? "text-emerald-400" : "text-amber-400"}`}>
-                                        {isAgentOnline ? "Active & Synchronized" : "Connecting to Agent..."}
+                                    <div>
+                                        <span className="text-xs font-bold tracking-tight text-white block">
+                                            Desktop Engine
+                                        </span>
+                                        <span className={`text-[10px] font-mono font-semibold block ${isAgentOnline ? "text-emerald-400" : "text-amber-400"}`}>
+                                            {isAgentOnline ? "Active & Synchronized" : "Connecting to Agent..."}
+                                        </span>
+                                    </div>
+                                </div>
+                                <span className={`text-[9px] font-mono font-black px-2 py-0.5 rounded-md border tracking-wider uppercase ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.25)]" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
+                                    {isAgentOnline ? "LIVE" : "POLLING"}
+                                </span>
+                            </div>
+
+                            {/* Dual Micro Telemetry Indicators */}
+                            <div className="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-white/[0.06] text-[10px] font-mono">
+                                <div className="bg-black/30 px-2 py-1.5 rounded-lg border border-white/[0.04]">
+                                    <span className="text-[#8e8a83] text-[9px] block uppercase tracking-wider">Transport</span>
+                                    <span className="text-white font-semibold text-[10px] flex items-center gap-1.5 mt-0.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_6px_#00f0ff]" />
+                                        IPC Socket
+                                    </span>
+                                </div>
+                                <div className="bg-black/30 px-2 py-1.5 rounded-lg border border-white/[0.04]">
+                                    <span className="text-[#8e8a83] text-[9px] block uppercase tracking-wider">Sync State</span>
+                                    <span className="text-cyan-300 font-semibold text-[10px] truncate block mt-0.5" title={lastSyncTime || "Realtime"}>
+                                        {lastSyncTime ? lastSyncTime : "Realtime"}
                                     </span>
                                 </div>
                             </div>
-                            <span className={`text-[9px] font-mono font-black px-2 py-0.5 rounded-md border tracking-wider uppercase ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.25)]" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
-                                {isAgentOnline ? "LIVE" : "POLLING"}
+                        </div>
+                    ) : (
+                        <div
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="mx-3 my-3 p-2.5 rounded-xl bg-gradient-to-b from-[#181a24] to-[#0f1015] border border-white/[0.08] flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/30 transition-all group"
+                            title={`Desktop Engine: ${isAgentOnline ? "ONLINE (IPC Socket)" : "CONNECTING..."} - Click to expand`}
+                        >
+                            <span className="relative flex h-3 w-3">
+                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isAgentOnline ? "bg-emerald-400" : "bg-amber-400"}`}></span>
+                                <span className={`relative inline-flex rounded-full h-3 w-3 ${isAgentOnline ? "bg-emerald-400 shadow-[0_0_8px_#10b981]" : "bg-amber-400"}`}></span>
+                            </span>
+                            <span className="text-[8px] font-mono text-emerald-400 font-extrabold mt-1.5 uppercase tracking-wider">
+                                {isAgentOnline ? "LIVE" : "POLL"}
                             </span>
                         </div>
-
-                        {/* Dual Micro Telemetry Indicators */}
-                        <div className="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-white/[0.06] text-[10px] font-mono">
-                            <div className="bg-black/30 px-2 py-1.5 rounded-lg border border-white/[0.04]">
-                                <span className="text-[#8e8a83] text-[9px] block uppercase tracking-wider">Transport</span>
-                                <span className="text-white font-semibold text-[10px] flex items-center gap-1.5 mt-0.5">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_6px_#00f0ff]" />
-                                    IPC Socket
-                                </span>
-                            </div>
-                            <div className="bg-black/30 px-2 py-1.5 rounded-lg border border-white/[0.04]">
-                                <span className="text-[#8e8a83] text-[9px] block uppercase tracking-wider">Sync State</span>
-                                <span className="text-cyan-300 font-semibold text-[10px] truncate block mt-0.5" title={lastSyncTime || "Realtime"}>
-                                    {lastSyncTime ? lastSyncTime : "Realtime"}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                    )}
 
                     {/* Grouped Navigation Menu */}
-                    <nav className="px-3 pb-4 space-y-4">
+                    <nav className={`pb-4 ${isSidebarOpen ? "px-3 space-y-4" : "px-2 space-y-3"}`}>
                         {[
                             {
                                 group: "FORENSIC WORKSPACE",
@@ -373,9 +421,13 @@ const DashboardView = ({ onBackToLanding }) => {
                             },
                         ].map((cat, catIdx) => (
                             <div key={catIdx} className="space-y-1">
-                                <div className="px-3 pt-1 text-[9.5px] font-mono uppercase tracking-widest text-[#78746c] font-bold">
-                                    {cat.group}
-                                </div>
+                                {isSidebarOpen ? (
+                                    <div className="px-3 pt-1 text-[9.5px] font-mono uppercase tracking-widest text-[#78746c] font-bold">
+                                        {cat.group}
+                                    </div>
+                                ) : (
+                                    catIdx > 0 && <div className="h-px bg-white/[0.06] my-2 mx-2" />
+                                )}
                                 <div className="space-y-1 mt-1">
                                     {cat.items.map((item) => {
                                         const isCurrent = activeTab === item.id;
@@ -384,7 +436,8 @@ const DashboardView = ({ onBackToLanding }) => {
                                             <button
                                                 key={item.id}
                                                 onClick={() => setActiveTab(item.id)}
-                                                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer relative group ${
+                                                title={item.label}
+                                                className={`w-full flex items-center ${isSidebarOpen ? "justify-between px-3 py-2" : "justify-center py-2.5 px-1"} rounded-xl text-xs transition-all duration-150 cursor-pointer relative group ${
                                                     isCurrent
                                                         ? "bg-gradient-to-r from-cyan-500/15 via-cyan-500/5 to-transparent text-white font-bold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
                                                         : "text-[#9e998f] hover:text-white hover:bg-white/[0.04] font-medium"
@@ -396,35 +449,50 @@ const DashboardView = ({ onBackToLanding }) => {
                                                 )}
 
                                                 <div className="flex items-center gap-2.5">
-                                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                                                    <div className={`relative ${isSidebarOpen ? "w-7 h-7" : "w-8 h-8"} rounded-lg flex items-center justify-center transition-all duration-200 ${
                                                         isCurrent
                                                             ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.25)]"
                                                             : "bg-white/[0.03] text-[#8e8a83] group-hover:text-cyan-300 group-hover:bg-cyan-500/10 border border-white/[0.04] group-hover:border-cyan-500/20"
                                                     }`}>
-                                                        <IconComp className="w-3.5 h-3.5" />
+                                                        <IconComp className={isSidebarOpen ? "w-3.5 h-3.5" : "w-4 h-4"} />
+                                                        {!isSidebarOpen && item.badge !== undefined && item.badge > 0 && (
+                                                            <span className="absolute -top-1 -right-1 bg-cyan-400 text-[#0e0f13] text-[9px] font-mono font-black w-4 h-4 rounded-full flex items-center justify-center shadow-[0_0_6px_#00f0ff]">
+                                                                {item.badge}
+                                                            </span>
+                                                        )}
+                                                        {!isSidebarOpen && item.live && (
+                                                            <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                    <span className="tracking-wide text-xs">{item.label}</span>
+                                                    {isSidebarOpen && (
+                                                        <span className="tracking-wide text-xs truncate">{item.label}</span>
+                                                    )}
                                                 </div>
 
-                                                <div className="flex items-center gap-1.5">
-                                                    {item.badge !== undefined && item.badge > 0 && (
-                                                        <span
-                                                            className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full transition-all ${
-                                                                isCurrent
-                                                                    ? "bg-cyan-400 text-[#0e0f13] shadow-[0_0_8px_rgba(0,240,255,0.4)]"
-                                                                    : "bg-white/[0.06] text-[#b1a696] border border-white/[0.08] group-hover:border-cyan-500/30 group-hover:text-cyan-300"
-                                                            }`}
-                                                        >
-                                                            {item.badge}
-                                                        </span>
-                                                    )}
-                                                    {item.live && (
-                                                        <span className="flex h-2 w-2 relative">
-                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                {isSidebarOpen && (
+                                                    <div className="flex items-center gap-1.5">
+                                                        {item.badge !== undefined && item.badge > 0 && (
+                                                            <span
+                                                                className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full transition-all ${
+                                                                    isCurrent
+                                                                        ? "bg-cyan-400 text-[#0e0f13] shadow-[0_0_8px_rgba(0,240,255,0.4)]"
+                                                                        : "bg-white/[0.06] text-[#b1a696] border border-white/[0.08] group-hover:border-cyan-500/30 group-hover:text-cyan-300"
+                                                                }`}
+                                                            >
+                                                                {item.badge}
+                                                            </span>
+                                                        )}
+                                                        {item.live && (
+                                                            <span className="flex h-2 w-2 relative">
+                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </button>
                                         );
                                     })}
@@ -435,42 +503,86 @@ const DashboardView = ({ onBackToLanding }) => {
                 </div>
 
                 {/* Operator Profile & Return to Landing Page */}
-                <div className="p-3.5 border-t border-white/[0.08] bg-[#101115]/95 space-y-2.5 shrink-0">
-                    <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                        <div className="relative">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/30 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-mono font-bold text-xs shadow-inner">
-                                OP
+                <div className={`border-t border-white/[0.08] bg-[#101115]/95 space-y-2.5 shrink-0 ${isSidebarOpen ? "p-3.5" : "p-2"}`}>
+                    {isSidebarOpen ? (
+                        <>
+                            <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                                <div className="relative">
+                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/30 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-mono font-bold text-xs shadow-inner">
+                                        OP
+                                    </div>
+                                    <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-[#121318]" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-bold text-white truncate">mukui</p>
+                                    <p className="text-[10px] font-mono text-[#8e8a83] truncate">Lead Investigator</p>
+                                </div>
+                                <span className="text-[9px] font-mono font-bold text-cyan-400/90 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
+                                    ROOT
+                                </span>
                             </div>
-                            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-[#121318]" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-white truncate">mukui</p>
-                            <p className="text-[10px] font-mono text-[#8e8a83] truncate">Lead Investigator</p>
-                        </div>
-                        <span className="text-[9px] font-mono font-bold text-cyan-400/90 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
-                            ROOT
-                        </span>
-                    </div>
 
-                    <button
-                        onClick={onBackToLanding}
-                        className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 bg-white/[0.04] hover:bg-cyan-500/10 border border-white/[0.08] hover:border-cyan-500/30 rounded-xl text-xs font-bold text-[#f4efe7] hover:text-cyan-300 transition-all duration-200 cursor-pointer shadow-sm group"
-                    >
-                        <svg className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        <span>Return to Main Portal</span>
-                    </button>
+                            <button
+                                onClick={onBackToLanding}
+                                className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 bg-white/[0.04] hover:bg-cyan-500/10 border border-white/[0.08] hover:border-cyan-500/30 rounded-xl text-xs font-bold text-[#f4efe7] hover:text-cyan-300 transition-all duration-200 cursor-pointer shadow-sm group"
+                            >
+                                <svg className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                                    <polyline points="12 19 5 12 12 5"></polyline>
+                                </svg>
+                                <span>Return to Main Portal</span>
+                            </button>
+                        </>
+                    ) : (
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="relative" title="mukui • Lead Investigator [ROOT]">
+                                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/30 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-mono font-bold text-xs shadow-inner">
+                                    OP
+                                </div>
+                                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-[#121318]" />
+                            </div>
+                            <button
+                                onClick={onBackToLanding}
+                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.04] hover:bg-cyan-500/20 border border-white/[0.08] hover:border-cyan-500/30 text-[#f4efe7] hover:text-cyan-300 transition-all cursor-pointer"
+                                title="Return to Main Portal"
+                            >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                                    <polyline points="12 19 5 12 12 5"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    )}
                 </div>
             </aside>
 
             {/* ── MAIN CONTENT ───────────────────────────────────────────── */}
-            <main className="flex-1 flex flex-col min-h-screen bg-[#0e0f13]">
+            <main className="flex-1 flex flex-col min-h-screen bg-[#0e0f13] transition-all duration-300">
                 {/* Topbar Header */}
-                <header className="h-20 bg-[#121318]/80 backdrop-blur-xl border-b border-white/[0.08] px-8 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-md">
-                    <div className="flex items-center gap-3.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00f0ff] animate-pulse" />
+                <header className="h-20 bg-[#121318]/80 backdrop-blur-xl border-b border-white/[0.08] px-6 lg:px-8 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-md">
+                    <div className="flex items-center gap-3">
+                        {/* Closing/Opening Toggle Button in Topbar */}
+                        <button
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="p-2 rounded-xl bg-[#171922] hover:bg-cyan-500/15 text-[#8e8a83] hover:text-cyan-300 border border-white/[0.08] hover:border-cyan-500/30 transition-all duration-200 cursor-pointer flex items-center gap-2 group shadow-sm"
+                            title={isSidebarOpen ? "Close / Collapse Sidebar" : "Open / Expand Sidebar"}
+                            aria-label={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
+                        >
+                            <svg className="w-4 h-4 text-cyan-400 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect width="18" height="18" x="3" y="3" rx="2" />
+                                <path d="M9 3v18" />
+                                {isSidebarOpen ? (
+                                    <path d="m14 9-3 3 3 3" />
+                                ) : (
+                                    <path d="m11 9 3 3-3 3" />
+                                )}
+                            </svg>
+                            <span className="text-[11px] font-mono font-bold text-[#b1a696] group-hover:text-white hidden md:inline">
+                                {isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
+                            </span>
+                        </button>
+
+                        <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00f0ff] animate-pulse ml-1" />
                         <div>
                             <h2 className="text-base font-extrabold text-white capitalize tracking-wide flex items-center gap-2.5">
                                 <span>{activeTab.replace("-", " ")}</span>
