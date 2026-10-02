@@ -188,62 +188,71 @@ const DashboardView = ({ onBackToLanding }) => {
 
     const getActionBadgeColor = (action) => {
         const act = (action || "").toUpperCase();
-        if (act.includes("EXPORT") || act.includes("RESTORE")) return "text-cyan-400 bg-cyan-950/50 border-cyan-800/60";
-        if (act.includes("CARVE")) return "text-amber-400 bg-amber-950/50 border-amber-800/60";
-        if (act.includes("WIPE") || act.includes("ERAS")) return "text-rose-400 bg-rose-950/50 border-rose-800/60";
-        if (act.includes("VERIF") || act.includes("CERT")) return "text-emerald-400 bg-emerald-950/50 border-emerald-800/60";
+        if (act.includes("EXPORT") || act.includes("RESTORE")) return "text-cyan-400 bg-cyan-950/40 border-cyan-500/30";
+        if (act.includes("CARVE")) return "text-amber-400 bg-amber-950/40 border-amber-500/30";
+        if (act.includes("WIPE") || act.includes("ERAS")) return "text-rose-400 bg-rose-950/40 border-rose-500/30";
+        if (act.includes("VERIF") || act.includes("CERT")) return "text-emerald-400 bg-emerald-950/40 border-emerald-500/30";
         return "text-[#f4efe7]/80 bg-white/5 border-white/10";
     };
 
     return (
-        <div className="flex min-h-screen bg-[#0d0e11] text-[#f4efe7] font-sans antialiased selection:bg-[#00f0ff] selection:text-[#0d0e11]" data-lenis-prevent="true">
+        <div className="flex min-h-screen bg-[#0e0f13] text-[#f4efe7] font-sans antialiased selection:bg-cyan-400 selection:text-[#0e0f13] relative overflow-hidden" data-lenis-prevent="true">
+            {/* Ambient Background Glows */}
+            <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-cyan-600/[0.03] rounded-full blur-[140px] pointer-events-none -z-10" />
+            <div className="fixed bottom-0 right-10 w-[500px] h-[500px] bg-blue-600/[0.03] rounded-full blur-[140px] pointer-events-none -z-10" />
+
             {/* ── SIDEBAR ────────────────────────────────────────────── */}
-            <aside className="w-68 bg-[#131418] border-r border-white/10 flex flex-col justify-between shrink-0 z-20 sticky top-0 h-screen overflow-y-auto shadow-2xl">
+            <aside className="w-72 bg-[#121318]/95 backdrop-blur-2xl border-r border-white/[0.08] flex flex-col justify-between shrink-0 z-20 sticky top-0 h-screen overflow-y-auto shadow-[10px_0_40px_rgba(0,0,0,0.5)]">
                 <div>
                     {/* Header Brand */}
-                    <div className="h-18 px-5 border-b border-white/10 flex items-center justify-between bg-[#101115]">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 p-0.5 shadow-lg shadow-cyan-500/20 flex items-center justify-center">
-                                <div className="w-full h-full bg-[#131418] rounded-[10px] flex items-center justify-center p-1.5">
+                    <div className="h-20 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#14161d]/80">
+                        <div className="flex items-center gap-3.5">
+                            <div className="relative group">
+                                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+                                <div className="relative w-10 h-10 rounded-xl bg-[#171922] border border-white/10 p-2 flex items-center justify-center shadow-md">
                                     <img src="/logo.png" alt="ZeroTrace" className="w-full h-full object-contain" />
                                 </div>
                             </div>
                             <div>
-                                <div className="flex items-center gap-1.5">
-                                    <h1 className="font-extrabold text-sm tracking-wide text-white uppercase">ZeroTrace</h1>
-                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                                        PRO
+                                <div className="flex items-center gap-2">
+                                    <h1 className="font-extrabold text-sm tracking-wider text-white uppercase font-sans">
+                                        ZeroTrace
+                                    </h1>
+                                    <span className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                                        v1.4
                                     </span>
                                 </div>
-                                <p className="text-[#8e8a83] text-[10px] tracking-wider uppercase font-mono mt-0.5">Forensic Telemetry Hub</p>
+                                <p className="text-[#8e8a83] text-[10px] tracking-wider uppercase font-mono mt-0.5">
+                                    Forensic Command Hub
+                                </p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Agent Live Connectivity Status Banner */}
-                    <div className="mx-3.5 my-3 p-3 rounded-xl bg-[#18191f] border border-white/10 relative overflow-hidden shadow-inner">
-                        <div className="flex items-center justify-between mb-1.5">
-                            <div className="flex items-center gap-2">
+                    {/* Agent Live Connectivity Status Card */}
+                    <div className="mx-4 my-4 p-3.5 rounded-2xl bg-gradient-to-b from-[#181a24] to-[#14151e] border border-white/[0.08] shadow-lg relative overflow-hidden group">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2.5">
                                 <span className="relative flex h-2.5 w-2.5">
                                     <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isAgentOnline ? "bg-emerald-400" : "bg-amber-400"}`}></span>
-                                    <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isAgentOnline ? "bg-emerald-400" : "bg-amber-400"}`}></span>
+                                    <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isAgentOnline ? "bg-emerald-400 shadow-[0_0_8px_#34d399]" : "bg-amber-400"}`}></span>
                                 </span>
-                                <span className="text-[11px] font-bold tracking-tight text-white">
-                                    {isAgentOnline ? "Desktop Engine Connected" : "Connecting Agent..."}
+                                <span className="text-xs font-bold tracking-tight text-white">
+                                    {isAgentOnline ? "Desktop Engine Active" : "Waiting on Agent..."}
                                 </span>
                             </div>
-                            <span className={`text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-full border ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
+                            <span className={`text-[9px] font-mono font-extrabold px-2 py-0.5 rounded-full border tracking-wide uppercase ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
                                 {isAgentOnline ? "LIVE" : "POLLING"}
                             </span>
                         </div>
-                        <div className="flex items-center justify-between text-[10px] font-mono text-[#8e8a83]">
-                            <span>Bridge: IPC Socket</span>
-                            <span className="text-[#f4efe7]/70">{lastSyncTime ? `Sync: ${lastSyncTime}` : "Local JSON Bridge"}</span>
+                        <div className="flex items-center justify-between text-[10px] font-mono text-[#8e8a83] pt-1 border-t border-white/[0.05]">
+                            <span>Socket: Local IPC</span>
+                            <span className="text-cyan-400/90 font-medium">{lastSyncTime ? `Synced: ${lastSyncTime}` : "Bridge Sync"}</span>
                         </div>
                     </div>
 
                     {/* Navigation Menu */}
-                    <nav className="px-3 space-y-1 mt-2">
+                    <nav className="px-3 space-y-1.5 mt-2">
                         {[
                             { id: "overview", label: "Overview", icon: "📊" },
                             { id: "cases", label: "Active Cases", icon: "📁", badge: casesData.length },
@@ -260,21 +269,21 @@ const DashboardView = ({ onBackToLanding }) => {
                                 <button
                                     key={item.id}
                                     onClick={() => setActiveTab(item.id)}
-                                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer relative group ${
                                         isCurrent
-                                            ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-950/30 font-bold"
-                                            : "text-[#b1a696] hover:bg-white/5 hover:text-white border border-transparent"
+                                            ? "bg-gradient-to-r from-cyan-500/15 via-blue-500/10 to-transparent text-cyan-300 font-bold border-l-2 border-cyan-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                                            : "text-[#b1a696] hover:bg-white/[0.04] hover:text-white border-l-2 border-transparent"
                                     }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <span className="text-sm opacity-90">{item.icon}</span>
+                                        <span className={`text-sm transition-transform duration-200 ${isCurrent ? "scale-110 text-cyan-400" : "opacity-75 group-hover:scale-105"}`}>{item.icon}</span>
                                         <span>{item.label}</span>
                                     </div>
-                                    <div className="flex items-center gap-1.5">
+                                    <div className="flex items-center gap-2">
                                         {item.badge !== undefined && item.badge > 0 && (
                                             <span
-                                                className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                                                    isCurrent ? "bg-cyan-400 text-[#0d0e11]" : "bg-white/10 text-[#f4efe7]/80"
+                                                className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full transition-colors ${
+                                                    isCurrent ? "bg-cyan-400 text-[#0e0f13] shadow-[0_0_10px_rgba(0,240,255,0.4)]" : "bg-white/[0.07] text-[#f4efe7]/80 group-hover:bg-white/10"
                                                 }`}
                                             >
                                                 {item.badge}
@@ -294,43 +303,44 @@ const DashboardView = ({ onBackToLanding }) => {
                 </div>
 
                 {/* Back to Landing Page */}
-                <div className="p-3.5 border-t border-white/10 bg-[#101115]">
+                <div className="p-4 border-t border-white/[0.08] bg-[#101115]/90">
                     <button
                         onClick={onBackToLanding}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-[#f4efe7] hover:text-cyan-300 transition-all cursor-pointer shadow-sm"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] hover:border-cyan-500/30 rounded-xl text-xs font-bold text-[#f4efe7] hover:text-cyan-300 transition-all duration-200 cursor-pointer shadow-sm group"
                     >
-                        <span>← Return to Portal</span>
+                        <span className="group-hover:-translate-x-1 transition-transform">←</span>
+                        <span>Return to Main Portal</span>
                     </button>
                 </div>
             </aside>
 
             {/* ── MAIN CONTENT ───────────────────────────────────────────── */}
-            <main className="flex-1 flex flex-col min-h-screen bg-[#0d0e11]">
-                {/* Topbar */}
-                <header className="h-18 bg-[#131418]/90 backdrop-blur-md border-b border-white/10 px-8 flex items-center justify-between shrink-0 sticky top-0 z-30">
-                    <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+            <main className="flex-1 flex flex-col min-h-screen bg-[#0e0f13]">
+                {/* Topbar Header */}
+                <header className="h-20 bg-[#121318]/80 backdrop-blur-xl border-b border-white/[0.08] px-8 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-md">
+                    <div className="flex items-center gap-3.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00f0ff] animate-pulse" />
                         <div>
-                            <h2 className="text-base font-extrabold text-white capitalize tracking-wide flex items-center gap-2">
+                            <h2 className="text-base font-extrabold text-white capitalize tracking-wide flex items-center gap-2.5">
                                 <span>{activeTab.replace("-", " ")}</span>
-                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-white/5 text-[#b1a696] border border-white/10">
+                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                                     LIVE TELEMETRY
                                 </span>
                             </h2>
-                            <p className="text-[11px] text-[#8e8a83] font-medium">
+                            <p className="text-[11px] text-[#8e8a83] font-medium mt-0.5">
                                 Hardware-Synchronized Forensic Audit & Sanitization Console
                             </p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3.5">
+                    <div className="flex items-center gap-4">
                         <div className="relative">
                             <input
                                 type="text"
                                 placeholder="Search audit trail, hashes, cases..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 pr-4 py-2 bg-[#18191f] border border-white/10 rounded-xl text-xs text-white placeholder-[#8e8a83] focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 w-80 transition-all font-mono"
+                                className="pl-9 pr-4 py-2 bg-[#171922] border border-white/10 rounded-xl text-xs text-white placeholder-[#8e8a83] focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 w-80 transition-all font-mono"
                             />
                             <span className="absolute left-3 top-2.5 text-xs text-[#8e8a83]">🔍</span>
                         </div>
@@ -338,115 +348,115 @@ const DashboardView = ({ onBackToLanding }) => {
                         <button
                             onClick={runChainVerification}
                             disabled={verifying}
-                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-950/40 cursor-pointer disabled:opacity-50 border border-emerald-400/20"
+                            className="flex items-center gap-2 px-4.5 py-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-xl text-xs font-bold transition-all shadow-[0_4px_16px_rgba(16,185,129,0.25)] hover:shadow-[0_6px_22px_rgba(16,185,129,0.35)] cursor-pointer disabled:opacity-50 border border-emerald-400/30"
                         >
                             <span>{verifying ? "Auditing Chain..." : "🛡️ Verify Ledger"}</span>
                         </button>
                     </div>
                 </header>
 
-                {/* Main Tab Body */}
-                <div className="flex-1 p-7 bg-[#0d0e11]">
+                {/* Main Content Area */}
+                <div className="flex-1 p-8 bg-[#0e0f13]">
                     {/* ═════════════════ TAB 1: OVERVIEW ═════════════════ */}
                     {activeTab === "overview" && (
-                        <div className="space-y-6 max-w-7xl mx-auto">
+                        <div className="space-y-6.5 max-w-7xl mx-auto">
                             {/* KPI Metrics Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4.5">
                                 {/* Card 1: Active Cases */}
-                                <div className="bg-[#15161b] p-5 rounded-2xl border border-white/10 shadow-lg hover:border-white/20 transition-all flex items-center justify-between group">
+                                <div className="bg-[#15161d] p-5.5 rounded-2xl border border-white/[0.08] shadow-lg hover:border-cyan-500/30 hover:shadow-[0_8px_25px_rgba(0,240,255,0.06)] transition-all flex items-center justify-between group">
                                     <div>
                                         <p className="text-[10px] font-mono uppercase tracking-wider text-[#8e8a83] font-bold">Investigation Cases</p>
-                                        <div className="flex items-baseline gap-2 mt-1">
-                                            <h3 className="text-2xl font-black text-white">{casesData.length}</h3>
+                                        <div className="flex items-baseline gap-2 mt-1.5">
+                                            <h3 className="text-3xl font-black text-white font-sans">{casesData.length}</h3>
                                             <span className="text-xs font-bold text-cyan-400 font-mono">Active</span>
                                         </div>
                                         <p className="text-[10px] text-[#8e8a83] mt-1 font-mono">Source: forensic_cases.json</p>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl font-bold group-hover:scale-105 transition-transform">
+                                    <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl font-bold group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all duration-200">
                                         📁
                                     </div>
                                 </div>
 
                                 {/* Card 2: Hash Chain Height */}
-                                <div className="bg-[#15161b] p-5 rounded-2xl border border-white/10 shadow-lg hover:border-white/20 transition-all flex items-center justify-between group">
+                                <div className="bg-[#15161d] p-5.5 rounded-2xl border border-white/[0.08] shadow-lg hover:border-blue-500/30 hover:shadow-[0_8px_25px_rgba(59,130,246,0.06)] transition-all flex items-center justify-between group">
                                     <div>
                                         <p className="text-[10px] font-mono uppercase tracking-wider text-[#8e8a83] font-bold">Audit Chain Height</p>
-                                        <div className="flex items-baseline gap-2 mt-1">
-                                            <h3 className="text-2xl font-black text-cyan-400 font-mono">#{auditEvents.length}</h3>
+                                        <div className="flex items-baseline gap-2 mt-1.5">
+                                            <h3 className="text-3xl font-black text-cyan-400 font-mono">#{auditEvents.length}</h3>
                                             <span className="text-xs font-bold text-[#b1a696]">Blocks</span>
                                         </div>
                                         <p className="text-[10px] text-[#8e8a83] mt-1 font-mono">Immutable SHA-256 Chain</p>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl font-bold group-hover:scale-105 transition-transform">
+                                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl font-bold group-hover:scale-110 group-hover:bg-blue-500/20 transition-all duration-200">
                                         ⛓️
                                     </div>
                                 </div>
 
                                 {/* Card 3: Hardware Erasure Status */}
-                                <div className="bg-[#15161b] p-5 rounded-2xl border border-white/10 shadow-lg hover:border-white/20 transition-all flex items-center justify-between group">
+                                <div className="bg-[#15161d] p-5.5 rounded-2xl border border-white/[0.08] shadow-lg hover:border-amber-500/30 hover:shadow-[0_8px_25px_rgba(245,158,11,0.06)] transition-all flex items-center justify-between group">
                                     <div>
                                         <p className="text-[10px] font-mono uppercase tracking-wider text-[#8e8a83] font-bold">Erasure Subsystem</p>
-                                        <div className="flex items-baseline gap-2 mt-1">
-                                            <h3 className="text-2xl font-black text-white font-mono">
+                                        <div className="flex items-baseline gap-2 mt-1.5">
+                                            <h3 className="text-2xl font-black text-white font-mono uppercase tracking-tight">
                                                 {telemetry?.is_wiping ? `${telemetry.progress || 0}%` : telemetry?.status || "STANDBY"}
                                             </h3>
                                         </div>
                                         <p className="text-[10px] text-[#8e8a83] mt-1 font-mono truncate max-w-[150px]">{telemetry?.target || "No active wipe target"}</p>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-bold group-hover:scale-105 transition-transform">
+                                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-bold group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-200">
                                         ⚡
                                     </div>
                                 </div>
 
                                 {/* Card 4: Dynamic Merkle Root */}
-                                <div className="bg-[#15161b] p-5 rounded-2xl border border-white/10 shadow-lg hover:border-white/20 transition-all flex items-center justify-between group">
+                                <div className="bg-[#15161d] p-5.5 rounded-2xl border border-white/[0.08] shadow-lg hover:border-emerald-500/30 hover:shadow-[0_8px_25px_rgba(16,185,129,0.06)] transition-all flex items-center justify-between group">
                                     <div className="min-w-0 pr-2">
                                         <p className="text-[10px] font-mono uppercase tracking-wider text-[#8e8a83] font-bold">Merkle Root</p>
-                                        <div className="flex items-center gap-1.5 mt-1">
+                                        <div className="flex items-center gap-2 mt-1.5">
                                             <h3 className="text-xs font-mono font-bold text-white truncate max-w-[130px]" title={merkleRoot}>
                                                 {merkleRoot ? `${merkleRoot.substring(0, 10)}...` : "Computing..."}
                                             </h3>
                                             {merkleRoot && (
                                                 <button
                                                     onClick={() => copyToClipboard(merkleRoot, "merkle")}
-                                                    className="text-[10px] text-cyan-400 hover:text-white px-1.5 py-0.5 rounded bg-white/5 border border-white/10 cursor-pointer"
-                                                    title="Copy full Merkle Root"
+                                                    className="text-[10px] font-mono text-cyan-400 hover:text-white px-2 py-0.5 rounded-md bg-white/[0.06] hover:bg-cyan-500/20 border border-white/10 transition-colors cursor-pointer"
+                                                    title="Copy full SHA-256 Merkle Root"
                                                 >
-                                                    {copiedHash === "merkle" ? "✓" : "Copy"}
+                                                    {copiedHash === "merkle" ? "✓ Done" : "Copy"}
                                                 </button>
                                             )}
                                         </div>
-                                        <p className="text-[10px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
+                                        <p className="text-[10px] text-emerald-400 font-semibold mt-1 flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse shadow-[0_0_6px_#34d399]" />
                                             Cryptographically Intact
                                         </p>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold group-hover:scale-105 transition-transform shrink-0">
+                                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-200 shrink-0">
                                         🛡️
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Verification Result Banner (if triggered) */}
+                            {/* Verification Banner */}
                             {verificationResult && (
                                 <div className={`p-5 rounded-2xl border transition-all ${verificationResult.valid ? "bg-emerald-950/30 border-emerald-500/40 text-emerald-300" : "bg-rose-950/30 border-rose-500/40 text-rose-300"}`}>
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2.5">
-                                            <span className="text-xl">{verificationResult.valid ? "🛡️" : "⚠️"}</span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-2xl">{verificationResult.valid ? "🛡️" : "⚠️"}</span>
                                             <div>
                                                 <p className="font-extrabold text-sm text-white">
                                                     {verificationResult.valid ? "Full Cryptographic Hash Chain Audit Verified" : "Cryptographic Chain Discrepancy Detected"}
                                                 </p>
                                                 <p className="text-xs text-[#b1a696] font-mono mt-0.5">
-                                                    Genesis block to Block #{verificationResult.totalBlocks} cryptographically verified using SHA-256 recursive Merkle validation.
+                                                    Genesis block to Block #{verificationResult.totalBlocks} cryptographically verified using recursive SHA-256 Merkle validation.
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase ${verificationResult.valid ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-rose-500/20 text-rose-300 border border-rose-500/30"}`}>
+                                        <span className={`px-3 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${verificationResult.valid ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-rose-500/20 text-rose-300 border border-rose-500/40"}`}>
                                             {verificationResult.valid ? "100% UNBROKEN" : "TAMPER ALERT"}
                                         </span>
                                     </div>
-                                    <div className="mt-3.5 pt-3 border-t border-white/10 grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-[11px] text-[#f4efe7]/80">
+                                    <div className="mt-3.5 pt-3 border-t border-white/[0.08] grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-[11px] text-[#f4efe7]/80">
                                         <div><span className="text-[#8e8a83]">Audited Blocks:</span> #{verificationResult.totalBlocks}</div>
                                         <div className="truncate"><span className="text-[#8e8a83]">Root:</span> {verificationResult.merkleRoot}</div>
                                         <div><span className="text-[#8e8a83]">Audit Time:</span> {new Date(verificationResult.verifiedAt).toLocaleTimeString()}</div>
@@ -456,30 +466,30 @@ const DashboardView = ({ onBackToLanding }) => {
 
                             {/* Hardware Telemetry Card */}
                             {telemetry && (
-                                <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden">
+                                <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl relative overflow-hidden">
                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                                         <div>
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2.5">
                                                 <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-bold text-[10px] tracking-wider uppercase font-mono">
                                                     Hardware Subsystem Stream
                                                 </span>
-                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono ${telemetry.is_wiping ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse" : "bg-white/5 text-[#b1a696] border border-white/10"}`}>
+                                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${telemetry.is_wiping ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse" : "bg-white/5 text-[#b1a696] border border-white/10"}`}>
                                                     {telemetry.status || "STANDBY"}
                                                 </span>
                                             </div>
-                                            <h3 className="text-lg font-bold text-white mt-1.5 flex items-center gap-2">
-                                                <span>Target:</span>
+                                            <h3 className="text-lg font-bold text-white mt-2 flex items-center gap-2">
+                                                <span className="text-[#8e8a83] text-sm">Target:</span>
                                                 <span className="font-mono text-cyan-300">{telemetry.target || "Local Physical Volumes"}</span>
                                             </h3>
-                                            <p className="text-xs text-[#b1a696] mt-0.5">
-                                                Sanitization Standard: <span className="font-mono font-bold text-white">{telemetry.method || "NIST SP 800-88 Rev 1"}</span>
+                                            <p className="text-xs text-[#b1a696] mt-1">
+                                                Sanitization Standard: <span className="font-mono font-bold text-white">{telemetry.method || "NIST SP 800-88 Rev 1 Purge"}</span>
                                             </p>
                                         </div>
 
                                         {telemetry.is_wiping && (
                                             <div className="text-right">
                                                 <span className="text-3xl font-black text-cyan-400 font-mono">{telemetry.progress || 0}%</span>
-                                                <p className="text-xs font-mono text-[#8e8a83]">{telemetry.speed_mb_s || 0} MB/s Throughput</p>
+                                                <p className="text-xs font-mono text-[#8e8a83] mt-0.5">{telemetry.speed_mb_s || 0} MB/s Throughput</p>
                                             </div>
                                         )}
                                     </div>
@@ -487,30 +497,33 @@ const DashboardView = ({ onBackToLanding }) => {
                                     {telemetry.is_wiping && (
                                         <div className="w-full bg-[#101115] rounded-full h-3 overflow-hidden border border-white/10 mt-3 p-0.5">
                                             <div
-                                                className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full rounded-full transition-all duration-300 shadow-md shadow-cyan-500/50"
+                                                className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(0,240,255,0.6)]"
                                                 style={{ width: `${telemetry.progress || 0}%` }}
                                             />
                                         </div>
                                     )}
 
                                     {/* Forensic Terminal Console Log */}
-                                    <div className="mt-4 p-3.5 bg-[#0a0b0d] border border-white/10 rounded-xl font-mono text-[11px] text-emerald-400/90 shadow-inner flex items-center justify-between">
-                                        <div className="flex items-center gap-2.5 truncate">
-                                            <span className="text-cyan-400 font-bold">$</span>
+                                    <div className="mt-4 p-4 bg-[#0a0b0e] border border-white/[0.08] rounded-xl font-mono text-[11px] text-emerald-400/90 shadow-inner flex items-center justify-between">
+                                        <div className="flex items-center gap-3 truncate">
+                                            <span className="text-cyan-400 font-bold text-xs">$</span>
                                             <span className="truncate">{telemetry.new_log || `[TELEMETRY] Device bridge synchronized with ${telemetry.target || "system storage"}`}</span>
                                         </div>
-                                        <span className="text-[10px] text-[#8e8a83] shrink-0 ml-3">STREAM ACTIVE</span>
+                                        <div className="flex items-center gap-2 shrink-0 ml-3">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                                            <span className="text-[10px] text-[#8e8a83] uppercase tracking-wider">STREAM ACTIVE</span>
+                                        </div>
                                     </div>
                                 </div>
                             )}
 
                             {/* Cryptographic Hash Chain Ledger Table */}
-                            <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl">
+                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-5">
                                     <div>
-                                        <h3 className="font-extrabold text-white text-base tracking-tight flex items-center gap-2">
+                                        <h3 className="font-extrabold text-white text-base tracking-tight flex items-center gap-2.5">
                                             <span>Chronological Hash Chain Ledger</span>
-                                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-[#b1a696] border border-white/10">
+                                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/[0.06] text-[#b1a696] border border-white/10">
                                                 LATEST BLOCKS
                                             </span>
                                         </h3>
@@ -518,26 +531,26 @@ const DashboardView = ({ onBackToLanding }) => {
                                     </div>
                                     <button
                                         onClick={() => setActiveTab("audit")}
-                                        className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer flex items-center gap-1.5"
+                                        className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-cyan-500/10"
                                     >
                                         <span>View Full Audit Ledger ({auditEvents.length})</span>
                                         <span>→</span>
                                     </button>
                                 </div>
 
-                                <div className="overflow-x-auto rounded-xl border border-white/10">
+                                <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
                                     <table className="w-full text-left text-xs">
                                         <thead>
-                                            <tr className="border-b border-white/10 text-[#8e8a83] font-mono text-[10px] uppercase tracking-wider bg-[#101115]">
-                                                <th className="py-3 px-4"># Block</th>
-                                                <th className="py-3 px-4">Timestamp (UTC)</th>
-                                                <th className="py-3 px-4">Operator</th>
-                                                <th className="py-3 px-4">Forensic Action</th>
-                                                <th className="py-3 px-4">Target Target</th>
-                                                <th className="py-3 px-4 text-right">Block Hash (SHA-256)</th>
+                                            <tr className="border-b border-white/[0.08] text-[#8e8a83] font-mono text-[10px] uppercase tracking-wider bg-[#111217]">
+                                                <th className="py-3.5 px-4"># Block</th>
+                                                <th className="py-3.5 px-4">Timestamp (UTC)</th>
+                                                <th className="py-3.5 px-4">Operator</th>
+                                                <th className="py-3.5 px-4">Forensic Action</th>
+                                                <th className="py-3.5 px-4">Target Target</th>
+                                                <th className="py-3.5 px-4 text-right">Block Hash (SHA-256)</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                                        <tbody className="divide-y divide-white/[0.04] font-mono text-[11px]">
                                             {auditEvents.slice(-7).reverse().map((ev) => (
                                                 <tr key={ev.index} className="hover:bg-white/[0.03] transition-colors group">
                                                     <td className="py-3 px-4 font-bold text-cyan-400">
@@ -550,7 +563,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                                         {ev.operator}
                                                     </td>
                                                     <td className="py-3 px-4">
-                                                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold border ${getActionBadgeColor(ev.action)}`}>
+                                                        <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold border ${getActionBadgeColor(ev.action)}`}>
                                                             {ev.action}
                                                         </span>
                                                     </td>
@@ -558,14 +571,14 @@ const DashboardView = ({ onBackToLanding }) => {
                                                         {ev.target}
                                                     </td>
                                                     <td className="py-3 px-4 text-right">
-                                                        <div className="flex items-center justify-end gap-1.5">
-                                                            <span className="text-[#8e8a83] group-hover:text-cyan-300 transition-colors">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <span className="text-[#8e8a83] group-hover:text-cyan-300 transition-colors font-mono">
                                                                 {ev.event_hash ? `${ev.event_hash.substring(0, 10)}...` : "N/A"}
                                                             </span>
                                                             {ev.event_hash && (
                                                                 <button
                                                                     onClick={() => copyToClipboard(ev.event_hash, ev.index)}
-                                                                    className="opacity-0 group-hover:opacity-100 text-[10px] text-cyan-400 hover:text-white px-1.5 py-0.5 rounded bg-white/10 transition-opacity cursor-pointer"
+                                                                    className="opacity-0 group-hover:opacity-100 text-[10px] text-cyan-400 hover:text-white px-2 py-0.5 rounded bg-white/10 hover:bg-cyan-500/20 transition-all cursor-pointer"
                                                                     title="Copy SHA-256 Hash"
                                                                 >
                                                                     {copiedHash === ev.index ? "✓" : "Copy"}
@@ -585,7 +598,7 @@ const DashboardView = ({ onBackToLanding }) => {
                     {/* ═════════════════ TAB 2: CASES ═════════════════ */}
                     {activeTab === "cases" && (
                         <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl">
+                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
                                 <div className="flex justify-between items-center mb-6">
                                     <div>
                                         <h3 className="text-base font-bold text-white">Forensic Investigation Cases</h3>
@@ -605,10 +618,10 @@ const DashboardView = ({ onBackToLanding }) => {
                                         <p className="text-xs mt-1 text-[#8e8a83]">Open ZeroTrace.exe to initialize a forensic case investigation.</p>
                                     </div>
                                 ) : (
-                                    <div className="overflow-x-auto rounded-xl border border-white/10">
+                                    <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
                                         <table className="w-full text-left text-xs">
                                             <thead>
-                                                <tr className="border-b border-white/10 text-[#8e8a83] font-mono text-[10px] uppercase tracking-wider bg-[#101115]">
+                                                <tr className="border-b border-white/[0.08] text-[#8e8a83] font-mono text-[10px] uppercase tracking-wider bg-[#111217]">
                                                     <th className="py-3.5 px-4">Case ID</th>
                                                     <th className="py-3.5 px-4">Title & Agency</th>
                                                     <th className="py-3.5 px-4">Investigator</th>
@@ -618,7 +631,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                                     <th className="py-3.5 px-4 text-right">Action</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-white/5">
+                                            <tbody className="divide-y divide-white/[0.04]">
                                                 {casesData.map((c) => (
                                                     <tr key={c.case_id} className="hover:bg-white/[0.03] transition-colors">
                                                         <td className="py-4 px-4 font-mono font-bold text-cyan-400">{c.case_id}</td>
@@ -641,7 +654,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                                         <td className="py-4 px-4 text-right">
                                                             <button
                                                                 onClick={() => setSelectedCase(c)}
-                                                                className="px-3 py-1.5 bg-white/5 hover:bg-cyan-500/20 text-cyan-300 rounded-lg font-bold text-xs transition-colors border border-white/10 cursor-pointer"
+                                                                className="px-3 py-1.5 bg-white/[0.06] hover:bg-cyan-500/20 text-cyan-300 rounded-lg font-bold text-xs transition-colors border border-white/10 cursor-pointer"
                                                             >
                                                                 Inspect Case
                                                             </button>
@@ -655,7 +668,7 @@ const DashboardView = ({ onBackToLanding }) => {
                             </div>
 
                             {selectedCase && (
-                                <div className="bg-[#15161b] p-6 rounded-2xl border border-cyan-500/40 shadow-2xl">
+                                <div className="bg-[#15161d] p-6 rounded-2xl border border-cyan-500/40 shadow-2xl">
                                     <div className="flex justify-between items-center pb-3.5 border-b border-white/10">
                                         <h3 className="font-black text-white text-base">{selectedCase.title}</h3>
                                         <button onClick={() => setSelectedCase(null)} className="text-[#8e8a83] hover:text-white font-bold cursor-pointer text-xs">
@@ -684,11 +697,11 @@ const DashboardView = ({ onBackToLanding }) => {
                     {/* ═════════════════ TAB 3: EVIDENCE ═════════════════ */}
                     {activeTab === "evidence" && (
                         <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl">
+                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
                                 <div className="flex justify-between items-center mb-6">
                                     <div>
-                                        <h3 className="text-base font-bold text-white">Registered Physical & Logical Evidence Pool</h3>
-                                        <p className="text-xs text-[#8e8a83]">Media items and drive volumes acquired during active investigations.</p>
+                                        <h3 className="text-base font-bold text-white">Registered Evidence Pool</h3>
+                                        <p className="text-xs text-[#8e8a83]">Physical storage devices and disk volumes acquired during active investigations.</p>
                                     </div>
                                     <span className="text-xs bg-emerald-500/10 text-emerald-400 font-bold px-3 py-1.5 rounded-xl border border-emerald-500/20 font-mono">
                                         {realEvidenceList.length} Media Registered
@@ -702,11 +715,11 @@ const DashboardView = ({ onBackToLanding }) => {
                                         <p className="text-xs mt-1 text-[#8e8a83]">Mount or register a physical drive / disk image in ZeroTrace.exe.</p>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4.5">
                                         {realEvidenceList.map((e, idx) => (
-                                            <div key={idx} className="p-5 rounded-2xl border border-white/10 bg-[#121316] shadow-lg">
+                                            <div key={idx} className="p-5.5 rounded-2xl border border-white/[0.08] bg-[#121318] shadow-lg hover:border-white/20 transition-all">
                                                 <div className="flex justify-between items-start">
-                                                    <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-mono font-bold border border-cyan-500/30">
+                                                    <span className="px-2.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-mono font-bold border border-cyan-500/30">
                                                         {e.evidence_id || `EVID-${idx + 1}`}
                                                     </span>
                                                     <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
@@ -715,13 +728,13 @@ const DashboardView = ({ onBackToLanding }) => {
                                                 </div>
                                                 <h4 className="font-bold text-white text-sm mt-3">{e.label || e.target_path}</h4>
                                                 <p className="text-[11px] text-[#8e8a83]">{e.evidence_type || "Storage Volume"}</p>
-                                                <div className="mt-3.5 space-y-1.5 text-xs font-mono text-[#b1a696] border-t border-white/5 pt-2.5">
+                                                <div className="mt-3.5 space-y-1.5 text-xs font-mono text-[#b1a696] border-t border-white/[0.05] pt-2.5">
                                                     <div>Path: <span className="text-white">{e.target_path}</span></div>
                                                     <div>Size: <span className="text-white">{e.size_bytes ? `${(e.size_bytes / 1024 / 1024).toFixed(2)} MB` : "Auto-detected"}</span></div>
                                                     <div>Acquired: <span className="text-white">{e.acquired_by || "Forensic Operator"}</span></div>
                                                 </div>
                                                 {e.sha256 && (
-                                                    <div className="mt-3 text-[10px] font-mono text-[#8e8a83] truncate bg-black/30 p-1.5 rounded border border-white/5">
+                                                    <div className="mt-3 text-[10px] font-mono text-[#8e8a83] truncate bg-black/40 p-2 rounded-lg border border-white/5">
                                                         SHA: {e.sha256}
                                                     </div>
                                                 )}
@@ -736,7 +749,7 @@ const DashboardView = ({ onBackToLanding }) => {
                     {/* ═════════════════ TAB 4: OPERATIONS ═════════════════ */}
                     {activeTab === "operations" && (
                         <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl">
+                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
                                 <div className="flex justify-between items-center mb-6">
                                     <div>
                                         <h3 className="font-bold text-white text-base">Live Hardware Operations Console</h3>
@@ -747,7 +760,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                     </span>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-[#101115] rounded-xl border border-white/5 text-xs">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4.5 p-5 bg-[#101115] rounded-xl border border-white/5 text-xs">
                                     <div>
                                         <p className="text-[#8e8a83] font-semibold">Active Hardware Target</p>
                                         <p className="font-mono font-bold text-white mt-1 text-sm">{telemetry?.target || "None currently selected"}</p>
@@ -768,7 +781,7 @@ const DashboardView = ({ onBackToLanding }) => {
                     {/* ═════════════════ TAB 5: INTEGRITY ═════════════════ */}
                     {activeTab === "integrity" && (
                         <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl">
+                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
                                 <div className="flex justify-between items-center mb-6">
                                     <div>
                                         <h3 className="text-base font-bold text-white">Cryptographic Merkle Tree & Hash Chain Verification</h3>
@@ -779,7 +792,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                     <button
                                         onClick={runChainVerification}
                                         disabled={verifying}
-                                        className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-cyan-950/40 cursor-pointer border border-cyan-400/20"
+                                        className="px-4.5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl text-xs transition-all shadow-[0_4px_16px_rgba(0,240,255,0.25)] cursor-pointer border border-cyan-400/20"
                                     >
                                         {verifying ? "Auditing Chain..." : "Run Cryptographic Audit"}
                                     </button>
@@ -803,7 +816,7 @@ const DashboardView = ({ onBackToLanding }) => {
                     {/* ═════════════════ TAB 6: AUDIT LOGS ═════════════════ */}
                     {activeTab === "audit" && (
                         <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl">
+                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
                                 <div className="flex justify-between items-center mb-6">
                                     <div>
                                         <h3 className="text-base font-bold text-white">Cryptographic Hash Chain Audit Trail</h3>
@@ -816,10 +829,10 @@ const DashboardView = ({ onBackToLanding }) => {
                                     </span>
                                 </div>
 
-                                <div className="overflow-x-auto rounded-xl border border-white/10">
+                                <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
                                     <table className="w-full text-left text-xs">
                                         <thead>
-                                            <tr className="border-b border-white/10 text-[#8e8a83] font-mono text-[10px] uppercase tracking-wider bg-[#101115]">
+                                            <tr className="border-b border-white/[0.08] text-[#8e8a83] font-mono text-[10px] uppercase tracking-wider bg-[#111217]">
                                                 <th className="py-3 px-3"># Block</th>
                                                 <th className="py-3 px-3">Timestamp (UTC)</th>
                                                 <th className="py-3 px-3">Operator</th>
@@ -829,7 +842,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                                 <th className="py-3 px-3 text-right">Event Hash</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                                        <tbody className="divide-y divide-white/[0.04] font-mono text-[11px]">
                                             {filteredAudit.map((ev) => (
                                                 <tr key={ev.index} className="hover:bg-white/[0.03] transition-colors">
                                                     <td className="py-3 px-3 font-bold text-cyan-400">#{String(ev.index).padStart(4, "0")}</td>
@@ -855,11 +868,11 @@ const DashboardView = ({ onBackToLanding }) => {
                     {/* ═════════════════ TAB 7: DEVICES / WORKERS ═════════════════ */}
                     {activeTab === "devices" && (
                         <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl">
-                                <h3 className="text-base font-bold text-white mb-2">Connected Forensic Workstations & Workers</h3>
+                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
+                                <h3 className="text-base font-bold text-white mb-2">Connected Forensic Workstations</h3>
                                 <p className="text-xs text-[#8e8a83] mb-6">Physical hardware endpoints connected to the telemetry bridge.</p>
 
-                                <div className="p-6 rounded-2xl border border-white/10 bg-[#101115] shadow-lg max-w-md">
+                                <div className="p-6 rounded-2xl border border-white/[0.08] bg-[#101115] shadow-lg max-w-md">
                                     <div className="flex justify-between items-start">
                                         <span className="text-xs font-mono font-bold text-cyan-400">HOST-LOCAL-01</span>
                                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
@@ -890,7 +903,7 @@ const DashboardView = ({ onBackToLanding }) => {
                     {/* ═════════════════ TAB 8: REPORTS ═════════════════ */}
                     {activeTab === "reports" && (
                         <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl">
+                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
                                 <div className="flex justify-between items-center mb-6">
                                     <div>
                                         <h3 className="text-base font-bold text-white">Forensic Audit & Certificate Reports</h3>
@@ -904,13 +917,13 @@ const DashboardView = ({ onBackToLanding }) => {
                                             dl.setAttribute("download", `ZeroTrace_Audit_Trail_${Date.now()}.json`);
                                             dl.click();
                                         }}
-                                        className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-cyan-950/30 cursor-pointer border border-cyan-400/20"
+                                        className="px-4.5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl text-xs transition-all shadow-[0_4px_16px_rgba(0,240,255,0.25)] cursor-pointer border border-cyan-400/20"
                                     >
                                         Export Audit Ledger (JSON)
                                     </button>
                                 </div>
 
-                                <div className="p-5 rounded-xl border border-white/10 bg-[#101115] flex items-center justify-between">
+                                <div className="p-5 rounded-xl border border-white/[0.08] bg-[#101115] flex items-center justify-between">
                                     <div>
                                         <h4 className="font-bold text-white text-xs">Full Cryptographic Hash Chain Audit Ledger</h4>
                                         <p className="text-[11px] text-[#8e8a83] font-mono mt-0.5">
@@ -928,7 +941,7 @@ const DashboardView = ({ onBackToLanding }) => {
                     {/* ═════════════════ TAB 9: SETTINGS ═════════════════ */}
                     {activeTab === "settings" && (
                         <div className="space-y-6 max-w-4xl mx-auto">
-                            <div className="bg-[#15161b] p-6 rounded-2xl border border-white/10 shadow-xl">
+                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
                                 <h3 className="text-base font-bold text-white mb-2">Bridge Configuration & Storage Paths</h3>
                                 <p className="text-xs text-[#8e8a83] mb-5">Local data bridge paths connecting Desktop Agent with the Web Hub.</p>
                                 <div className="space-y-4 text-xs font-mono">
