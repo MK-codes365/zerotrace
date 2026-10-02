@@ -30,6 +30,79 @@ async function computeRealMerkleRoot(leafHashes) {
     return current[0];
 }
 
+// ── Precision High-Tech Forensic SVG Icons ────────────────────────────
+const IconOverview = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect width="7" height="9" x="3" y="3" rx="1" />
+        <rect width="7" height="5" x="14" y="3" rx="1" />
+        <rect width="7" height="9" x="14" y="12" rx="1" />
+        <rect width="7" height="5" x="3" y="16" rx="1" />
+    </svg>
+);
+
+const IconCases = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+        <path d="M9 13h6" />
+    </svg>
+);
+
+const IconEvidence = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+        <path d="M11 8v6" />
+        <path d="M8 11h6" />
+    </svg>
+);
+
+const IconTelemetry = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+);
+
+const IconMerkle = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="m9 12 2 2 4-4" />
+    </svg>
+);
+
+const IconAudit = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" x2="8" y1="13" y2="13" />
+        <line x1="16" x2="8" y1="17" y2="17" />
+        <line x1="10" x2="8" y1="9" y2="9" />
+    </svg>
+);
+
+const IconDevices = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect width="20" height="8" x="2" y="3" rx="2" />
+        <rect width="20" height="8" x="2" y="13" rx="2" />
+        <circle cx="6" cy="7" r="1" fill="currentColor" />
+        <circle cx="6" cy="17" r="1" fill="currentColor" />
+    </svg>
+);
+
+const IconReports = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+        <path d="m9 15 2 2 4-4" />
+    </svg>
+);
+
+const IconSettings = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+);
+
 const DashboardView = ({ onBackToLanding }) => {
     const [activeTab, setActiveTab] = useState("overview");
     const [searchQuery, setSearchQuery] = useState("");
@@ -202,23 +275,23 @@ const DashboardView = ({ onBackToLanding }) => {
             <div className="fixed bottom-0 right-10 w-[500px] h-[500px] bg-blue-600/[0.03] rounded-full blur-[140px] pointer-events-none -z-10" />
 
             {/* ── SIDEBAR ────────────────────────────────────────────── */}
-            <aside className="w-72 bg-[#121318]/95 backdrop-blur-2xl border-r border-white/[0.08] flex flex-col justify-between shrink-0 z-20 sticky top-0 h-screen overflow-y-auto shadow-[10px_0_40px_rgba(0,0,0,0.5)]">
-                <div>
+            <aside className="w-72 bg-[#101116]/98 backdrop-blur-2xl border-r border-white/[0.08] flex flex-col justify-between shrink-0 z-20 sticky top-0 h-screen shadow-[15px_0_50px_rgba(0,0,0,0.6)]">
+                <div className="flex-1 overflow-y-auto no-scrollbar">
                     {/* Header Brand */}
-                    <div className="h-20 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#14161d]/80">
-                        <div className="flex items-center gap-3.5">
+                    <div className="h-18 px-5 border-b border-white/[0.08] flex items-center justify-between bg-[#13141d]/80 sticky top-0 z-10 backdrop-blur-xl">
+                        <div className="flex items-center gap-3">
                             <div className="relative group">
                                 <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
-                                <div className="relative w-10 h-10 rounded-xl bg-[#171922] border border-white/10 p-2 flex items-center justify-center shadow-md">
+                                <div className="relative w-9 h-9 rounded-xl bg-[#171922] border border-white/10 p-1.5 flex items-center justify-center shadow-md">
                                     <img src="/logo.png" alt="ZeroTrace" className="w-full h-full object-contain" />
                                 </div>
                             </div>
                             <div>
-                                <div className="flex items-center gap-2">
-                                    <h1 className="font-extrabold text-sm tracking-wider text-white uppercase font-sans">
+                                <div className="flex items-center gap-1.5">
+                                    <h1 className="font-black text-sm tracking-wider text-white uppercase font-sans">
                                         ZeroTrace
                                     </h1>
-                                    <span className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
                                         v1.4
                                     </span>
                                 </div>
@@ -230,85 +303,163 @@ const DashboardView = ({ onBackToLanding }) => {
                     </div>
 
                     {/* Agent Live Connectivity Status Card */}
-                    <div className="mx-4 my-4 p-3.5 rounded-2xl bg-gradient-to-b from-[#181a24] to-[#14151e] border border-white/[0.08] shadow-lg relative overflow-hidden group">
-                        <div className="flex items-center justify-between mb-2">
+                    <div className="mx-3.5 my-3.5 p-3.5 rounded-2xl bg-gradient-to-b from-[#181a24] via-[#14151e] to-[#0f1015] border border-white/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.35)] relative overflow-hidden group">
+                        <div className={`absolute top-0 right-0 w-28 h-28 rounded-full blur-2xl pointer-events-none transition-opacity duration-500 ${isAgentOnline ? "bg-emerald-500/[0.08]" : "bg-amber-500/[0.08]"}`} />
+                        
+                        <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
                                 <span className="relative flex h-2.5 w-2.5">
                                     <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isAgentOnline ? "bg-emerald-400" : "bg-amber-400"}`}></span>
-                                    <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isAgentOnline ? "bg-emerald-400 shadow-[0_0_8px_#34d399]" : "bg-amber-400"}`}></span>
+                                    <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isAgentOnline ? "bg-emerald-400 shadow-[0_0_10px_#10b981]" : "bg-amber-400"}`}></span>
                                 </span>
-                                <span className="text-xs font-bold tracking-tight text-white">
-                                    {isAgentOnline ? "Desktop Engine Active" : "Waiting on Agent..."}
-                                </span>
+                                <div>
+                                    <span className="text-xs font-bold tracking-tight text-white block">
+                                        Desktop Engine
+                                    </span>
+                                    <span className={`text-[10px] font-mono font-semibold block ${isAgentOnline ? "text-emerald-400" : "text-amber-400"}`}>
+                                        {isAgentOnline ? "Active & Synchronized" : "Connecting to Agent..."}
+                                    </span>
+                                </div>
                             </div>
-                            <span className={`text-[9px] font-mono font-extrabold px-2 py-0.5 rounded-full border tracking-wide uppercase ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
+                            <span className={`text-[9px] font-mono font-black px-2 py-0.5 rounded-md border tracking-wider uppercase ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.25)]" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
                                 {isAgentOnline ? "LIVE" : "POLLING"}
                             </span>
                         </div>
-                        <div className="flex items-center justify-between text-[10px] font-mono text-[#8e8a83] pt-1 border-t border-white/[0.05]">
-                            <span>Socket: Local IPC</span>
-                            <span className="text-cyan-400/90 font-medium">{lastSyncTime ? `Synced: ${lastSyncTime}` : "Bridge Sync"}</span>
+
+                        {/* Dual Micro Telemetry Indicators */}
+                        <div className="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-white/[0.06] text-[10px] font-mono">
+                            <div className="bg-black/30 px-2 py-1.5 rounded-lg border border-white/[0.04]">
+                                <span className="text-[#8e8a83] text-[9px] block uppercase tracking-wider">Transport</span>
+                                <span className="text-white font-semibold text-[10px] flex items-center gap-1.5 mt-0.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_6px_#00f0ff]" />
+                                    IPC Socket
+                                </span>
+                            </div>
+                            <div className="bg-black/30 px-2 py-1.5 rounded-lg border border-white/[0.04]">
+                                <span className="text-[#8e8a83] text-[9px] block uppercase tracking-wider">Sync State</span>
+                                <span className="text-cyan-300 font-semibold text-[10px] truncate block mt-0.5" title={lastSyncTime || "Realtime"}>
+                                    {lastSyncTime ? lastSyncTime : "Realtime"}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Navigation Menu */}
-                    <nav className="px-3 space-y-1.5 mt-2">
+                    {/* Grouped Navigation Menu */}
+                    <nav className="px-3 pb-4 space-y-4">
                         {[
-                            { id: "overview", label: "Overview", icon: "📊" },
-                            { id: "cases", label: "Active Cases", icon: "📁", badge: casesData.length },
-                            { id: "evidence", label: "Evidence Pool", icon: "🔍", badge: realEvidenceList.length },
-                            { id: "operations", label: "Live Telemetry", icon: "⚡", live: telemetry?.is_wiping },
-                            { id: "integrity", label: "Merkle & Hash Chain", icon: "🛡️" },
-                            { id: "audit", label: "Audit Ledger", icon: "📜", badge: auditEvents.length },
-                            { id: "devices", label: "Hardware Nodes", icon: "💻" },
-                            { id: "reports", label: "Forensic Reports", icon: "📄" },
-                            { id: "settings", label: "Configuration", icon: "⚙️" },
-                        ].map((item) => {
-                            const isCurrent = activeTab === item.id;
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => setActiveTab(item.id)}
-                                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer relative group ${
-                                        isCurrent
-                                            ? "bg-gradient-to-r from-cyan-500/15 via-blue-500/10 to-transparent text-cyan-300 font-bold border-l-2 border-cyan-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-                                            : "text-[#b1a696] hover:bg-white/[0.04] hover:text-white border-l-2 border-transparent"
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className={`text-sm transition-transform duration-200 ${isCurrent ? "scale-110 text-cyan-400" : "opacity-75 group-hover:scale-105"}`}>{item.icon}</span>
-                                        <span>{item.label}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {item.badge !== undefined && item.badge > 0 && (
-                                            <span
-                                                className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full transition-colors ${
-                                                    isCurrent ? "bg-cyan-400 text-[#0e0f13] shadow-[0_0_10px_rgba(0,240,255,0.4)]" : "bg-white/[0.07] text-[#f4efe7]/80 group-hover:bg-white/10"
+                            {
+                                group: "FORENSIC WORKSPACE",
+                                items: [
+                                    { id: "overview", label: "Overview", icon: IconOverview },
+                                    { id: "cases", label: "Active Cases", icon: IconCases, badge: casesData.length },
+                                    { id: "evidence", label: "Evidence Pool", icon: IconEvidence, badge: realEvidenceList.length },
+                                    { id: "operations", label: "Live Telemetry", icon: IconTelemetry, live: telemetry?.is_wiping },
+                                ],
+                            },
+                            {
+                                group: "INTEGRITY & PROOF",
+                                items: [
+                                    { id: "integrity", label: "Merkle & Hash Chain", icon: IconMerkle },
+                                    { id: "audit", label: "Audit Ledger", icon: IconAudit, badge: auditEvents.length },
+                                    { id: "reports", label: "Forensic Reports", icon: IconReports },
+                                ],
+                            },
+                            {
+                                group: "SYSTEM NODES",
+                                items: [
+                                    { id: "devices", label: "Hardware Nodes", icon: IconDevices },
+                                    { id: "settings", label: "Configuration", icon: IconSettings },
+                                ],
+                            },
+                        ].map((cat, catIdx) => (
+                            <div key={catIdx} className="space-y-1">
+                                <div className="px-3 pt-1 text-[9.5px] font-mono uppercase tracking-widest text-[#78746c] font-bold">
+                                    {cat.group}
+                                </div>
+                                <div className="space-y-1 mt-1">
+                                    {cat.items.map((item) => {
+                                        const isCurrent = activeTab === item.id;
+                                        const IconComp = item.icon;
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => setActiveTab(item.id)}
+                                                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer relative group ${
+                                                    isCurrent
+                                                        ? "bg-gradient-to-r from-cyan-500/15 via-cyan-500/5 to-transparent text-white font-bold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+                                                        : "text-[#9e998f] hover:text-white hover:bg-white/[0.04] font-medium"
                                                 }`}
                                             >
-                                                {item.badge}
-                                            </span>
-                                        )}
-                                        {item.live && (
-                                            <span className="flex h-2 w-2 relative">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-                                            </span>
-                                        )}
-                                    </div>
-                                </button>
-                            );
-                        })}
+                                                {/* Left Accent Glow Bar */}
+                                                {isCurrent && (
+                                                    <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-r-full shadow-[0_0_10px_#00f0ff]" />
+                                                )}
+
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                                                        isCurrent
+                                                            ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.25)]"
+                                                            : "bg-white/[0.03] text-[#8e8a83] group-hover:text-cyan-300 group-hover:bg-cyan-500/10 border border-white/[0.04] group-hover:border-cyan-500/20"
+                                                    }`}>
+                                                        <IconComp className="w-3.5 h-3.5" />
+                                                    </div>
+                                                    <span className="tracking-wide text-xs">{item.label}</span>
+                                                </div>
+
+                                                <div className="flex items-center gap-1.5">
+                                                    {item.badge !== undefined && item.badge > 0 && (
+                                                        <span
+                                                            className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full transition-all ${
+                                                                isCurrent
+                                                                    ? "bg-cyan-400 text-[#0e0f13] shadow-[0_0_8px_rgba(0,240,255,0.4)]"
+                                                                    : "bg-white/[0.06] text-[#b1a696] border border-white/[0.08] group-hover:border-cyan-500/30 group-hover:text-cyan-300"
+                                                            }`}
+                                                        >
+                                                            {item.badge}
+                                                        </span>
+                                                    )}
+                                                    {item.live && (
+                                                        <span className="flex h-2 w-2 relative">
+                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
                     </nav>
                 </div>
 
-                {/* Back to Landing Page */}
-                <div className="p-4 border-t border-white/[0.08] bg-[#101115]/90">
+                {/* Operator Profile & Return to Landing Page */}
+                <div className="p-3.5 border-t border-white/[0.08] bg-[#101115]/95 space-y-2.5 shrink-0">
+                    <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                        <div className="relative">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/30 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-mono font-bold text-xs shadow-inner">
+                                OP
+                            </div>
+                            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-[#121318]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-white truncate">mukui</p>
+                            <p className="text-[10px] font-mono text-[#8e8a83] truncate">Lead Investigator</p>
+                        </div>
+                        <span className="text-[9px] font-mono font-bold text-cyan-400/90 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
+                            ROOT
+                        </span>
+                    </div>
+
                     <button
                         onClick={onBackToLanding}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] hover:border-cyan-500/30 rounded-xl text-xs font-bold text-[#f4efe7] hover:text-cyan-300 transition-all duration-200 cursor-pointer shadow-sm group"
+                        className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 bg-white/[0.04] hover:bg-cyan-500/10 border border-white/[0.08] hover:border-cyan-500/30 rounded-xl text-xs font-bold text-[#f4efe7] hover:text-cyan-300 transition-all duration-200 cursor-pointer shadow-sm group"
                     >
-                        <span className="group-hover:-translate-x-1 transition-transform">←</span>
+                        <svg className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
                         <span>Return to Main Portal</span>
                     </button>
                 </div>
@@ -342,7 +493,12 @@ const DashboardView = ({ onBackToLanding }) => {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="pl-9 pr-4 py-2 bg-[#171922] border border-white/10 rounded-xl text-xs text-white placeholder-[#8e8a83] focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 w-80 transition-all font-mono"
                             />
-                            <span className="absolute left-3 top-2.5 text-xs text-[#8e8a83]">🔍</span>
+                            <span className="absolute left-3 top-2.5 text-xs text-[#8e8a83]">
+                                <svg className="w-3.5 h-3.5 text-[#8e8a83]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </span>
                         </div>
 
                         <button
@@ -350,7 +506,8 @@ const DashboardView = ({ onBackToLanding }) => {
                             disabled={verifying}
                             className="flex items-center gap-2 px-4.5 py-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-xl text-xs font-bold transition-all shadow-[0_4px_16px_rgba(16,185,129,0.25)] hover:shadow-[0_6px_22px_rgba(16,185,129,0.35)] cursor-pointer disabled:opacity-50 border border-emerald-400/30"
                         >
-                            <span>{verifying ? "Auditing Chain..." : "🛡️ Verify Ledger"}</span>
+                            <IconMerkle className="w-3.5 h-3.5" />
+                            <span>{verifying ? "Auditing Chain..." : "Verify Ledger"}</span>
                         </button>
                     </div>
                 </header>
@@ -372,8 +529,8 @@ const DashboardView = ({ onBackToLanding }) => {
                                         </div>
                                         <p className="text-[10px] text-[#8e8a83] mt-1 font-mono">Source: forensic_cases.json</p>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl font-bold group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all duration-200">
-                                        📁
+                                    <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all duration-200">
+                                        <IconCases className="w-5 h-5" />
                                     </div>
                                 </div>
 
@@ -387,8 +544,8 @@ const DashboardView = ({ onBackToLanding }) => {
                                         </div>
                                         <p className="text-[10px] text-[#8e8a83] mt-1 font-mono">Immutable SHA-256 Chain</p>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl font-bold group-hover:scale-110 group-hover:bg-blue-500/20 transition-all duration-200">
-                                        ⛓️
+                                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold group-hover:scale-110 group-hover:bg-blue-500/20 transition-all duration-200">
+                                        <IconAudit className="w-5 h-5" />
                                     </div>
                                 </div>
 
@@ -403,8 +560,8 @@ const DashboardView = ({ onBackToLanding }) => {
                                         </div>
                                         <p className="text-[10px] text-[#8e8a83] mt-1 font-mono truncate max-w-[150px]">{telemetry?.target || "No active wipe target"}</p>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-bold group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-200">
-                                        ⚡
+                                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-200">
+                                        <IconTelemetry className="w-5 h-5" />
                                     </div>
                                 </div>
 
@@ -431,8 +588,8 @@ const DashboardView = ({ onBackToLanding }) => {
                                             Cryptographically Intact
                                         </p>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-200 shrink-0">
-                                        🛡️
+                                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-200 shrink-0">
+                                        <IconMerkle className="w-5 h-5" />
                                     </div>
                                 </div>
                             </div>
