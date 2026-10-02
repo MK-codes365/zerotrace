@@ -288,16 +288,44 @@ class ScalpelCarver:
             else:
                 # Raw handle or device
                 import ctypes
+                ctypes.windll.kernel32.CreateFileW.restype = ctypes.c_void_p
+                target_dev = source_path
                 handle = ctypes.windll.kernel32.CreateFileW(
-                    source_path, 0x80000000, 3, None, 3, 0, None
+                    target_dev, 0x80000000, 3, None, 3, 0, None
                 )
-                if handle != -1:
+                if not handle or handle == ctypes.c_void_p(-1).value:
+                    # Attempt fallback from PhysicalDrive to volume letter (e.g. \\.\F:)
+                    vol_letter = None
+                    m = re.search(r"([A-Za-z]):", source_path)
+                    if m:
+                        vol_letter = m.group(1).upper()
+                    elif "PHYSICALDRIVE" in source_path.upper():
+                        try:
+                            from engines.tsk_filesystem import _resolve_target_to_volume
+                            vol_letter = _resolve_target_to_volume(source_path)
+                        except Exception:
+                            pass
+                    if vol_letter:
+                        target_dev = f"\\\\.\\{vol_letter}:"
+                        handle = ctypes.windll.kernel32.CreateFileW(
+                            target_dev, 0x80000000, 3, None, 3, 0, None
+                        )
+
+                if handle and handle != ctypes.c_void_p(-1).value:
                     # Wrapped raw reader
                     f = RawHandleStream(handle)
                 else:
-                    is_simulated = True
+                    if "DEMO" in source_path.upper() or "SIMULAT" in source_path.upper():
+                        is_simulated = True
+                    else:
+                        raise PermissionError(f"Cannot open raw evidence device '{source_path}'. Run ZeroTrace as Administrator or select the logical drive directly.")
+        except PermissionError:
+            raise
         except Exception:
-            is_simulated = True
+            if "DEMO" in source_path.upper() or "SIMULAT" in source_path.upper():
+                is_simulated = True
+            else:
+                raise
 
         try:
             while bytes_scanned < total_bytes_to_scan and len(carved_results) < max_files:
@@ -450,35 +478,70 @@ class ScalpelCarver:
 
         # Inject sample JPEG
         if current_offset == 0:
-            jpeg_sample = b"\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00" + (b"\x12\x34\x56" * 500) + b"\xFF\xD9"
-            buf[1024 : 1024 + len(jpeg_sample)] = jpeg_sample
+            try:
+                from core.payload_generator import generate_valid_jpeg
+                jpeg_sample = generate_valid_jpeg(
+                    file_id="CARVE-0001",
+                    details="Restored from physical sector 0x400 (NTFS unallocated cluster run)"
+                )
+            except Exception:
+                jpeg_sample = b"\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00" + (b"\x12\x34\x56" * 500) + b"\xFF\xD9"
+            if len(jpeg_sample) < size - 2048:
+                buf[1024 : 1024 + len(jpeg_sample)] = jpeg_sample
 
         # Inject sample PDF
         if current_offset < 2 * 1024 * 1024:
-            pdf_sample = b"%PDF-1.4\n1 0 obj\n<< /Title (ZeroTrace Forensic Audit Report) >>\nendobj\nxref\n0 2\ntrailer\n<< /Size 2 >>\nstartxref\n120\n%%EOF"
-            buf[65536 : 65536 + len(pdf_sample)] = pdf_sample
+            try:
+                from core.payload_generator import generate_valid_pdf
+                pdf_sample = generate_valid_pdf(
+                    file_id="CARVE-0002",
+                    details="Executive Briefing & Forensic Telemetry Document"
+                )
+            except Exception:
+                pdf_sample = b"%PDF-1.4\n1 0 obj\n<< /Title (ZeroTrace Forensic Audit Report) >>\nendobj\nxref\n0 2\ntrailer\n<< /Size 2 >>\nstartxref\n120\n%%EOF"
+            if len(pdf_sample) < size - 65536:
+                buf[65536 : 65536 + len(pdf_sample)] = pdf_sample
 
         # Inject sample ZIP / DOCX
         if current_offset >= 2 * 1024 * 1024:
-            zip_sample = b"PK\x03\x04\x14\x00\x00\x00\x08\x00" + b"[Content_Types].xml" + (b"\xAA\xBB\xCC" * 100) + b"PK\x05\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-            buf[32768 : 32768 + len(zip_sample)] = zip_sample
+            try:
+                from core.payload_generator import generate_valid_docx
+                zip_sample = generate_valid_docx(
+                    file_id="CARVE-0003",
+                    details="Recovered Operational Debrief & System Architecture"
+                )
+            except Exception:
+                zip_sample = b"PK\x03\x04\x14\x00\x00\x00\x08\x00" + b"[Content_Types].xml" + (b"\xAA\xBB\xCC" * 100) + b"PK\x05\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+            if len(zip_sample) < size - 32768:
+                buf[32768 : 32768 + len(zip_sample)] = zip_sample
 
         return bytes(buf)
 
 
 class RawHandleStream:
-    """Helper wrapper for Win32 device handle reading."""
+    """Helper wrapper for Win32 device handle reading with sector alignment."""
 
-    def __init__(self, handle):
+    def __init__(self, handle, sector_size: int = 512):
         self.handle = handle
+        self.sector_size = sector_size
 
     def read(self, size: int) -> bytes:
         import ctypes
-        buf = ctypes.create_string_buffer(size)
+        if size <= 0:
+            return b""
+        aligned_size = ((size + self.sector_size - 1) // self.sector_size) * self.sector_size
+        buf = ctypes.create_string_buffer(aligned_size)
         bytes_read = ctypes.c_ulong()
-        ctypes.windll.kernel32.ReadFile(self.handle, buf, size, ctypes.byref(bytes_read), None)
-        return buf.raw[:bytes_read.value]
+        ok = ctypes.windll.kernel32.ReadFile(
+            ctypes.c_void_p(self.handle), buf, aligned_size, ctypes.byref(bytes_read), None
+        )
+        if not ok or bytes_read.value == 0:
+            return b""
+        return buf.raw[:min(size, bytes_read.value)]
 
     def close(self):
         import ctypes
-        ctypes.windll.kernel32.CloseHandle(self.handle)
+        try:
+            ctypes.windll.kernel32.CloseHandle(ctypes.c_void_p(self.handle))
+        except Exception:
+            pass

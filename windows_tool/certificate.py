@@ -204,9 +204,17 @@ def generate_recovery_report(
     report_id = f"REP-ZT-{hashlib.sha256(timestamp.encode()).hexdigest()[:12].upper()}"
 
     json_path = output_path.replace(".pdf", ".json")
+
+    def _get_item_attr(item, key, default=""):
+        if isinstance(item, dict):
+            val = item.get(key, default)
+        else:
+            val = getattr(item, key, default)
+        return default if val is None else val
+
     report_data = {
         "report_id": report_id,
-        "case_id": case_info.get("case_id", "CASE-ZT-2026-001"),
+        "case_id": case_info.get("case_id", "CASE-UNKNOWN"),
         "case_title": case_info.get("title", "Forensic Data Recovery"),
         "agency": case_info.get("agency", "ZeroTrace Forensic Laboratories"),
         "operator": operator,
@@ -215,11 +223,11 @@ def generate_recovery_report(
         "total_files_recovered": len(recovered_files),
         "files_summary": [
             {
-                "file_id": getattr(f, "file_id", str(f.get("file_id", ""))),
-                "type": getattr(f, "file_type", str(f.get("file_type", ""))),
-                "size": getattr(f, "size", f.get("size", 0)),
-                "sha256": getattr(f, "sha256", f.get("sha256", "")),
-                "confidence": getattr(f, "confidence", f.get("confidence", 0.0)),
+                "file_id": str(_get_item_attr(f, "file_id", "ARTIFACT")),
+                "type": str(_get_item_attr(f, "file_type", "UNKNOWN")),
+                "size": _get_item_attr(f, "size", 0),
+                "sha256": str(_get_item_attr(f, "sha256", "N/A")),
+                "confidence": _get_item_attr(f, "confidence", 0.0),
             }
             for f in recovered_files[:100]
         ],
@@ -276,11 +284,11 @@ def generate_recovery_report(
             pdf.set_text_color(30, 30, 30)
 
             for f in recovered_files[:25]:
-                f_id = getattr(f, "file_id", str(f.get("file_id", "")))
-                f_type = getattr(f, "file_type", str(f.get("file_type", "")))
-                f_size = str(getattr(f, "size", f.get("size", 0)))
-                conf = f"{int(getattr(f, 'confidence', f.get('confidence', 0.0)) * 100)}%"
-                h = getattr(f, "sha256", f.get("sha256", ""))[:16] + "..."
+                f_id = str(_get_item_attr(f, "file_id", "ARTIFACT"))
+                f_type = str(_get_item_attr(f, "file_type", "UNKNOWN"))
+                f_size = str(_get_item_attr(f, "size", 0))
+                conf = f"{int(float(_get_item_attr(f, 'confidence', 0.0)) * 100)}%"
+                h = str(_get_item_attr(f, "sha256", "N/A"))[:16] + "..."
 
                 pdf.cell(25, 6, clean_pdf_text(f_id), 1, 0, "C")
                 pdf.cell(25, 6, clean_pdf_text(f_type), 1, 0, "C")

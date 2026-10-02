@@ -6,7 +6,7 @@ and TestDisk structure validation into an interactive forensic extraction statio
 
 import os
 import threading
-import tkinter as tk
+from typing import Optional
 from tkinter import messagebox, filedialog
 import customtkinter as ctk
 
@@ -115,6 +115,47 @@ class CarverRecoveryTab(ctk.CTkFrame):
         # Real-time Results Table Frame
         table_card = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=8, border_width=1, border_color=COLOR_BORDER)
         table_card.pack(fill="both", expand=True, padx=10, pady=5)
+
+        # Filter & Search Control Header
+        filter_bar = ctk.CTkFrame(table_card, fg_color="transparent")
+        filter_bar.pack(fill="x", padx=10, pady=(8, 4))
+
+        ctk.CTkLabel(
+            filter_bar,
+            text="CARVED ARTIFACTS",
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=COLOR_ACCENT_CYAN
+        ).pack(side="left")
+
+        self.table_count_lbl = ctk.CTkLabel(
+            filter_bar,
+            text="0 files",
+            font=ctk.CTkFont(size=11),
+            text_color=COLOR_TEXT_MUTED
+        )
+        self.table_count_lbl.pack(side="left", padx=10)
+
+        # Category Filter Dropdown
+        self.table_cat_filter = ctk.CTkComboBox(
+            filter_bar,
+            values=["ALL", "DOCUMENT", "IMAGE", "ARCHIVE", "MEDIA", "DATABASE", "FILE_SYSTEM"],
+            width=140,
+            command=lambda _: self._apply_table_filters()
+        )
+        self.table_cat_filter.set("ALL")
+        self.table_cat_filter.pack(side="right", padx=(5, 0))
+
+        ctk.CTkLabel(filter_bar, text="Filter Category:", font=ctk.CTkFont(size=11), text_color=COLOR_TEXT_SECONDARY).pack(side="right", padx=(10, 2))
+
+        # Search Entry
+        self.table_search_entry = ctk.CTkEntry(
+            filter_bar,
+            placeholder_text="🔍 Filter by type, extension, or ID (e.g. DOCX, PDF)...",
+            width=280,
+            height=28
+        )
+        self.table_search_entry.pack(side="right", padx=5)
+        self.table_search_entry.bind("<KeyRelease>", lambda _: self._apply_table_filters())
 
         th = ctk.CTkFrame(table_card, fg_color="#182230")
         th.pack(fill="x", padx=5, pady=(5, 0))
@@ -244,15 +285,22 @@ class CarverRecoveryTab(ctk.CTkFrame):
             if "SleuthKit" in strategy or "Hybrid" in strategy:
                 tsk_items = self.tsk_recoverer.scan_deleted_files(target_path)
                 for item in tsk_items:
+                    ext = item.get("file_type", "").lower()
+                    if item.get("original_name") and "." in item["original_name"]:
+                        ext = os.path.splitext(item["original_name"])[1].lower().replace(".", "")
+                    category = "DOCUMENT" if ext in ("pdf", "docx", "doc", "xlsx", "pptx", "txt") else (
+                        "IMAGE" if ext in ("jpg", "jpeg", "png", "gif", "bmp") else "FILE_SYSTEM"
+                    )
                     c_file = CarvedFile(
                         file_id=item["item_id"],
-                        file_type=item["file_type"],
-                        extension=f".{item['file_type'].lower()}",
-                        category="FILE_SYSTEM",
-                        offset=0,
+                        file_type=item.get("file_type", ext.upper()),
+                        extension=f".{ext}",
+                        category=category,
+                        offset=item.get("cluster_offset", 0),
                         size=item["size_bytes"],
-                        sha256="COMPUTED_ON_RESTORE",
+                        sha256=item.get("sha256", "COMPUTED_ON_RESTORE"),
                         confidence=1.0,
+                        data=item.get("data"),
                         preview_snippet=item.get("original_name", ""),
                         source_target=target_path,
                         metadata=item
@@ -303,10 +351,59 @@ class CarverRecoveryTab(ctk.CTkFrame):
             c_file.metadata["validation"] = val
 
         self.discovered_files.append(c_file)
-        self.after(0, lambda: self._render_table_row(c_file))
+        self.after(0, lambda: self._add_row_if_matches(c_file))
 
-    def _render_table_row(self, c: CarvedFile):
-        row = ctk.CTkFrame(self.results_scroll, fg_color="#182230" if len(self.discovered_files) % 2 == 0 else "#141c26", corner_radius=2)
+    def _add_row_if_matches(self, c: CarvedFile):
+        cat = self.table_cat_filter.get() if hasattr(self, "table_cat_filter") else "ALL"
+        query = self.table_search_entry.get().strip().upper() if hasattr(self, "table_search_entry") else ""
+        c_cat = str(getattr(c, "category", "")).upper()
+        c_type = str(getattr(c, "file_type", "")).upper()
+        c_id = str(getattr(c, "file_id", "")).upper()
+        c_ext = str(getattr(c, "extension", "")).upper()
+
+        if hasattr(self, "table_count_lbl"):
+            self.table_count_lbl.configure(text=f"{len(self.discovered_files)} files carved")
+
+        if cat != "ALL" and c_cat != cat:
+            return
+        if query and (query not in c_type and query not in c_id and query not in c_ext and query not in c_cat):
+            return
+
+        self._render_table_row(c)
+
+    def _apply_table_filters(self):
+        for child in self.results_scroll.winfo_children():
+            child.destroy()
+
+        cat = self.table_cat_filter.get() if hasattr(self, "table_cat_filter") else "ALL"
+        query = self.table_search_entry.get().strip().upper() if hasattr(self, "table_search_entry") else ""
+
+        matching = []
+        for c in self.discovered_files:
+            c_cat = str(getattr(c, "category", "")).upper()
+            c_type = str(getattr(c, "file_type", "")).upper()
+            c_id = str(getattr(c, "file_id", "")).upper()
+            c_ext = str(getattr(c, "extension", "")).upper()
+
+            if cat != "ALL" and c_cat != cat:
+                continue
+
+            if query and (query not in c_type and query not in c_id and query not in c_ext and query not in c_cat):
+                continue
+
+            matching.append(c)
+
+        if hasattr(self, "table_count_lbl"):
+            self.table_count_lbl.configure(text=f"Showing: {len(matching)} / {len(self.discovered_files)} files")
+
+        for idx, c in enumerate(matching):
+            self._render_table_row(c, idx)
+
+    def _render_table_row(self, c: CarvedFile, index: Optional[int] = None):
+        if index is None:
+            index = len(self.results_scroll.winfo_children())
+
+        row = ctk.CTkFrame(self.results_scroll, fg_color="#182230" if index % 2 == 0 else "#141c26", corner_radius=2)
         row.pack(fill="x", pady=1)
 
         conf_pct = int(c.confidence * 100)
@@ -321,7 +418,37 @@ class CarverRecoveryTab(ctk.CTkFrame):
         ctk.CTkLabel(row, text=f"0x{c.offset:X}", font=ctk.CTkFont(size=9, family="Courier"), width=95, anchor="w").pack(side="left", padx=4)
         ctk.CTkLabel(row, text=f"{conf_pct}%", font=ctk.CTkFont(size=10, weight="bold"), text_color=conf_color, width=95, anchor="w").pack(side="left", padx=4)
         ctk.CTkLabel(row, text=struct_valid, font=ctk.CTkFont(size=9), width=100, anchor="w").pack(side="left", padx=4)
-        ctk.CTkLabel(row, text=c.sha256[:22] + "...", font=ctk.CTkFont(size=9, family="Courier"), text_color=COLOR_TEXT_MUTED, width=180, anchor="w").pack(side="left", padx=4)
+        ctk.CTkLabel(row, text=c.sha256[:20] + "...", font=ctk.CTkFont(size=9, family="Courier"), text_color=COLOR_TEXT_MUTED, width=150, anchor="w").pack(side="left", padx=4)
+
+        ctk.CTkButton(
+            row,
+            text="Inspect 🔍",
+            font=ctk.CTkFont(size=9, weight="bold"),
+            width=65,
+            height=22,
+            fg_color="#1e293b",
+            hover_color="#334155",
+            text_color=COLOR_ACCENT_CYAN,
+            command=lambda item=c: self._inspect_file(item)
+        ).pack(side="right", padx=6)
+
+    def _inspect_file(self, item: CarvedFile):
+        if self.on_files_recovered_callback and self.discovered_files:
+            self.on_files_recovered_callback(self.discovered_files)
+        # Switch to workbench tab and pre-select this file
+        parent = self.master
+        while parent and not hasattr(parent, "workbench_view"):
+            parent = getattr(parent, "master", None)
+        if parent:
+            if hasattr(parent, "select_tab"):
+                parent.select_tab("workbench")
+            if hasattr(parent, "workbench_view"):
+                if hasattr(parent.workbench_view, "cat_filter"):
+                    parent.workbench_view.cat_filter.set("ALL")
+                if hasattr(parent.workbench_view, "search_entry"):
+                    parent.workbench_view.search_entry.delete(0, "end")
+                parent.workbench_view._filter_and_render_list()
+                parent.workbench_view._select_file(item)
 
     def _on_scan_finished(self):
         self.scan_btn.configure(state="normal")
@@ -329,6 +456,7 @@ class CarverRecoveryTab(ctk.CTkFrame):
         self.view_wb_btn.configure(state="normal")
         self.scan_pb.set(1.0)
         self.stat_found.configure(text=f"{len(self.discovered_files)} files")
+        self._apply_table_filters()
 
         if self.on_files_recovered_callback:
             self.on_files_recovered_callback(self.discovered_files)
@@ -343,5 +471,8 @@ class CarverRecoveryTab(ctk.CTkFrame):
         if self.on_files_recovered_callback and self.discovered_files:
             self.on_files_recovered_callback(self.discovered_files)
         # Notify master window to switch to workbench tab
-        if hasattr(self.master.master, "select_tab"):
-            self.master.master.select_tab("workbench")
+        parent = self.master
+        while parent and not hasattr(parent, "select_tab"):
+            parent = getattr(parent, "master", None)
+        if parent and hasattr(parent, "select_tab"):
+            parent.select_tab("workbench")

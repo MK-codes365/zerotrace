@@ -365,7 +365,7 @@ class DemoRunner:
         _step("Registering evidence")
         case_info = {
             "case_id": case_id,
-            "case_number": f"CASE-{datetime.now().strftime('%Y%m%d')}-DEMO",
+            "case_number": f"CASE-{datetime.now().strftime('%Y%m%d')}-DEMO-{uuid.uuid4().hex[:6].upper()}",
             "title": "ZEROTrace Forensic Demo",
             "investigator": "Demo Operator",
             "status": "IN_PROGRESS",
@@ -374,7 +374,7 @@ class DemoRunner:
 
         evidence_info = {
             "evidence_id": evidence_id,
-            "evidence_number": f"EVD-{datetime.now().year}-DEMO",
+            "evidence_number": f"EVD-{datetime.now().year}-DEMO-{uuid.uuid4().hex[:6].upper()}",
             "case_id": case_id,
             "source_device": "Synthetic Test Image",
             "device_type": "FORENSIC_IMAGE",

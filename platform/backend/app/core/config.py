@@ -28,11 +28,16 @@ class Settings(BaseSettings):
     REQUIRE_DOUBLE_CONFIRM: bool = True
 
     # ── Database ─────────────────────────────────────────
+    _local_db = Path(__file__).resolve().parent.parent.parent / "zerotrace.db"
     DATABASE_URL: str = (
-        "postgresql+asyncpg://zerotrace:zerotrace_secret@postgres:5432/zerotrace"
+        f"sqlite+aiosqlite:///{_local_db}"
+        if not os.path.exists("/.dockerenv") and not os.environ.get("DATABASE_URL")
+        else "postgresql+asyncpg://zerotrace:zerotrace_secret@postgres:5432/zerotrace"
     )
     DATABASE_URL_SYNC: str = (
-        "postgresql+psycopg2://zerotrace:zerotrace_secret@postgres:5432/zerotrace"
+        f"sqlite:///{_local_db}"
+        if not os.path.exists("/.dockerenv") and not os.environ.get("DATABASE_URL_SYNC")
+        else "postgresql+psycopg2://zerotrace:zerotrace_secret@postgres:5432/zerotrace"
     )
 
     # ── Redis ────────────────────────────────────────────

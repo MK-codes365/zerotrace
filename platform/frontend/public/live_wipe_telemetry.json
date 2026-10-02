@@ -1,1 +1,1 @@
-{"is_wiping": false, "target": "Toshiba TransMemory 15.2 GB", "method": "NIST_800_88_PURGE", "status": "STANDBY", "new_log": "[SYS] Desktop application synced with Dashboard."}
+{"target": "\\\\.\\C:", "target_label": "[C:] Local Disk (235.56 GB) - NTFS", "total_bytes": 252928061440, "sectors_total": 494000120, "status": "STANDBY", "new_log": "[CONNECT] Workstation attached to [C:] Local Disk (235.56 GB) - NTFS"}
