@@ -23,6 +23,7 @@ from app.core.config import settings
 from app.core.database import init_db, close_db
 from app.core.logging_config import setup_logging
 from app.api.endpoints import router
+from app.api.v1.api import api_router as v1_router
 
 
 @asynccontextmanager
@@ -55,6 +56,7 @@ app.add_middleware(
 
 # Mount API routes
 app.include_router(router, prefix="/api")
+app.include_router(v1_router, prefix="/api")
 
 
 @app.get("/")
