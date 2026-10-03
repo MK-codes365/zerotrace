@@ -137,20 +137,21 @@ class AdvisorService:
         if req.loss_scenario == LossScenario.HARDWARE_ISSUE:
             return self._hardware_failure_response(req.storage_medium)
 
-        # ── Rule 2: SSD + Deletion (TRIM risk) ────────────────────────────────
+        # ── Rule 2: Quick Format ───────────────────────────────────────────────
+        if req.loss_scenario == LossScenario.FORMATTED:
+            return self._formatted_response(req.file_system)
+
+        # ── Rule 3: Fragmented media (MP4 / RAW etc.) — checked BEFORE SSD rule
+        #    so that e.g. SSD + mp4 gets Fragment Graph, not IMAGE_DISK ──────
+        if ext in _FRAGMENTED_EXTENSIONS:
+            return self._fragmented_media_response(ext)
+
+        # ── Rule 4: SSD + Deletion (TRIM risk) ────────────────────────────────
         if (
             req.storage_medium == StorageMedium.SSD
             and req.loss_scenario == LossScenario.DELETED
         ):
             return self._ssd_deletion_response()
-
-        # ── Rule 3: Quick Format ───────────────────────────────────────────────
-        if req.loss_scenario == LossScenario.FORMATTED:
-            return self._formatted_response(req.file_system)
-
-        # ── Rule 4: Fragmented media (MP4 / RAW etc.) ─────────────────────────
-        if ext in _FRAGMENTED_EXTENSIONS:
-            return self._fragmented_media_response(ext)
 
         # ── Rule 5: NTFS + Deletion → prefer MFT scan ─────────────────────────
         if (
@@ -163,7 +164,7 @@ class AdvisorService:
         if req.loss_scenario == LossScenario.CORRUPTED:
             return self._corruption_response(req.storage_medium, req.file_system)
 
-        # ── Rule 7: Generic deletion (non-NTFS, non-SSD) ──────────────────────
+        # ── Rule 7: Generic deletion (non-NTFS, non-SSD, non-fragmented) ───────
         return self._generic_deletion_response(req.storage_medium, req.file_system)
 
     def chat(self, req: AdvisorChatRequest) -> AdvisorChatResponse:
