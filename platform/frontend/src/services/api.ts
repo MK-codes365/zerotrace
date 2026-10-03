@@ -130,4 +130,54 @@ export const healthAPI = {
   check: () => api.get('/health'),
 };
 
+// ═══════════════════════════════════════════════════════
+// Advisor (Forensic Recovery Matrix & AI Chat)
+// ═══════════════════════════════════════════════════════
+
+export type StorageMedium = 'SSD' | 'HDD' | 'USB' | 'SD_CARD';
+export type FileSystemType = 'NTFS' | 'FAT32' | 'EXFAT' | 'EXT4' | 'UNKNOWN';
+export type LossScenario = 'DELETED' | 'FORMATTED' | 'CORRUPTED' | 'HARDWARE_ISSUE';
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'CRITICAL';
+export type ActionType = 'LAUNCH_CARVE' | 'IMAGE_DISK' | 'RUN_MFT_SCAN';
+
+export interface AdvisorRecommendationRequest {
+  storage_medium: StorageMedium;
+  file_system: FileSystemType;
+  loss_scenario: LossScenario;
+  target_extension?: string;
+}
+
+export interface AdvisorRecommendationResponse {
+  recommended_method: string;
+  risk_level: RiskLevel;
+  safety_warnings: string[];
+  action_type: ActionType;
+}
+
+export interface AdvisorChatRequest {
+  question: string;
+  context?: string;
+}
+
+export interface AdvisorChatResponse {
+  answer: string;
+  related_warnings: string[];
+  suggested_action?: ActionType | null;
+}
+
+export const advisorAPI = {
+  getRecommendation: (payload: AdvisorRecommendationRequest) =>
+    api.post<AdvisorRecommendationResponse>('/v1/advisor/recommend', payload, {
+      timeout: 10000,
+    }),
+  sendChatMessage: (message: string | AdvisorChatRequest) => {
+    const payload: AdvisorChatRequest =
+      typeof message === 'string' ? { question: message } : message;
+    return api.post<AdvisorChatResponse>('/v1/advisor/chat', payload, {
+      timeout: 10000,
+    });
+  },
+};
+
 export default api;
+

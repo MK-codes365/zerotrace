@@ -801,6 +801,20 @@ const DashboardView = ({ onBackToLanding }) => {
                             <IconMerkle className="w-3.5 h-3.5" />
                             <span>{verifying ? "Auditing..." : "Verify Ledger"}</span>
                         </button>
+
+                        <button
+                            onClick={() => {
+                                sessionStorage.setItem("zt_advisor_chat_is_open", "true");
+                                window.dispatchEvent(new CustomEvent("zt-open-advisor"));
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/40 rounded-md text-xs font-medium shadow-xs transition-colors cursor-pointer"
+                            title="Open Forensic Recovery Advisor"
+                        >
+                            <svg className="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <span>Forensic Advisor</span>
+                        </button>
                     </div>
                 </header>
 
