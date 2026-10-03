@@ -105,7 +105,7 @@ class ZeroTraceForensicsApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
-        # ── Sidebar Navigation ─────────────────────────────────
+        # sidebar navigation
         self.sidebar = ctk.CTkFrame(self, width=240, corner_radius=0, fg_color=COLOR_SIDEBAR)
         self.sidebar.grid(row=0, column=0, sticky="nsew")
         self.sidebar.grid_propagate(False)
@@ -166,7 +166,7 @@ class ZeroTraceForensicsApp(ctk.CTk):
         ctk.CTkLabel(footer_frame, text=f"CASE: {case.get('case_id', 'DEFAULT')}", font=ctk.CTkFont(size=10, weight="bold"), text_color=COLOR_ACCENT_GREEN).pack(anchor="w", padx=10, pady=(6, 2))
         ctk.CTkLabel(footer_frame, text=f"Tier: {self.license_plan}", font=ctk.CTkFont(size=9), text_color=COLOR_TEXT_MUTED).pack(anchor="w", padx=10, pady=(0, 6))
 
-        # ── Main Content Area ──────────────────────────────────
+        # main content area
         self.content_container = ctk.CTkFrame(self, fg_color=COLOR_BG_DARK, corner_radius=0)
         self.content_container.grid(row=0, column=1, sticky="nsew")
 

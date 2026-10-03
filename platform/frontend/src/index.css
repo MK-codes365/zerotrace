@@ -66,7 +66,7 @@ button {
     box-sizing: border-box;
 }
 
-/* =========== GLASSMORPHISM =========== */
+/* glass effect */
 .glassEffect {
     -webkit-backdrop-filter: blur(5px) saturate(100%);
     backdrop-filter: blur(5px) saturate(100%);
@@ -74,7 +74,7 @@ button {
     border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
-/* =========== WELCOME SECTION - CLIP TEXT REVEAL =========== */
+/* welcome section text reveal */
 .text-darkBrown {
     color: #2A2725;
     position: relative;
@@ -94,7 +94,7 @@ button {
     transition: none;
 }
 
-/* =========== CHOOSE SECTION =========== */
+/* choose section */
 .choose-section {
     background: linear-gradient(to bottom,
             #181717 0%,
@@ -129,7 +129,7 @@ button {
     overflow: hidden;
 }
 
-/* =========== STICKY COLUMNS =========== */
+/* sticky columns */
 .sticky-cols {
     padding: 0rem;
 
@@ -240,7 +240,7 @@ button {
     }
 }
 
-/* =========== FOOTER TITLE =========== */
+/* footer title */
 .footer-title {
     position: absolute;
     top: 60%;
@@ -274,7 +274,7 @@ button {
     bottom: 0;
 }
 
-/* =========== MARQUEE =========== */
+/* marquee animation */
 @keyframes marquee {
     0% {
         transform: translateX(0%);
@@ -290,12 +290,12 @@ button {
     width: fit-content;
 }
 
-/* =========== HORIZONTAL SHOWCASE =========== */
+/* horizontal showcase */
 .showcase-card {
     transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* =========== PILL TAGS =========== */
+/* tag pills */
 .pill-tag {
     border: 1px solid #b1a696;
     color: #b1a696;
@@ -314,7 +314,7 @@ button {
     transition: all 0.3s;
 }
 
-/* =========== RESPONSIVE =========== */
+/* responsive mobile */
 @media (max-width: 768px) {
     .responsive-mobile {
         position: absolute;

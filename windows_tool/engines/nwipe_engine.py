@@ -318,7 +318,7 @@ class NwipeDriveEraser:
             "passed": passed,
         }
 
-    # ── Win32 Direct Disk API Helpers ──────────────────────────
+    # win32 direct disk api helpers
 
     def _open_target_handle(self, device_id: str) -> tuple[Any, int]:
         """

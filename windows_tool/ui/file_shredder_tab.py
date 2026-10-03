@@ -57,7 +57,7 @@ class FileShredderTab(ctk.CTkFrame):
         content_frame.grid_columnconfigure(1, weight=2)
         content_frame.grid_rowconfigure(0, weight=1)
 
-        # ── Left Panel: Staged Files Table ─────────────────────
+        # left panel: staged files table
         left_card = ctk.CTkFrame(content_frame, fg_color=COLOR_CARD, corner_radius=8, border_width=1, border_color=COLOR_BORDER)
         left_card.grid(row=0, column=0, sticky="nsew", padx=(0, 5))
 
@@ -80,7 +80,7 @@ class FileShredderTab(ctk.CTkFrame):
         ctk.CTkButton(btn_row, text="📁 Add Folder", width=120, command=self._add_folder).pack(side="left", padx=5)
         ctk.CTkButton(btn_row, text="🗑️ Clear List", width=100, fg_color="#37474f", hover_color="#263238", command=self._clear_list).pack(side="right")
 
-        # ── Right Panel: Method, Options, Progress ─────────────
+        # right panel: method options and progress
         right_card = ctk.CTkFrame(content_frame, fg_color=COLOR_CARD, corner_radius=8, border_width=1, border_color=COLOR_BORDER)
         right_card.grid(row=0, column=1, sticky="nsew", padx=(5, 0))
 

@@ -41,7 +41,7 @@ class DriveWiperTab(ctk.CTkFrame):
         self.refresh_targets()
 
     def _build_ui(self):
-        # ── Header ─────────────────────────────────────────────
+        # header
         header_frame = ctk.CTkFrame(self, fg_color="transparent")
         header_frame.pack(fill="x", padx=10, pady=(5, 10))
 
@@ -61,7 +61,7 @@ class DriveWiperTab(ctk.CTkFrame):
         )
         subtitle.pack(side="left", padx=15, pady=2)
 
-        # ── Target Selection & Method Card ─────────────────────
+        # target drive and wipe method
         config_card = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=8, border_width=1, border_color=COLOR_BORDER)
         config_card.pack(fill="x", padx=10, pady=5)
 
@@ -103,7 +103,7 @@ class DriveWiperTab(ctk.CTkFrame):
         self.format_after_cb.select()
         self.format_after_cb.pack(side="left", padx=10)
 
-        # ── Telemetry Dashboard Card ───────────────────────────
+        # progress and stats
         telemetry_card = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=8, border_width=1, border_color=COLOR_BORDER)
         telemetry_card.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -148,7 +148,7 @@ class DriveWiperTab(ctk.CTkFrame):
         )
         self.log_display.pack(fill="x", padx=15, pady=5)
 
-        # ── Action Buttons Bottom Bar ──────────────────────────
+        # start / cancel buttons
         action_bar = ctk.CTkFrame(self, fg_color="transparent")
         action_bar.pack(fill="x", padx=10, pady=(0, 10))
 

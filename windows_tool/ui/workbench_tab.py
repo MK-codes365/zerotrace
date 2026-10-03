@@ -53,7 +53,7 @@ class WorkbenchTab(ctk.CTkFrame):
             text_color=COLOR_TEXT_SECONDARY
         ).pack(side="left", padx=15, pady=2)
 
-        # ── Two-Column Layout ──────────────────────────────────
+        # two column layout
         main_split = ctk.CTkFrame(self, fg_color="transparent")
         main_split.pack(fill="both", expand=True, padx=10, pady=5)
         main_split.grid_columnconfigure(0, weight=2)

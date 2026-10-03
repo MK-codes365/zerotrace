@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 
-// Cryptographic SHA-256 in browser for real Merkle Root & Hash Chain calculation
+// helper to calculate sha256 using web crypto api
 async function sha256Hex(str) {
     const buffer = new TextEncoder().encode(str);
     const hash = await crypto.subtle.digest("SHA-256", buffer);
@@ -9,7 +9,7 @@ async function sha256Hex(str) {
         .join("");
 }
 
-// Compute real hierarchical Merkle Root from leaf hashes
+// build merkle root by repeatedly hashing pairs of nodes
 async function computeRealMerkleRoot(leafHashes) {
     if (!leafHashes || leafHashes.length === 0) {
         return "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
@@ -30,7 +30,7 @@ async function computeRealMerkleRoot(leafHashes) {
     return current[0];
 }
 
-// ── Crisp Enterprise SVG Icons (Linear / Vercel Aesthetic) ─────────────────
+// icons for navigation and cards
 const IconOverview = ({ className = "w-4 h-4" }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <rect width="7" height="9" x="3" y="3" rx="1" />
@@ -109,12 +109,12 @@ const IconEco = ({ className = "w-4 h-4" }) => (
     </svg>
 );
 
-// ── Stripe Climate-Style Lifecycle Impact Card (Zero AI Slop) ───────────────
+// chart component for environmental savings
 const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
     const [selectedMetric, setSelectedMetric] = useState("co2"); // 'co2' | 'ewaste' | 'drives'
     const [hoveredPoint, setHoveredPoint] = useState(null);
 
-    // Compute cumulative environmental savings from audit events & telemetry
+    // calculate cumulative savings from the wipe events
     const wipeEvents = useMemo(() => {
         const events = auditEvents || [];
         const list = events.filter(
@@ -181,7 +181,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
 
     return (
         <div className="bg-[#111215] p-5 sm:p-6 rounded-xl border border-zinc-800/80">
-            {/* Header & Segmented Pill Switcher */}
+            {/* header and metric switcher */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
                 <div>
                     <div className="flex items-center gap-2">
@@ -200,7 +200,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                     </p>
                 </div>
 
-                {/* Minimal Segmented Control */}
+                {/* metric buttons */}
                 <div className="flex items-center p-1 bg-zinc-950 border border-zinc-800/80 rounded-lg text-xs font-mono">
                     <button
                         onClick={() => setSelectedMetric("co2")}
@@ -235,7 +235,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                 </div>
             </div>
 
-            {/* Clean Metric Readout Tiles */}
+            {/* summary stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
                 <div className="p-3.5 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
                     <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider block">
@@ -286,9 +286,9 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                 </div>
             </div>
 
-            {/* Flat, Modern SVG Curve Chart */}
+            {/* svg line chart */}
             <div className="relative bg-zinc-950/80 rounded-lg border border-zinc-800/80 p-3.5 pt-5">
-                {/* Y-Axis Value Labels */}
+                {/* y-axis labels */}
                 <div className="absolute left-3 top-3 bottom-6 flex flex-col justify-between text-[10px] font-mono text-zinc-400 pointer-events-none">
                     <span>{maxVal.toFixed(selectedMetric === "ewaste" ? 1 : 0)} {selectedMetric === "co2" ? "kg" : selectedMetric === "ewaste" ? "kg" : "units"}</span>
                     <span>{(maxVal * 0.5).toFixed(selectedMetric === "ewaste" ? 1 : 0)}</span>
@@ -303,15 +303,15 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                         </linearGradient>
                     </defs>
 
-                    {/* Horizontal Reference Lines */}
+                    {/* grid lines */}
                     <line x1={padX} y1={padY} x2={svgWidth - padX} y2={padY} stroke="#27272a" strokeDasharray="3 3" />
                     <line x1={padX} y1={svgHeight / 2} x2={svgWidth - padX} y2={svgHeight / 2} stroke="#27272a" strokeDasharray="3 3" />
                     <line x1={padX} y1={svgHeight - padY} x2={svgWidth - padX} y2={svgHeight - padY} stroke="#3f3f46" strokeWidth="1" />
 
-                    {/* Subtle Area Fill */}
+                    {/* area fill */}
                     {areaD && <path d={areaD} fill="url(#chartSubtleFill)" />}
 
-                    {/* Clean 1.5px Stroke Line */}
+                    {/* main line */}
                     {pathD && (
                         <path
                             d={pathD}
@@ -323,7 +323,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                         />
                     )}
 
-                    {/* Data Points */}
+                    {/* data points */}
                     {coords.map((c, i) => (
                         <g key={i} className="cursor-pointer group/point" onMouseEnter={() => setHoveredPoint(c)} onMouseLeave={() => setHoveredPoint(null)}>
                             <circle
@@ -342,7 +342,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                     ))}
                 </svg>
 
-                {/* Hover Popover */}
+                {/* tooltip on hover */}
                 {hoveredPoint && (
                     <div
                         className="absolute p-2.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs font-sans shadow-xl pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 z-20"
@@ -363,7 +363,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                     </div>
                 )}
 
-                {/* X-Axis Timeline Labels */}
+                {/* timeline labels */}
                 <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-2 px-8">
                     {wipeEvents.slice(0, 6).map((p, idx) => (
                         <span key={idx}>Cycle #{p.index} • {p.date}</span>
@@ -371,7 +371,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                 </div>
             </div>
 
-            {/* Context Notice */}
+            {/* info note */}
             <div className="mt-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-zinc-400 px-3 py-2.5 rounded-lg bg-zinc-950/40 border border-zinc-800/60 gap-2">
                 <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
@@ -385,7 +385,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
     );
 };
 
-// ── Main Dashboard View Component ──────────────────────────────────────────
+// main dashboard view
 const DashboardView = ({ onBackToLanding }) => {
     const [activeTab, setActiveTab] = useState("overview");
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -393,7 +393,7 @@ const DashboardView = ({ onBackToLanding }) => {
     const [selectedCase, setSelectedCase] = useState(null);
     const [copiedHash, setCopiedHash] = useState(null);
 
-    // Real Data States
+    // data loaded from backend / local files
     const [casesData, setCasesData] = useState([]);
     const [auditEvents, setAuditEvents] = useState([]);
     const [telemetry, setTelemetry] = useState(null);
@@ -401,11 +401,11 @@ const DashboardView = ({ onBackToLanding }) => {
     const [isAgentOnline, setIsAgentOnline] = useState(false);
     const [lastSyncTime, setLastSyncTime] = useState(null);
 
-    // Verification Test State
+    // state for running the integrity verification
     const [verifying, setVerifying] = useState(false);
     const [verificationResult, setVerificationResult] = useState(null);
 
-    // Copy to clipboard helper
+    // copy helper
     const copyToClipboard = (text, id) => {
         if (!text) return;
         navigator.clipboard.writeText(text);
@@ -413,12 +413,13 @@ const DashboardView = ({ onBackToLanding }) => {
         setTimeout(() => setCopiedHash(null), 2000);
     };
 
-    // Telemetry & Data Polling Loop
+    // poll data files every 2 seconds
     useEffect(() => {
         let isMounted = true;
 
         const fetchRealData = async () => {
             try {
+                // fetch cases
                 const casesRes = await fetch("/forensic_cases.json?" + Date.now());
                 if (casesRes.ok) {
                     const json = await casesRes.json();
@@ -432,6 +433,7 @@ const DashboardView = ({ onBackToLanding }) => {
             }
 
             try {
+                // fetch audit trail
                 const auditRes = await fetch("/audit_trail.json?" + Date.now());
                 if (auditRes.ok) {
                     const events = await auditRes.json();
@@ -448,6 +450,7 @@ const DashboardView = ({ onBackToLanding }) => {
             }
 
             try {
+                // fetch telemetry
                 const telemRes = await fetch("/live_wipe_telemetry.json?" + Date.now());
                 if (telemRes.ok) {
                     const telem = await telemRes.json();
@@ -470,7 +473,7 @@ const DashboardView = ({ onBackToLanding }) => {
         };
     }, []);
 
-    // Real Cryptographic Chain Verification
+    // verify hash chain integrity
     const runChainVerification = async () => {
         setVerifying(true);
         setVerificationResult(null);
@@ -511,7 +514,7 @@ const DashboardView = ({ onBackToLanding }) => {
         }, 500);
     };
 
-    // Filtered audit events for search
+    // search filter
     const filteredAudit = useMemo(() => {
         if (!searchQuery) return auditEvents;
         const q = searchQuery.toLowerCase();
@@ -525,7 +528,7 @@ const DashboardView = ({ onBackToLanding }) => {
         );
     }, [auditEvents, searchQuery]);
 
-    // Real Evidence items gathered from real cases
+    // collect evidence items from cases
     const realEvidenceList = useMemo(() => {
         const list = [];
         casesData.forEach((c) => {
@@ -549,10 +552,10 @@ const DashboardView = ({ onBackToLanding }) => {
 
     return (
         <div className="flex min-h-screen bg-[#09090b] text-zinc-100 font-sans antialiased selection:bg-zinc-800 selection:text-zinc-100">
-            {/* ── SIDEBAR ────────────────────────────────────────────── */}
+            {/* sidebar */}
             <aside className={`${isSidebarOpen ? "w-64" : "w-18"} bg-[#0c0d0e] border-r border-zinc-800/80 flex flex-col justify-between shrink-0 z-20 sticky top-0 h-screen transition-all duration-200 ease-in-out`}>
                 <div className="flex-1 overflow-y-auto no-scrollbar">
-                    {/* Header Brand & Toggle */}
+                    {/* logo and toggle button */}
                     <div className={`h-16 border-b border-zinc-800/80 flex items-center bg-[#0c0d0e] sticky top-0 z-10 ${isSidebarOpen ? "px-4 justify-between" : "px-2 justify-center"}`}>
                         {isSidebarOpen ? (
                             <>
@@ -595,7 +598,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         )}
                     </div>
 
-                    {/* Desktop Engine Status */}
+                    {/* desktop agent status */}
                     {isSidebarOpen ? (
                         <div className="mx-3 my-3 p-3 rounded-lg bg-zinc-900/50 border border-zinc-800/80 text-xs">
                             <div className="flex items-center justify-between">
@@ -624,7 +627,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         </div>
                     )}
 
-                    {/* Navigation Menu */}
+                    {/* navigation tabs */}
                     <nav className={`pb-4 ${isSidebarOpen ? "px-2 space-y-4" : "px-2 space-y-3"}`}>
                         {[
                             {
@@ -703,7 +706,7 @@ const DashboardView = ({ onBackToLanding }) => {
                     </nav>
                 </div>
 
-                {/* Operator Profile & Return */}
+                {/* user info and exit button */}
                 <div className={`border-t border-zinc-800/80 bg-[#0c0d0e] shrink-0 ${isSidebarOpen ? "p-3 space-y-2" : "p-2 space-y-2 flex flex-col items-center"}`}>
                     {isSidebarOpen ? (
                         <>
@@ -743,9 +746,9 @@ const DashboardView = ({ onBackToLanding }) => {
                 </div>
             </aside>
 
-            {/* ── MAIN CONTENT AREA ───────────────────────────────────────── */}
+            {/* main content area */}
             <main className="flex-1 flex flex-col min-h-screen bg-[#09090b]">
-                {/* Topbar Header */}
+                {/* top bar */}
                 <header className="h-16 bg-[#0c0d0e]/90 backdrop-blur-md border-b border-zinc-800/80 px-6 flex items-center justify-between shrink-0 sticky top-0 z-30">
                     <div className="flex items-center gap-3">
                         <button
@@ -801,14 +804,14 @@ const DashboardView = ({ onBackToLanding }) => {
                     </div>
                 </header>
 
-                {/* Main Tab Content */}
+                {/* active tab content */}
                 <div className="flex-1 p-6 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
-                    {/* ═════════════════ TAB 1: OVERVIEW ═════════════════ */}
+                    {/* tab 1: overview */}
                     {activeTab === "overview" && (
                         <div className="space-y-6">
-                            {/* 4 Clean Metric Cards (Linear / Vercel style) */}
+                            {/* metric cards */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {/* Card 1: Registered Cases */}
+                                {/* active cases card */}
                                 <div className="bg-[#111215] p-4.5 rounded-xl border border-zinc-800/80 hover:border-zinc-700/80 transition-colors">
                                     <div className="flex items-center justify-between">
                                         <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
@@ -827,7 +830,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                     </p>
                                 </div>
 
-                                {/* Card 2: Ledger Height */}
+                                {/* ledger height card */}
                                 <div className="bg-[#111215] p-4.5 rounded-xl border border-zinc-800/80 hover:border-zinc-700/80 transition-colors">
                                     <div className="flex items-center justify-between">
                                         <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
@@ -846,7 +849,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                     </p>
                                 </div>
 
-                                {/* Card 3: Hardware Sanitization Subsystem */}
+                                {/* wipe engine status card */}
                                 <div className="bg-[#111215] p-4.5 rounded-xl border border-zinc-800/80 hover:border-zinc-700/80 transition-colors">
                                     <div className="flex items-center justify-between">
                                         <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
@@ -864,7 +867,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                     </p>
                                 </div>
 
-                                {/* Card 4: Merkle Root */}
+                                {/* merkle root card */}
                                 <div className="bg-[#111215] p-4.5 rounded-xl border border-zinc-800/80 hover:border-zinc-700/80 transition-colors">
                                     <div className="flex items-center justify-between">
                                         <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
@@ -893,7 +896,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                 </div>
                             </div>
 
-                            {/* Verification Result Banner (Restrained Notification) */}
+                            {/* verification result notification */}
                             {verificationResult && (
                                 <div className={`p-4 rounded-xl border text-xs ${verificationResult.valid ? "bg-zinc-900/60 border-emerald-500/30 text-zinc-200" : "bg-zinc-900/60 border-rose-500/30 text-zinc-200"}`}>
                                     <div className="flex items-center justify-between">
@@ -920,7 +923,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                 </div>
                             )}
 
-                            {/* Active Hardware Telemetry Card */}
+                            {/* live wipe status */}
                             {telemetry && (
                                 <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
@@ -953,7 +956,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                         </div>
                                     )}
 
-                                    {/* Terminal Telemetry Log Row */}
+                                    {/* latest log message */}
                                     <div className="mt-3 p-3 bg-zinc-950 rounded-lg border border-zinc-800/80 font-mono text-xs text-zinc-400 flex items-center justify-between">
                                         <div className="flex items-center gap-2 truncate">
                                             <span className="text-zinc-500">$</span>
@@ -967,10 +970,10 @@ const DashboardView = ({ onBackToLanding }) => {
                                 </div>
                             )}
 
-                            {/* Environmental Impact & Carbon Reduction Card */}
+                            {/* environmental savings chart */}
                             <EnvironmentalImpactCard auditEvents={auditEvents} telemetry={telemetry} />
 
-                            {/* Chronological Hash Chain Ledger Table */}
+                            {/* recent audit logs */}
                             <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
                                 <div className="flex justify-between items-center mb-4">
                                     <div>
@@ -1047,7 +1050,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         </div>
                     )}
 
-                    {/* ═════════════════ TAB 2: CASES ═════════════════ */}
+                    {/* tab 2: cases */}
                     {activeTab === "cases" && (
                         <div className="space-y-4">
                             <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
@@ -1145,7 +1148,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         </div>
                     )}
 
-                    {/* ═════════════════ TAB 3: EVIDENCE ═════════════════ */}
+                    {/* tab 3: evidence */}
                     {activeTab === "evidence" && (
                         <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
                             <div className="flex justify-between items-center mb-4">
@@ -1194,7 +1197,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         </div>
                     )}
 
-                    {/* ═════════════════ TAB 4: OPERATIONS ═════════════════ */}
+                    {/* tab 4: hardware operations */}
                     {activeTab === "operations" && (
                         <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
                             <div className="flex justify-between items-center mb-4">
@@ -1224,7 +1227,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         </div>
                     )}
 
-                    {/* ═════════════════ TAB 5: INTEGRITY ═════════════════ */}
+                    {/* tab 5: merkle integrity */}
                     {activeTab === "integrity" && (
                         <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
                             <div className="flex justify-between items-center mb-4">
@@ -1257,7 +1260,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         </div>
                     )}
 
-                    {/* ═════════════════ TAB 6: AUDIT LOGS ═════════════════ */}
+                    {/* tab 6: audit logs */}
                     {activeTab === "audit" && (
                         <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
                             <div className="flex justify-between items-center mb-4">
@@ -1307,7 +1310,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         </div>
                     )}
 
-                    {/* ═════════════════ TAB 7: WORKSTATIONS ═════════════════ */}
+                    {/* tab 7: workstations */}
                     {activeTab === "devices" && (
                         <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
                             <h3 className="text-sm font-semibold text-zinc-100 mb-1">Connected Workstations</h3>
@@ -1336,7 +1339,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         </div>
                     )}
 
-                    {/* ═════════════════ TAB 8: REPORTS ═════════════════ */}
+                    {/* tab 8: reports export */}
                     {activeTab === "reports" && (
                         <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
                             <div className="flex justify-between items-center mb-4">
@@ -1372,7 +1375,7 @@ const DashboardView = ({ onBackToLanding }) => {
                         </div>
                     )}
 
-                    {/* ═════════════════ TAB 9: SETTINGS ═════════════════ */}
+                    {/* tab 9: bridge settings */}
                     {activeTab === "settings" && (
                         <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80 max-w-2xl">
                             <h3 className="text-sm font-semibold text-zinc-100 mb-1">Bridge Storage Paths</h3>

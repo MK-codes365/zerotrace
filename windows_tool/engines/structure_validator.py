@@ -32,7 +32,7 @@ class RecoveryStructureValidator:
 
         entropy = calculate_entropy(data)
 
-        # ── 1. Format-specific Structure Validation ────────────────────
+        # format-specific structure validation
         u_type = file_type.upper()
 
         if "JPEG" in u_type or "JPG" in u_type:
@@ -86,7 +86,7 @@ class RecoveryStructureValidator:
             "diagnostics": diag,
         }
 
-    # ── Specialized Parsers ──────────────────────────────────────────
+    # parser helpers for different formats
 
     @staticmethod
     def _validate_jpeg(data: bytes) -> Tuple[bool, str]:

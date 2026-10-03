@@ -44,7 +44,7 @@ class PartitionTab(ctk.CTkFrame):
             text_color=COLOR_TEXT_SECONDARY
         ).pack(side="left", padx=15, pady=2)
 
-        # ── Partition Health Inspection Card ───────────────────
+        # partition health card
         pt_card = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=8, border_width=1, border_color=COLOR_BORDER)
         pt_card.pack(fill="x", padx=10, pady=5)
 
@@ -55,7 +55,7 @@ class PartitionTab(ctk.CTkFrame):
 
         self._populate_partition_health()
 
-        # ── External Tools Integration Card ────────────────────
+        # external tools card
         tools_card = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=8, border_width=1, border_color=COLOR_BORDER)
         tools_card.pack(fill="both", expand=True, padx=10, pady=10)
 
