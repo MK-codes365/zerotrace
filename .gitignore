@@ -37,3 +37,6 @@ __pycache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Local acceptance-testing / validation scripts (not for repo)
+platform/backend/validate_*.py
