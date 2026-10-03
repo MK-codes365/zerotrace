@@ -30,9 +30,9 @@ async function computeRealMerkleRoot(leafHashes) {
     return current[0];
 }
 
-// ── Precision High-Tech Forensic SVG Icons ────────────────────────────
+// ── Crisp Enterprise SVG Icons (Linear / Vercel Aesthetic) ─────────────────
 const IconOverview = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <rect width="7" height="9" x="3" y="3" rx="1" />
         <rect width="7" height="5" x="14" y="3" rx="1" />
         <rect width="7" height="9" x="14" y="12" rx="1" />
@@ -41,14 +41,14 @@ const IconOverview = ({ className = "w-4 h-4" }) => (
 );
 
 const IconCases = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
         <path d="M9 13h6" />
     </svg>
 );
 
 const IconEvidence = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="11" cy="11" r="8" />
         <path d="m21 21-4.3-4.3" />
         <path d="M11 8v6" />
@@ -57,30 +57,29 @@ const IconEvidence = ({ className = "w-4 h-4" }) => (
 );
 
 const IconTelemetry = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
     </svg>
 );
 
 const IconMerkle = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         <path d="m9 12 2 2 4-4" />
     </svg>
 );
 
 const IconAudit = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
         <polyline points="14 2 14 8 20 8" />
         <line x1="16" x2="8" y1="13" y2="13" />
         <line x1="16" x2="8" y1="17" y2="17" />
-        <line x1="10" x2="8" y1="9" y2="9" />
     </svg>
 );
 
 const IconDevices = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <rect width="20" height="8" x="2" y="3" rx="2" />
         <rect width="20" height="8" x="2" y="13" rx="2" />
         <circle cx="6" cy="7" r="1" fill="currentColor" />
@@ -89,7 +88,7 @@ const IconDevices = ({ className = "w-4 h-4" }) => (
 );
 
 const IconReports = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
         <path d="M14 2v4a2 2 0 0 0 2 2h4" />
         <path d="m9 15 2 2 4-4" />
@@ -97,20 +96,20 @@ const IconReports = ({ className = "w-4 h-4" }) => (
 );
 
 const IconSettings = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="3" />
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
 );
 
 const IconEco = ({ className = "w-4 h-4" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
         <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
     </svg>
 );
 
-// ── Environmental Impact Reduction Graph Component (Per Wipe Sanitization) ──
+// ── Stripe Climate-Style Lifecycle Impact Card (Zero AI Slop) ───────────────
 const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
     const [selectedMetric, setSelectedMetric] = useState("co2"); // 'co2' | 'ewaste' | 'drives'
     const [hoveredPoint, setHoveredPoint] = useState(null);
@@ -155,10 +154,10 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
     const latest = wipeEvents[wipeEvents.length - 1] || { co2: 281.2, ewaste: 8.55, drives: 19 };
     const maxVal = Math.max(...wipeEvents.map((p) => p[selectedMetric])) * 1.15 || 100;
 
-    const svgWidth = 680;
-    const svgHeight = 175;
-    const padX = 40;
-    const padY = 22;
+    const svgWidth = 720;
+    const svgHeight = 160;
+    const padX = 36;
+    const padY = 20;
 
     const coords = wipeEvents.map((p, idx) => {
         const x = padX + (idx / Math.max(wipeEvents.length - 1, 1)) * (svgWidth - padX * 2);
@@ -181,57 +180,54 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
         : "";
 
     return (
-        <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl relative overflow-hidden">
-            {/* Ambient Background Glow */}
-            <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-500/[0.03] rounded-full blur-3xl pointer-events-none -z-10" />
-
-            {/* Header & Mode Switcher */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div className="bg-[#111215] p-5 sm:p-6 rounded-xl border border-zinc-800/80">
+            {/* Header & Segmented Pill Switcher */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
                 <div>
                     <div className="flex items-center gap-2">
-                        <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                            <IconEco className="w-4 h-4" />
+                        <span className="text-zinc-400">
+                            <IconEco className="w-4 h-4 text-emerald-400" />
                         </span>
-                        <h3 className="font-extrabold text-base text-white tracking-tight flex items-center gap-2">
-                            <span>Environmental Impact & Carbon Offset per Wipe</span>
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                                ESG CERTIFIED
-                            </span>
+                        <h3 className="text-sm font-semibold text-zinc-100">
+                            Hardware Lifecycle & Carbon Offset
                         </h3>
+                        <span className="text-[11px] font-mono text-zinc-500 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded">
+                            NIST SP 800-88
+                        </span>
                     </div>
-                    <p className="text-xs text-[#8e8a83] mt-1">
-                        Ecological savings achieved by certified cryptographic wipe (NIST SP 800-88 Purge) vs physical drive shredding.
+                    <p className="text-xs text-zinc-400 mt-1">
+                        Avoided emissions and diverted e-waste achieved through certified data sanitization vs physical shredding.
                     </p>
                 </div>
 
-                {/* Metric Selector Buttons */}
-                <div className="flex items-center p-1 bg-[#101115] rounded-xl border border-white/[0.06] text-xs font-mono">
+                {/* Minimal Segmented Control */}
+                <div className="flex items-center p-1 bg-zinc-950 border border-zinc-800/80 rounded-lg text-xs font-mono">
                     <button
                         onClick={() => setSelectedMetric("co2")}
-                        className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
+                        className={`px-3 py-1 rounded-md transition-colors cursor-pointer text-xs font-medium ${
                             selectedMetric === "co2"
-                                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
-                                : "text-[#8e8a83] hover:text-white"
+                                ? "bg-zinc-800 text-zinc-100 shadow-xs"
+                                : "text-zinc-400 hover:text-zinc-200"
                         }`}
                     >
                         CO₂e Avoided
                     </button>
                     <button
                         onClick={() => setSelectedMetric("ewaste")}
-                        className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
+                        className={`px-3 py-1 rounded-md transition-colors cursor-pointer text-xs font-medium ${
                             selectedMetric === "ewaste"
-                                ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-[0_0_10px_rgba(0,240,255,0.2)]"
-                                : "text-[#8e8a83] hover:text-white"
+                                ? "bg-zinc-800 text-zinc-100 shadow-xs"
+                                : "text-zinc-400 hover:text-zinc-200"
                         }`}
                     >
                         E-Waste Diverted
                     </button>
                     <button
                         onClick={() => setSelectedMetric("drives")}
-                        className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
+                        className={`px-3 py-1 rounded-md transition-colors cursor-pointer text-xs font-medium ${
                             selectedMetric === "drives"
-                                ? "bg-teal-500/20 text-teal-300 border border-teal-500/30 shadow-[0_0_10px_rgba(20,184,166,0.2)]"
-                                : "text-[#8e8a83] hover:text-white"
+                                ? "bg-zinc-800 text-zinc-100 shadow-xs"
+                                : "text-zinc-400 hover:text-zinc-200"
                         }`}
                     >
                         Drives Salvaged
@@ -239,146 +235,157 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                 </div>
             </div>
 
-            {/* Metric KPI Strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-6 font-mono">
-                <div className="p-3.5 bg-[#101116] rounded-xl border border-white/[0.05]">
-                    <span className="text-[10px] uppercase text-[#8e8a83] tracking-wider block">Carbon Avoided (Cumulative)</span>
-                    <span className="text-xl font-black text-emerald-400 mt-1 block">
-                        {latest.co2} <span className="text-xs font-normal text-[#8e8a83]">kg CO₂e</span>
+            {/* Clean Metric Readout Tiles */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+                <div className="p-3.5 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
+                    <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider block">
+                        Carbon Avoided
                     </span>
-                    <span className="text-[10px] text-[#b1a696] font-sans mt-0.5 block">≈ 14 Mature Trees Planted</span>
+                    <span className="text-xl sm:text-2xl font-semibold text-zinc-100 tabular-nums mt-1 block">
+                        {latest.co2} <span className="text-xs font-normal text-zinc-400">kg CO₂e</span>
+                    </span>
+                    <span className="text-[11px] text-zinc-400 mt-0.5 block">
+                        Avg 14.8 kg CO₂e saved per drive
+                    </span>
                 </div>
 
-                <div className="p-3.5 bg-[#101116] rounded-xl border border-white/[0.05]">
-                    <span className="text-[10px] uppercase text-[#8e8a83] tracking-wider block">E-Waste Landfill Diversion</span>
-                    <span className="text-xl font-black text-cyan-400 mt-1 block">
-                        {latest.ewaste} <span className="text-xs font-normal text-[#8e8a83]">kg</span>
+                <div className="p-3.5 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
+                    <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider block">
+                        E-Waste Diverted
                     </span>
-                    <span className="text-[10px] text-[#b1a696] font-sans mt-0.5 block">100% Hardware Salvage</span>
+                    <span className="text-xl sm:text-2xl font-semibold text-zinc-100 tabular-nums mt-1 block">
+                        {latest.ewaste} <span className="text-xs font-normal text-zinc-400">kg</span>
+                    </span>
+                    <span className="text-[11px] text-zinc-400 mt-0.5 block">
+                        Solid state & spindle hardware
+                    </span>
                 </div>
 
-                <div className="p-3.5 bg-[#101116] rounded-xl border border-white/[0.05]">
-                    <span className="text-[10px] uppercase text-[#8e8a83] tracking-wider block">Storage Drives Re-Certified</span>
-                    <span className="text-xl font-black text-white mt-1 block">
+                <div className="p-3.5 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
+                    <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider block">
+                        Sanitized for Reuse
+                    </span>
+                    <span className="text-xl sm:text-2xl font-semibold text-zinc-100 tabular-nums mt-1 block">
                         {latest.drives} <span className="text-xs font-normal text-emerald-400">Drives</span>
                     </span>
-                    <span className="text-[10px] text-[#b1a696] font-sans mt-0.5 block">NIST 800-88 Compliant</span>
+                    <span className="text-[11px] text-zinc-400 mt-0.5 block">
+                        Cryptographically purged & verified
+                    </span>
                 </div>
 
-                <div className="p-3.5 bg-[#101116] rounded-xl border border-white/[0.05]">
-                    <span className="text-[10px] uppercase text-[#8e8a83] tracking-wider block">Critical Minerals Saved</span>
-                    <span className="text-xl font-black text-amber-400 mt-1 block">
-                        {(latest.drives * 7.2).toFixed(1)} <span className="text-xs font-normal text-[#8e8a83]">g</span>
+                <div className="p-3.5 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
+                    <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider block">
+                        Circular Retention
                     </span>
-                    <span className="text-[10px] text-[#b1a696] font-sans mt-0.5 block">Neodymium, Gold & Copper</span>
+                    <span className="text-xl sm:text-2xl font-semibold text-zinc-100 tabular-nums mt-1 block">
+                        100.0%
+                    </span>
+                    <span className="text-[11px] text-zinc-400 mt-0.5 block">
+                        Zero substrate destruction
+                    </span>
                 </div>
             </div>
 
-            {/* Interactive SVG Curve Chart */}
-            <div className="relative bg-[#0d0e12] rounded-xl border border-white/[0.06] p-4 pt-6">
+            {/* Flat, Modern SVG Curve Chart */}
+            <div className="relative bg-zinc-950/80 rounded-lg border border-zinc-800/80 p-3.5 pt-5">
                 {/* Y-Axis Value Labels */}
-                <div className="absolute left-4 top-4 bottom-7 flex flex-col justify-between text-[9px] font-mono text-[#615e58] pointer-events-none">
+                <div className="absolute left-3 top-3 bottom-6 flex flex-col justify-between text-[10px] font-mono text-zinc-400 pointer-events-none">
                     <span>{maxVal.toFixed(selectedMetric === "ewaste" ? 1 : 0)} {selectedMetric === "co2" ? "kg" : selectedMetric === "ewaste" ? "kg" : "units"}</span>
                     <span>{(maxVal * 0.5).toFixed(selectedMetric === "ewaste" ? 1 : 0)}</span>
                     <span>0</span>
                 </div>
 
-                <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-44 sm:h-52 overflow-visible">
+                <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-40 overflow-visible">
                     <defs>
-                        <linearGradient id="ecoGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.32" />
-                            <stop offset="100%" stopColor="#00f0ff" stopOpacity="0.0" />
-                        </linearGradient>
-                        <linearGradient id="strokeGradient" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stopColor="#10b981" />
-                            <stop offset="100%" stopColor="#00f0ff" />
+                        <linearGradient id="chartSubtleFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.10" />
+                            <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
                         </linearGradient>
                     </defs>
 
-                    {/* Subtle Horizontal Grid Guides */}
-                    <line x1={padX} y1={padY} x2={svgWidth - padX} y2={padY} stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-                    <line x1={padX} y1={svgHeight / 2} x2={svgWidth - padX} y2={svgHeight / 2} stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-                    <line x1={padX} y1={svgHeight - padY} x2={svgWidth - padX} y2={svgHeight - padY} stroke="rgba(255,255,255,0.08)" />
+                    {/* Horizontal Reference Lines */}
+                    <line x1={padX} y1={padY} x2={svgWidth - padX} y2={padY} stroke="#27272a" strokeDasharray="3 3" />
+                    <line x1={padX} y1={svgHeight / 2} x2={svgWidth - padX} y2={svgHeight / 2} stroke="#27272a" strokeDasharray="3 3" />
+                    <line x1={padX} y1={svgHeight - padY} x2={svgWidth - padX} y2={svgHeight - padY} stroke="#3f3f46" strokeWidth="1" />
 
-                    {/* Area Fill */}
-                    {areaD && <path d={areaD} fill="url(#ecoGradient)" />}
+                    {/* Subtle Area Fill */}
+                    {areaD && <path d={areaD} fill="url(#chartSubtleFill)" />}
 
-                    {/* Glowing Stroke Curve */}
+                    {/* Clean 1.5px Stroke Line */}
                     {pathD && (
                         <path
                             d={pathD}
                             fill="none"
-                            stroke="url(#strokeGradient)"
-                            strokeWidth="2.5"
+                            stroke="#10b981"
+                            strokeWidth="1.75"
                             strokeLinecap="round"
-                            className="filter drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                            strokeLinejoin="round"
                         />
                     )}
 
-                    {/* Interactive Data Point Orbs */}
+                    {/* Data Points */}
                     {coords.map((c, i) => (
                         <g key={i} className="cursor-pointer group/point" onMouseEnter={() => setHoveredPoint(c)} onMouseLeave={() => setHoveredPoint(null)}>
                             <circle
                                 cx={c.x}
                                 cy={c.y}
-                                r="4"
-                                className="fill-[#0e0f13] stroke-emerald-400 stroke-2 transition-transform duration-200 group-hover/point:scale-150 group-hover/point:fill-emerald-300"
+                                r="3"
+                                className="fill-[#09090b] stroke-emerald-500 stroke-2 transition-transform duration-150 group-hover/point:scale-150"
                             />
                             <circle
                                 cx={c.x}
                                 cy={c.y}
-                                r="9"
-                                className="fill-emerald-400/0 group-hover/point:fill-emerald-400/20 transition-all duration-200"
+                                r="8"
+                                className="fill-emerald-500/0 group-hover/point:fill-emerald-500/15 transition-colors"
                             />
                         </g>
                     ))}
                 </svg>
 
-                {/* Hover Tooltip Popup */}
+                {/* Hover Popover */}
                 {hoveredPoint && (
                     <div
-                        className="absolute p-3 rounded-xl bg-[#171922]/95 backdrop-blur-xl border border-emerald-500/40 shadow-2xl text-xs font-mono pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 z-20"
+                        className="absolute p-2.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs font-sans shadow-xl pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 z-20"
                         style={{
                             left: `${(hoveredPoint.x / svgWidth) * 100}%`,
                             top: `${(hoveredPoint.y / svgHeight) * 100}%`,
                         }}
                     >
-                        <div className="flex items-center gap-1.5 text-emerald-400 font-bold mb-1">
-                            <IconEco className="w-3.5 h-3.5" />
-                            <span>Wipe Event #{hoveredPoint.data.index}</span>
+                        <div className="font-semibold text-zinc-100 flex items-center gap-1.5 mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <span>Cycle #{hoveredPoint.data.index}</span>
                         </div>
-                        <p className="text-white font-sans font-semibold text-[11px] truncate max-w-[190px]">{hoveredPoint.data.target}</p>
-                        <div className="mt-1.5 pt-1.5 border-t border-white/10 text-[10px] space-y-0.5 text-[#b1a696]">
-                            <div>Cumulative CO₂e: <span className="text-emerald-300 font-bold">+{hoveredPoint.data.co2} kg</span></div>
-                            <div>E-Waste Avoided: <span className="text-cyan-300 font-bold">+{hoveredPoint.data.ewaste} kg</span></div>
-                            <div>Method: <span className="text-white font-medium">NIST SP 800-88 Rev 1 Purge</span></div>
+                        <p className="text-zinc-400 text-[11px] truncate max-w-[200px]">{hoveredPoint.data.target}</p>
+                        <div className="mt-1.5 pt-1.5 border-t border-zinc-800 text-[11px] space-y-0.5 font-mono text-zinc-300">
+                            <div>CO₂e Avoided: <span className="text-emerald-400 font-medium">+{hoveredPoint.data.co2} kg</span></div>
+                            <div>E-Waste Diverted: <span className="text-zinc-200 font-medium">+{hoveredPoint.data.ewaste} kg</span></div>
                         </div>
                     </div>
                 )}
 
                 {/* X-Axis Timeline Labels */}
-                <div className="flex justify-between items-center text-[10px] font-mono text-[#8e8a83] pt-2 px-8">
+                <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-2 px-8">
                     {wipeEvents.slice(0, 6).map((p, idx) => (
-                        <span key={idx}>Wipe #{p.index} ({p.date})</span>
+                        <span key={idx}>Cycle #{p.index} • {p.date}</span>
                     ))}
                 </div>
             </div>
 
-            {/* Insight & ESG Compliance Banner */}
-            <div className="mt-4 p-3 bg-emerald-950/20 border border-emerald-500/20 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs font-sans text-emerald-300/90 gap-2">
+            {/* Context Notice */}
+            <div className="mt-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-zinc-400 px-3 py-2.5 rounded-lg bg-zinc-950/40 border border-zinc-800/60 gap-2">
                 <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
-                    <span className="font-semibold text-white">Cryptographic Sanitization vs Shredding:</span>
-                    <span>Zero physical hardware destroyed. 100% of wiped drives are safely redeployed into circular production.</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    <span>NIST SP 800-88 Purge allows secure hardware reassignment instead of destructive physical fragmentation.</span>
                 </div>
-                <span className="font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30 text-emerald-300 shrink-0 font-bold">
-                    GHG Scope 3 Compliant
+                <span className="font-mono text-[10px] text-zinc-400 shrink-0">
+                    Scope 3 Cat. 1 Compliant
                 </span>
             </div>
         </div>
     );
 };
 
+// ── Main Dashboard View Component ──────────────────────────────────────────
 const DashboardView = ({ onBackToLanding }) => {
     const [activeTab, setActiveTab] = useState("overview");
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -386,7 +393,7 @@ const DashboardView = ({ onBackToLanding }) => {
     const [selectedCase, setSelectedCase] = useState(null);
     const [copiedHash, setCopiedHash] = useState(null);
 
-    // ── Real Data States ──────────────────────────────────────────────
+    // Real Data States
     const [casesData, setCasesData] = useState([]);
     const [auditEvents, setAuditEvents] = useState([]);
     const [telemetry, setTelemetry] = useState(null);
@@ -406,13 +413,12 @@ const DashboardView = ({ onBackToLanding }) => {
         setTimeout(() => setCopiedHash(null), 2000);
     };
 
-    // ── Real Telemetry & Data Polling Loop ─────────────────────────────
+    // Telemetry & Data Polling Loop
     useEffect(() => {
         let isMounted = true;
 
         const fetchRealData = async () => {
             try {
-                // 1. Fetch Real Cases from Desktop
                 const casesRes = await fetch("/forensic_cases.json?" + Date.now());
                 if (casesRes.ok) {
                     const json = await casesRes.json();
@@ -422,18 +428,15 @@ const DashboardView = ({ onBackToLanding }) => {
                     }
                 }
             } catch (e) {
-                // fallback if empty
+                // quiet fallback
             }
 
             try {
-                // 2. Fetch Real Hash Chain Audit Trail from Desktop
                 const auditRes = await fetch("/audit_trail.json?" + Date.now());
                 if (auditRes.ok) {
                     const events = await auditRes.json();
                     if (isMounted && Array.isArray(events)) {
                         setAuditEvents(events);
-
-                        // Compute Real Merkle Root from real event hashes
                         const hashes = events.map((ev) => ev.event_hash || ev.prev_hash).filter(Boolean);
                         computeRealMerkleRoot(hashes).then((root) => {
                             if (isMounted) setMerkleRoot(root);
@@ -441,18 +444,17 @@ const DashboardView = ({ onBackToLanding }) => {
                     }
                 }
             } catch (e) {
-                // fallback
+                // quiet fallback
             }
 
             try {
-                // 3. Fetch Real Hardware Wipe Telemetry
                 const telemRes = await fetch("/live_wipe_telemetry.json?" + Date.now());
                 if (telemRes.ok) {
                     const telem = await telemRes.json();
                     if (isMounted && telem) {
                         setTelemetry(telem);
                         setIsAgentOnline(true);
-                        setLastSyncTime(new Date().toLocaleTimeString());
+                        setLastSyncTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
                     }
                 }
             } catch (e) {
@@ -468,7 +470,7 @@ const DashboardView = ({ onBackToLanding }) => {
         };
     }, []);
 
-    // ── Real Cryptographic Chain Verification ──────────────────────────
+    // Real Cryptographic Chain Verification
     const runChainVerification = async () => {
         setVerifying(true);
         setVerificationResult(null);
@@ -477,7 +479,7 @@ const DashboardView = ({ onBackToLanding }) => {
             setVerifying(false);
             setVerificationResult({
                 valid: false,
-                reason: "No audit events found on desktop agent",
+                reason: "No audit records found on agent",
             });
             return;
         }
@@ -506,7 +508,7 @@ const DashboardView = ({ onBackToLanding }) => {
                 verifiedAt: new Date().toISOString(),
                 brokenIndex: brokenAt,
             });
-        }, 600);
+        }, 500);
     };
 
     // Filtered audit events for search
@@ -538,56 +540,43 @@ const DashboardView = ({ onBackToLanding }) => {
 
     const getActionBadgeColor = (action) => {
         const act = (action || "").toUpperCase();
-        if (act.includes("EXPORT") || act.includes("RESTORE")) return "text-cyan-400 bg-cyan-950/40 border-cyan-500/30";
-        if (act.includes("CARVE")) return "text-amber-400 bg-amber-950/40 border-amber-500/30";
-        if (act.includes("WIPE") || act.includes("ERAS")) return "text-rose-400 bg-rose-950/40 border-rose-500/30";
-        if (act.includes("VERIF") || act.includes("CERT")) return "text-emerald-400 bg-emerald-950/40 border-emerald-500/30";
-        return "text-[#f4efe7]/80 bg-white/5 border-white/10";
+        if (act.includes("EXPORT") || act.includes("RESTORE")) return "text-zinc-300 bg-zinc-800/80 border-zinc-700/80";
+        if (act.includes("CARVE")) return "text-amber-300 bg-amber-950/40 border-amber-800/40";
+        if (act.includes("WIPE") || act.includes("ERAS")) return "text-rose-300 bg-rose-950/40 border-rose-800/40";
+        if (act.includes("VERIF") || act.includes("CERT")) return "text-emerald-300 bg-emerald-950/40 border-emerald-800/40";
+        return "text-zinc-400 bg-zinc-900 border-zinc-800";
     };
 
     return (
-        <div className="flex min-h-screen bg-[#0e0f13] text-[#f4efe7] font-sans antialiased selection:bg-cyan-400 selection:text-[#0e0f13] relative overflow-hidden" data-lenis-prevent="true">
-            {/* Ambient Background Glows */}
-            <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-cyan-600/[0.03] rounded-full blur-[140px] pointer-events-none -z-10" />
-            <div className="fixed bottom-0 right-10 w-[500px] h-[500px] bg-blue-600/[0.03] rounded-full blur-[140px] pointer-events-none -z-10" />
-
+        <div className="flex min-h-screen bg-[#09090b] text-zinc-100 font-sans antialiased selection:bg-zinc-800 selection:text-zinc-100">
             {/* ── SIDEBAR ────────────────────────────────────────────── */}
-            <aside className={`${isSidebarOpen ? "w-72" : "w-20"} bg-[#101116]/98 backdrop-blur-2xl border-r border-white/[0.08] flex flex-col justify-between shrink-0 z-20 sticky top-0 h-screen shadow-[15px_0_50px_rgba(0,0,0,0.6)] transition-all duration-300 ease-in-out`}>
+            <aside className={`${isSidebarOpen ? "w-64" : "w-18"} bg-[#0c0d0e] border-r border-zinc-800/80 flex flex-col justify-between shrink-0 z-20 sticky top-0 h-screen transition-all duration-200 ease-in-out`}>
                 <div className="flex-1 overflow-y-auto no-scrollbar">
-                    {/* Header Brand & Collapse Button */}
-                    <div className={`h-18 border-b border-white/[0.08] flex items-center bg-[#13141d]/80 sticky top-0 z-10 backdrop-blur-xl transition-all ${isSidebarOpen ? "px-4 justify-between" : "px-2 justify-center"}`}>
+                    {/* Header Brand & Toggle */}
+                    <div className={`h-16 border-b border-zinc-800/80 flex items-center bg-[#0c0d0e] sticky top-0 z-10 ${isSidebarOpen ? "px-4 justify-between" : "px-2 justify-center"}`}>
                         {isSidebarOpen ? (
                             <>
-                                <div className="flex items-center gap-3">
-                                    <div className="relative group">
-                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
-                                        <div className="relative w-9 h-9 rounded-xl bg-[#171922] border border-white/10 p-1.5 flex items-center justify-center shadow-md">
-                                            <img src="/logo.png" alt="ZeroTrace" className="w-full h-full object-contain" />
-                                        </div>
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-700/60 p-1 flex items-center justify-center">
+                                        <img src="/logo.png" alt="ZeroTrace" className="w-full h-full object-contain" />
                                     </div>
-                                    <div>
-                                        <div className="flex items-center gap-1.5">
-                                            <h1 className="font-black text-sm tracking-wider text-white uppercase font-sans">
-                                                ZeroTrace
-                                            </h1>
-                                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                                                v1.4
-                                            </span>
-                                        </div>
-                                        <p className="text-[#8e8a83] text-[10px] tracking-wider uppercase font-mono mt-0.5">
-                                            Forensic Command Hub
-                                        </p>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="font-semibold text-sm tracking-tight text-zinc-100">
+                                            ZeroTrace
+                                        </span>
+                                        <span className="text-[10px] font-mono text-zinc-500 bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded">
+                                            v1.4
+                                        </span>
                                     </div>
                                 </div>
 
-                                {/* Sidebar Close Button */}
                                 <button
                                     onClick={() => setIsSidebarOpen(false)}
-                                    className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-cyan-500/20 text-[#8e8a83] hover:text-cyan-400 border border-white/[0.06] hover:border-cyan-500/30 flex items-center justify-center transition-all cursor-pointer group shadow-sm"
-                                    title="Close Sidebar"
-                                    aria-label="Close Sidebar"
+                                    className="p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors cursor-pointer"
+                                    title="Collapse sidebar"
+                                    aria-label="Collapse sidebar"
                                 >
-                                    <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                                         <rect width="18" height="18" x="3" y="3" rx="2" />
                                         <path d="M9 3v18" />
                                         <path d="m14 9-3 3 3 3" />
@@ -595,116 +584,83 @@ const DashboardView = ({ onBackToLanding }) => {
                                 </button>
                             </>
                         ) : (
-                            /* Sidebar Open Button (Icon + Chevron) */
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="relative group w-11 h-11 rounded-xl bg-[#171922] hover:bg-cyan-500/15 border border-white/10 hover:border-cyan-400/40 p-2 flex items-center justify-center transition-all cursor-pointer shadow-md"
-                                title="Open Sidebar"
-                                aria-label="Open Sidebar"
+                                className="w-9 h-9 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 p-1.5 flex items-center justify-center transition-colors cursor-pointer"
+                                title="Expand sidebar"
+                                aria-label="Expand sidebar"
                             >
                                 <img src="/logo.png" alt="ZeroTrace" className="w-full h-full object-contain" />
-                                <div className="absolute -right-1.5 -bottom-1.5 w-5 h-5 rounded-full bg-cyan-400 text-[#0e0f13] flex items-center justify-center text-xs font-black shadow-[0_0_8px_#00f0ff] transition-transform group-hover:scale-110">
-                                    ›
-                                </div>
                             </button>
                         )}
                     </div>
 
-                    {/* Agent Live Connectivity Status Card */}
+                    {/* Desktop Engine Status */}
                     {isSidebarOpen ? (
-                        <div className="mx-3.5 my-3.5 p-3.5 rounded-2xl bg-gradient-to-b from-[#181a24] via-[#14151e] to-[#0f1015] border border-white/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.35)] relative overflow-hidden group">
-                            <div className={`absolute top-0 right-0 w-28 h-28 rounded-full blur-2xl pointer-events-none transition-opacity duration-500 ${isAgentOnline ? "bg-emerald-500/[0.08]" : "bg-amber-500/[0.08]"}`} />
-                            
+                        <div className="mx-3 my-3 p-3 rounded-lg bg-zinc-900/50 border border-zinc-800/80 text-xs">
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2.5">
-                                    <span className="relative flex h-2.5 w-2.5">
-                                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isAgentOnline ? "bg-emerald-400" : "bg-amber-400"}`}></span>
-                                        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isAgentOnline ? "bg-emerald-400 shadow-[0_0_10px_#10b981]" : "bg-amber-400"}`}></span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full ${isAgentOnline ? "bg-emerald-500" : "bg-amber-500"}`} />
+                                    <span className="font-medium text-zinc-200">
+                                        {isAgentOnline ? "Engine Connected" : "Connecting Agent..."}
                                     </span>
-                                    <div>
-                                        <span className="text-xs font-bold tracking-tight text-white block">
-                                            Desktop Engine
-                                        </span>
-                                        <span className={`text-[10px] font-mono font-semibold block ${isAgentOnline ? "text-emerald-400" : "text-amber-400"}`}>
-                                            {isAgentOnline ? "Active & Synchronized" : "Connecting to Agent..."}
-                                        </span>
-                                    </div>
                                 </div>
-                                <span className={`text-[9px] font-mono font-black px-2 py-0.5 rounded-md border tracking-wider uppercase ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.25)]" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
-                                    {isAgentOnline ? "LIVE" : "POLLING"}
+                                <span className="font-mono text-[10px] text-zinc-500">
+                                    {isAgentOnline ? "SYNCED" : "POLLING"}
                                 </span>
                             </div>
-
-                            {/* Dual Micro Telemetry Indicators */}
-                            <div className="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-white/[0.06] text-[10px] font-mono">
-                                <div className="bg-black/30 px-2 py-1.5 rounded-lg border border-white/[0.04]">
-                                    <span className="text-[#8e8a83] text-[9px] block uppercase tracking-wider">Transport</span>
-                                    <span className="text-white font-semibold text-[10px] flex items-center gap-1.5 mt-0.5">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_6px_#00f0ff]" />
-                                        IPC Socket
-                                    </span>
-                                </div>
-                                <div className="bg-black/30 px-2 py-1.5 rounded-lg border border-white/[0.04]">
-                                    <span className="text-[#8e8a83] text-[9px] block uppercase tracking-wider">Sync State</span>
-                                    <span className="text-cyan-300 font-semibold text-[10px] truncate block mt-0.5" title={lastSyncTime || "Realtime"}>
-                                        {lastSyncTime ? lastSyncTime : "Realtime"}
-                                    </span>
-                                </div>
+                            <div className="mt-2 pt-2 border-t border-zinc-800/60 flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                                <span>IPC Bridge</span>
+                                <span>{lastSyncTime || "2s interval"}</span>
                             </div>
                         </div>
                     ) : (
                         <div
                             onClick={() => setIsSidebarOpen(true)}
-                            className="mx-3 my-3 p-2.5 rounded-xl bg-gradient-to-b from-[#181a24] to-[#0f1015] border border-white/[0.08] flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/30 transition-all group"
-                            title={`Desktop Engine: ${isAgentOnline ? "ONLINE (IPC Socket)" : "CONNECTING..."} - Click to expand`}
+                            className="mx-2 my-3 p-2 rounded-lg bg-zinc-900/50 border border-zinc-800/80 flex justify-center cursor-pointer hover:bg-zinc-800/50 transition-colors"
+                            title={`Engine: ${isAgentOnline ? "Connected" : "Polling"} - Click to expand`}
                         >
-                            <span className="relative flex h-3 w-3">
-                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isAgentOnline ? "bg-emerald-400" : "bg-amber-400"}`}></span>
-                                <span className={`relative inline-flex rounded-full h-3 w-3 ${isAgentOnline ? "bg-emerald-400 shadow-[0_0_8px_#10b981]" : "bg-amber-400"}`}></span>
-                            </span>
-                            <span className="text-[8px] font-mono text-emerald-400 font-extrabold mt-1.5 uppercase tracking-wider">
-                                {isAgentOnline ? "LIVE" : "POLL"}
-                            </span>
+                            <span className={`w-2 h-2 rounded-full ${isAgentOnline ? "bg-emerald-500" : "bg-amber-500"}`} />
                         </div>
                     )}
 
-                    {/* Grouped Navigation Menu */}
-                    <nav className={`pb-4 ${isSidebarOpen ? "px-3 space-y-4" : "px-2 space-y-3"}`}>
+                    {/* Navigation Menu */}
+                    <nav className={`pb-4 ${isSidebarOpen ? "px-2 space-y-4" : "px-2 space-y-3"}`}>
                         {[
                             {
-                                group: "FORENSIC WORKSPACE",
+                                group: "WORKSPACE",
                                 items: [
                                     { id: "overview", label: "Overview", icon: IconOverview },
-                                    { id: "cases", label: "Active Cases", icon: IconCases, badge: casesData.length },
+                                    { id: "cases", label: "Investigation Cases", icon: IconCases, badge: casesData.length },
                                     { id: "evidence", label: "Evidence Pool", icon: IconEvidence, badge: realEvidenceList.length },
-                                    { id: "operations", label: "Live Telemetry", icon: IconTelemetry, live: telemetry?.is_wiping },
+                                    { id: "operations", label: "Hardware Console", icon: IconTelemetry, live: telemetry?.is_wiping },
                                 ],
                             },
                             {
-                                group: "INTEGRITY & PROOF",
+                                group: "VERIFICATION",
                                 items: [
-                                    { id: "integrity", label: "Merkle & Hash Chain", icon: IconMerkle },
+                                    { id: "integrity", label: "Merkle Integrity", icon: IconMerkle },
                                     { id: "audit", label: "Audit Ledger", icon: IconAudit, badge: auditEvents.length },
-                                    { id: "reports", label: "Forensic Reports", icon: IconReports },
+                                    { id: "reports", label: "Signed Reports", icon: IconReports },
                                 ],
                             },
                             {
-                                group: "SYSTEM NODES",
+                                group: "SYSTEM",
                                 items: [
-                                    { id: "devices", label: "Hardware Nodes", icon: IconDevices },
+                                    { id: "devices", label: "Workstations", icon: IconDevices },
                                     { id: "settings", label: "Configuration", icon: IconSettings },
                                 ],
                             },
                         ].map((cat, catIdx) => (
-                            <div key={catIdx} className="space-y-1">
+                            <div key={catIdx} className="space-y-0.5">
                                 {isSidebarOpen ? (
-                                    <div className="px-3 pt-1 text-[9.5px] font-mono uppercase tracking-widest text-[#78746c] font-bold">
+                                    <div className="px-2.5 pt-1.5 pb-1 text-[11px] font-medium text-zinc-400 tracking-wider uppercase">
                                         {cat.group}
                                     </div>
                                 ) : (
-                                    catIdx > 0 && <div className="h-px bg-white/[0.06] my-2 mx-2" />
+                                    catIdx > 0 && <div className="h-px bg-zinc-800/80 my-2 mx-1" />
                                 )}
-                                <div className="space-y-1 mt-1">
+                                <div className="space-y-0.5">
                                     {cat.items.map((item) => {
                                         const isCurrent = activeTab === item.id;
                                         const IconComp = item.icon;
@@ -713,59 +669,28 @@ const DashboardView = ({ onBackToLanding }) => {
                                                 key={item.id}
                                                 onClick={() => setActiveTab(item.id)}
                                                 title={item.label}
-                                                className={`w-full flex items-center ${isSidebarOpen ? "justify-between px-3 py-2" : "justify-center py-2.5 px-1"} rounded-xl text-xs transition-all duration-150 cursor-pointer relative group ${
+                                                className={`w-full flex items-center ${isSidebarOpen ? "justify-between px-2.5 py-1.5" : "justify-center py-2 px-1"} rounded-md text-xs transition-colors cursor-pointer ${
                                                     isCurrent
-                                                        ? "bg-gradient-to-r from-cyan-500/15 via-cyan-500/5 to-transparent text-white font-bold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-                                                        : "text-[#9e998f] hover:text-white hover:bg-white/[0.04] font-medium"
+                                                        ? "bg-zinc-800 text-zinc-100 font-medium"
+                                                        : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
                                                 }`}
                                             >
-                                                {/* Left Accent Glow Bar */}
-                                                {isCurrent && (
-                                                    <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-r-full shadow-[0_0_10px_#00f0ff]" />
-                                                )}
-
-                                                <div className="flex items-center gap-2.5">
-                                                    <div className={`relative ${isSidebarOpen ? "w-7 h-7" : "w-8 h-8"} rounded-lg flex items-center justify-center transition-all duration-200 ${
-                                                        isCurrent
-                                                            ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.25)]"
-                                                            : "bg-white/[0.03] text-[#8e8a83] group-hover:text-cyan-300 group-hover:bg-cyan-500/10 border border-white/[0.04] group-hover:border-cyan-500/20"
-                                                    }`}>
-                                                        <IconComp className={isSidebarOpen ? "w-3.5 h-3.5" : "w-4 h-4"} />
-                                                        {!isSidebarOpen && item.badge !== undefined && item.badge > 0 && (
-                                                            <span className="absolute -top-1 -right-1 bg-cyan-400 text-[#0e0f13] text-[9px] font-mono font-black w-4 h-4 rounded-full flex items-center justify-center shadow-[0_0_6px_#00f0ff]">
-                                                                {item.badge}
-                                                            </span>
-                                                        )}
-                                                        {!isSidebarOpen && item.live && (
-                                                            <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                <div className="flex items-center gap-2.5 min-w-0">
+                                                    <IconComp className={`w-4 h-4 shrink-0 ${isCurrent ? "text-zinc-100" : "text-zinc-400"}`} />
                                                     {isSidebarOpen && (
-                                                        <span className="tracking-wide text-xs truncate">{item.label}</span>
+                                                        <span className="truncate">{item.label}</span>
                                                     )}
                                                 </div>
 
                                                 {isSidebarOpen && (
-                                                    <div className="flex items-center gap-1.5">
+                                                    <div className="flex items-center gap-1.5 shrink-0 ml-1">
                                                         {item.badge !== undefined && item.badge > 0 && (
-                                                            <span
-                                                                className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full transition-all ${
-                                                                    isCurrent
-                                                                        ? "bg-cyan-400 text-[#0e0f13] shadow-[0_0_8px_rgba(0,240,255,0.4)]"
-                                                                        : "bg-white/[0.06] text-[#b1a696] border border-white/[0.08] group-hover:border-cyan-500/30 group-hover:text-cyan-300"
-                                                                }`}
-                                                            >
+                                                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
                                                                 {item.badge}
                                                             </span>
                                                         )}
                                                         {item.live && (
-                                                            <span className="flex h-2 w-2 relative">
-                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-                                                            </span>
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                                         )}
                                                     </div>
                                                 )}
@@ -778,111 +703,84 @@ const DashboardView = ({ onBackToLanding }) => {
                     </nav>
                 </div>
 
-                {/* Operator Profile & Return to Landing Page */}
-                <div className={`border-t border-white/[0.08] bg-[#101115]/95 space-y-2.5 shrink-0 ${isSidebarOpen ? "p-3.5" : "p-2"}`}>
+                {/* Operator Profile & Return */}
+                <div className={`border-t border-zinc-800/80 bg-[#0c0d0e] shrink-0 ${isSidebarOpen ? "p-3 space-y-2" : "p-2 space-y-2 flex flex-col items-center"}`}>
                     {isSidebarOpen ? (
                         <>
-                            <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                                <div className="relative">
-                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/30 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-mono font-bold text-xs shadow-inner">
-                                        OP
-                                    </div>
-                                    <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-[#121318]" />
+                            <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-zinc-900/40 border border-zinc-800/60">
+                                <div className="w-7 h-7 rounded-md bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-300 font-mono text-xs font-medium">
+                                    OP
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-bold text-white truncate">mukui</p>
-                                    <p className="text-[10px] font-mono text-[#8e8a83] truncate">Lead Investigator</p>
+                                    <p className="text-xs font-medium text-zinc-200 truncate">mukui</p>
+                                    <p className="text-[11px] text-zinc-400 truncate">Lead Investigator</p>
                                 </div>
-                                <span className="text-[9px] font-mono font-bold text-cyan-400/90 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
-                                    ROOT
-                                </span>
                             </div>
 
                             <button
                                 onClick={onBackToLanding}
-                                className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 bg-white/[0.04] hover:bg-cyan-500/10 border border-white/[0.08] hover:border-cyan-500/30 rounded-xl text-xs font-bold text-[#f4efe7] hover:text-cyan-300 transition-all duration-200 cursor-pointer shadow-sm group"
+                                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border border-zinc-800 rounded-md text-xs font-medium transition-colors cursor-pointer"
                             >
-                                <svg className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <svg className="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                                     <line x1="19" y1="12" x2="5" y2="12"></line>
                                     <polyline points="12 19 5 12 12 5"></polyline>
                                 </svg>
-                                <span>Return to Main Portal</span>
+                                <span>Return to Portal</span>
                             </button>
                         </>
                     ) : (
-                        <div className="flex flex-col items-center gap-2">
-                            <div className="relative" title="mukui • Lead Investigator [ROOT]">
-                                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/30 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-mono font-bold text-xs shadow-inner">
-                                    OP
-                                </div>
-                                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-[#121318]" />
-                            </div>
-                            <button
-                                onClick={onBackToLanding}
-                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.04] hover:bg-cyan-500/20 border border-white/[0.08] hover:border-cyan-500/30 text-[#f4efe7] hover:text-cyan-300 transition-all cursor-pointer"
-                                title="Return to Main Portal"
-                            >
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                                    <polyline points="12 19 5 12 12 5"></polyline>
-                                </svg>
-                            </button>
-                        </div>
+                        <button
+                            onClick={onBackToLanding}
+                            className="w-8 h-8 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-zinc-200 flex items-center justify-center transition-colors cursor-pointer"
+                            title="Return to Portal"
+                        >
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                        </button>
                     )}
                 </div>
             </aside>
 
-            {/* ── MAIN CONTENT ───────────────────────────────────────────── */}
-            <main className="flex-1 flex flex-col min-h-screen bg-[#0e0f13] transition-all duration-300">
+            {/* ── MAIN CONTENT AREA ───────────────────────────────────────── */}
+            <main className="flex-1 flex flex-col min-h-screen bg-[#09090b]">
                 {/* Topbar Header */}
-                <header className="h-20 bg-[#121318]/80 backdrop-blur-xl border-b border-white/[0.08] px-6 lg:px-8 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-md">
+                <header className="h-16 bg-[#0c0d0e]/90 backdrop-blur-md border-b border-zinc-800/80 px-6 flex items-center justify-between shrink-0 sticky top-0 z-30">
                     <div className="flex items-center gap-3">
-                        {/* Closing/Opening Toggle Button in Topbar */}
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2 rounded-xl bg-[#171922] hover:bg-cyan-500/15 text-[#8e8a83] hover:text-cyan-300 border border-white/[0.08] hover:border-cyan-500/30 transition-all duration-200 cursor-pointer flex items-center gap-2 group shadow-sm"
-                            title={isSidebarOpen ? "Close / Collapse Sidebar" : "Open / Expand Sidebar"}
-                            aria-label={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
+                            className="p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 border border-transparent hover:border-zinc-700/60 transition-colors cursor-pointer"
+                            title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                            aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
                         >
-                            <svg className="w-4 h-4 text-cyan-400 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                                 <rect width="18" height="18" x="3" y="3" rx="2" />
                                 <path d="M9 3v18" />
-                                {isSidebarOpen ? (
-                                    <path d="m14 9-3 3 3 3" />
-                                ) : (
-                                    <path d="m11 9 3 3-3 3" />
-                                )}
+                                {isSidebarOpen ? <path d="m14 9-3 3 3 3" /> : <path d="m11 9 3 3-3 3" />}
                             </svg>
-                            <span className="text-[11px] font-mono font-bold text-[#b1a696] group-hover:text-white hidden md:inline">
-                                {isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
-                            </span>
                         </button>
 
-                        <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00f0ff] animate-pulse ml-1" />
-                        <div>
-                            <h2 className="text-base font-extrabold text-white capitalize tracking-wide flex items-center gap-2.5">
-                                <span>{activeTab.replace("-", " ")}</span>
-                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                                    LIVE TELEMETRY
-                                </span>
-                            </h2>
-                            <p className="text-[11px] text-[#8e8a83] font-medium mt-0.5">
-                                Hardware-Synchronized Forensic Audit & Sanitization Console
-                            </p>
+                        <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+                            <span>Console</span>
+                            <span>/</span>
+                            <span className="font-medium text-zinc-100 capitalize">
+                                {activeTab.replace("-", " ")}
+                            </span>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <div className="relative">
                             <input
                                 type="text"
-                                placeholder="Search audit trail, hashes, cases..."
+                                placeholder="Search hashes, cases, actions..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 pr-4 py-2 bg-[#171922] border border-white/10 rounded-xl text-xs text-white placeholder-[#8e8a83] focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 w-80 transition-all font-mono"
+                                className="pl-8 pr-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-md text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 w-64 transition-colors font-mono"
                             />
-                            <span className="absolute left-3 top-2.5 text-xs text-[#8e8a83]">
-                                <svg className="w-3.5 h-3.5 text-[#8e8a83]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <span className="absolute left-2.5 top-2 text-zinc-500 pointer-events-none">
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                                     <circle cx="11" cy="11" r="8"></circle>
                                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                 </svg>
@@ -892,242 +790,245 @@ const DashboardView = ({ onBackToLanding }) => {
                         <button
                             onClick={runChainVerification}
                             disabled={verifying}
-                            className="flex items-center gap-2 px-4.5 py-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-xl text-xs font-bold transition-all shadow-[0_4px_16px_rgba(16,185,129,0.25)] hover:shadow-[0_6px_22px_rgba(16,185,129,0.35)] cursor-pointer disabled:opacity-50 border border-emerald-400/30"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-900 rounded-md text-xs font-medium shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                         >
                             <IconMerkle className="w-3.5 h-3.5" />
-                            <span>{verifying ? "Auditing Chain..." : "Verify Ledger"}</span>
+                            <span>{verifying ? "Auditing..." : "Verify Ledger"}</span>
                         </button>
                     </div>
                 </header>
 
-                {/* Main Content Area */}
-                <div className="flex-1 p-8 bg-[#0e0f13]">
+                {/* Main Tab Content */}
+                <div className="flex-1 p-6 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
                     {/* ═════════════════ TAB 1: OVERVIEW ═════════════════ */}
                     {activeTab === "overview" && (
-                        <div className="space-y-6.5 max-w-7xl mx-auto">
-                            {/* KPI Metrics Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4.5">
-                                {/* Card 1: Active Cases */}
-                                <div className="bg-[#15161d] p-5.5 rounded-2xl border border-white/[0.08] shadow-lg hover:border-cyan-500/30 hover:shadow-[0_8px_25px_rgba(0,240,255,0.06)] transition-all flex items-center justify-between group">
-                                    <div>
-                                        <p className="text-[10px] font-mono uppercase tracking-wider text-[#8e8a83] font-bold">Investigation Cases</p>
-                                        <div className="flex items-baseline gap-2 mt-1.5">
-                                            <h3 className="text-3xl font-black text-white font-sans">{casesData.length}</h3>
-                                            <span className="text-xs font-bold text-cyan-400 font-mono">Active</span>
-                                        </div>
-                                        <p className="text-[10px] text-[#8e8a83] mt-1 font-mono">Source: forensic_cases.json</p>
+                        <div className="space-y-6">
+                            {/* 4 Clean Metric Cards (Linear / Vercel style) */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {/* Card 1: Registered Cases */}
+                                <div className="bg-[#111215] p-4.5 rounded-xl border border-zinc-800/80 hover:border-zinc-700/80 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+                                            Active Cases
+                                        </span>
+                                        <IconCases className="w-4 h-4 text-zinc-400" />
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all duration-200">
-                                        <IconCases className="w-5 h-5" />
+                                    <div className="flex items-baseline gap-2 mt-2">
+                                        <h3 className="text-2xl sm:text-3xl font-semibold text-zinc-100 tabular-nums">
+                                            {casesData.length}
+                                        </h3>
+                                        <span className="text-xs text-zinc-400">registered</span>
                                     </div>
+                                    <p className="text-xs text-zinc-400 mt-2 font-mono">
+                                        forensic_cases.json
+                                    </p>
                                 </div>
 
-                                {/* Card 2: Hash Chain Height */}
-                                <div className="bg-[#15161d] p-5.5 rounded-2xl border border-white/[0.08] shadow-lg hover:border-blue-500/30 hover:shadow-[0_8px_25px_rgba(59,130,246,0.06)] transition-all flex items-center justify-between group">
-                                    <div>
-                                        <p className="text-[10px] font-mono uppercase tracking-wider text-[#8e8a83] font-bold">Audit Chain Height</p>
-                                        <div className="flex items-baseline gap-2 mt-1.5">
-                                            <h3 className="text-3xl font-black text-cyan-400 font-mono">#{auditEvents.length}</h3>
-                                            <span className="text-xs font-bold text-[#b1a696]">Blocks</span>
-                                        </div>
-                                        <p className="text-[10px] text-[#8e8a83] mt-1 font-mono">Immutable SHA-256 Chain</p>
+                                {/* Card 2: Ledger Height */}
+                                <div className="bg-[#111215] p-4.5 rounded-xl border border-zinc-800/80 hover:border-zinc-700/80 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+                                            Ledger Height
+                                        </span>
+                                        <IconAudit className="w-4 h-4 text-zinc-400" />
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold group-hover:scale-110 group-hover:bg-blue-500/20 transition-all duration-200">
-                                        <IconAudit className="w-5 h-5" />
+                                    <div className="flex items-baseline gap-2 mt-2">
+                                        <h3 className="text-2xl sm:text-3xl font-semibold text-zinc-100 tabular-nums font-mono">
+                                            #{auditEvents.length}
+                                        </h3>
+                                        <span className="text-xs text-zinc-400">blocks</span>
                                     </div>
+                                    <p className="text-xs text-zinc-400 mt-2 font-mono">
+                                        SHA-256 chain
+                                    </p>
                                 </div>
 
-                                {/* Card 3: Hardware Erasure Status */}
-                                <div className="bg-[#15161d] p-5.5 rounded-2xl border border-white/[0.08] shadow-lg hover:border-amber-500/30 hover:shadow-[0_8px_25px_rgba(245,158,11,0.06)] transition-all flex items-center justify-between group">
-                                    <div>
-                                        <p className="text-[10px] font-mono uppercase tracking-wider text-[#8e8a83] font-bold">Erasure Subsystem</p>
-                                        <div className="flex items-baseline gap-2 mt-1.5">
-                                            <h3 className="text-2xl font-black text-white font-mono uppercase tracking-tight">
-                                                {telemetry?.is_wiping ? `${telemetry.progress || 0}%` : telemetry?.status || "STANDBY"}
-                                            </h3>
-                                        </div>
-                                        <p className="text-[10px] text-[#8e8a83] mt-1 font-mono truncate max-w-[150px]">{telemetry?.target || "No active wipe target"}</p>
+                                {/* Card 3: Hardware Sanitization Subsystem */}
+                                <div className="bg-[#111215] p-4.5 rounded-xl border border-zinc-800/80 hover:border-zinc-700/80 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+                                            Sanitization Engine
+                                        </span>
+                                        <IconTelemetry className="w-4 h-4 text-zinc-400" />
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-200">
-                                        <IconTelemetry className="w-5 h-5" />
+                                    <div className="flex items-baseline gap-2 mt-2">
+                                        <h3 className="text-2xl sm:text-3xl font-semibold text-zinc-100 tabular-nums font-mono uppercase">
+                                            {telemetry?.is_wiping ? `${telemetry.progress || 0}%` : telemetry?.status || "STANDBY"}
+                                        </h3>
                                     </div>
+                                    <p className="text-xs text-zinc-400 mt-2 truncate font-mono" title={telemetry?.target || "No active task"}>
+                                        {telemetry?.target || "No active task"}
+                                    </p>
                                 </div>
 
-                                {/* Card 4: Dynamic Merkle Root */}
-                                <div className="bg-[#15161d] p-5.5 rounded-2xl border border-white/[0.08] shadow-lg hover:border-emerald-500/30 hover:shadow-[0_8px_25px_rgba(16,185,129,0.06)] transition-all flex items-center justify-between group">
-                                    <div className="min-w-0 pr-2">
-                                        <p className="text-[10px] font-mono uppercase tracking-wider text-[#8e8a83] font-bold">Merkle Root</p>
-                                        <div className="flex items-center gap-2 mt-1.5">
-                                            <h3 className="text-xs font-mono font-bold text-white truncate max-w-[130px]" title={merkleRoot}>
-                                                {merkleRoot ? `${merkleRoot.substring(0, 10)}...` : "Computing..."}
-                                            </h3>
-                                            {merkleRoot && (
-                                                <button
-                                                    onClick={() => copyToClipboard(merkleRoot, "merkle")}
-                                                    className="text-[10px] font-mono text-cyan-400 hover:text-white px-2 py-0.5 rounded-md bg-white/[0.06] hover:bg-cyan-500/20 border border-white/10 transition-colors cursor-pointer"
-                                                    title="Copy full SHA-256 Merkle Root"
-                                                >
-                                                    {copiedHash === "merkle" ? "✓ Done" : "Copy"}
-                                                </button>
-                                            )}
-                                        </div>
-                                        <p className="text-[10px] text-emerald-400 font-semibold mt-1 flex items-center gap-1.5">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse shadow-[0_0_6px_#34d399]" />
-                                            Cryptographically Intact
-                                        </p>
+                                {/* Card 4: Merkle Root */}
+                                <div className="bg-[#111215] p-4.5 rounded-xl border border-zinc-800/80 hover:border-zinc-700/80 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+                                            Merkle Root
+                                        </span>
+                                        <IconMerkle className="w-4 h-4 text-zinc-400" />
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-200 shrink-0">
-                                        <IconMerkle className="w-5 h-5" />
+                                    <div className="flex items-center justify-between mt-2">
+                                        <h3 className="text-sm font-mono font-medium text-zinc-200 truncate max-w-[130px]" title={merkleRoot}>
+                                            {merkleRoot ? `${merkleRoot.substring(0, 10)}...` : "Computing..."}
+                                        </h3>
+                                        {merkleRoot && (
+                                            <button
+                                                onClick={() => copyToClipboard(merkleRoot, "merkle")}
+                                                className="text-[10px] font-mono text-zinc-400 hover:text-zinc-100 px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 transition-colors cursor-pointer"
+                                                title="Copy full SHA-256 Merkle root"
+                                            >
+                                                {copiedHash === "merkle" ? "✓" : "Copy"}
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-400">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                        <span>Cryptographically intact</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Verification Banner */}
+                            {/* Verification Result Banner (Restrained Notification) */}
                             {verificationResult && (
-                                <div className={`p-5 rounded-2xl border transition-all ${verificationResult.valid ? "bg-emerald-950/30 border-emerald-500/40 text-emerald-300" : "bg-rose-950/30 border-rose-500/40 text-rose-300"}`}>
+                                <div className={`p-4 rounded-xl border text-xs ${verificationResult.valid ? "bg-zinc-900/60 border-emerald-500/30 text-zinc-200" : "bg-zinc-900/60 border-rose-500/30 text-zinc-200"}`}>
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-2xl">{verificationResult.valid ? "🛡️" : "⚠️"}</span>
+                                        <div className="flex items-center gap-2.5">
+                                            <span className={`w-2 h-2 rounded-full ${verificationResult.valid ? "bg-emerald-500" : "bg-rose-500"}`} />
                                             <div>
-                                                <p className="font-extrabold text-sm text-white">
-                                                    {verificationResult.valid ? "Full Cryptographic Hash Chain Audit Verified" : "Cryptographic Chain Discrepancy Detected"}
+                                                <p className="font-semibold text-zinc-100">
+                                                    {verificationResult.valid ? "Audit Chain Verification Completed" : "Cryptographic Discrepancy Found"}
                                                 </p>
-                                                <p className="text-xs text-[#b1a696] font-mono mt-0.5">
-                                                    Genesis block to Block #{verificationResult.totalBlocks} cryptographically verified using recursive SHA-256 Merkle validation.
+                                                <p className="text-xs text-zinc-400 mt-0.5">
+                                                    Validated {verificationResult.totalBlocks} chronological blocks against recursive SHA-256 Merkle root.
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${verificationResult.valid ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-rose-500/20 text-rose-300 border border-rose-500/40"}`}>
-                                            {verificationResult.valid ? "100% UNBROKEN" : "TAMPER ALERT"}
+                                        <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-medium ${verificationResult.valid ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"}`}>
+                                            {verificationResult.valid ? "VERIFIED" : "TAMPERED"}
                                         </span>
                                     </div>
-                                    <div className="mt-3.5 pt-3 border-t border-white/[0.08] grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-[11px] text-[#f4efe7]/80">
-                                        <div><span className="text-[#8e8a83]">Audited Blocks:</span> #{verificationResult.totalBlocks}</div>
-                                        <div className="truncate"><span className="text-[#8e8a83]">Root:</span> {verificationResult.merkleRoot}</div>
-                                        <div><span className="text-[#8e8a83]">Audit Time:</span> {new Date(verificationResult.verifiedAt).toLocaleTimeString()}</div>
+                                    <div className="mt-3 pt-3 border-t border-zinc-800 grid grid-cols-1 md:grid-cols-3 gap-2 font-mono text-[11px] text-zinc-400">
+                                        <div>Blocks: #{verificationResult.totalBlocks}</div>
+                                        <div className="truncate">Root: {verificationResult.merkleRoot}</div>
+                                        <div>Timestamp: {new Date(verificationResult.verifiedAt).toLocaleTimeString()}</div>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Hardware Telemetry Card */}
+                            {/* Active Hardware Telemetry Card */}
                             {telemetry && (
-                                <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl relative overflow-hidden">
-                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                                <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                                         <div>
-                                            <div className="flex items-center gap-2.5">
-                                                <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-bold text-[10px] tracking-wider uppercase font-mono">
-                                                    Hardware Subsystem Stream
-                                                </span>
-                                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${telemetry.is_wiping ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse" : "bg-white/5 text-[#b1a696] border border-white/10"}`}>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-semibold text-zinc-100">Hardware Bridge</span>
+                                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-medium border ${telemetry.is_wiping ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-zinc-900 text-zinc-400 border-zinc-800"}`}>
                                                     {telemetry.status || "STANDBY"}
                                                 </span>
                                             </div>
-                                            <h3 className="text-lg font-bold text-white mt-2 flex items-center gap-2">
-                                                <span className="text-[#8e8a83] text-sm">Target:</span>
-                                                <span className="font-mono text-cyan-300">{telemetry.target || "Local Physical Volumes"}</span>
-                                            </h3>
-                                            <p className="text-xs text-[#b1a696] mt-1">
-                                                Sanitization Standard: <span className="font-mono font-bold text-white">{telemetry.method || "NIST SP 800-88 Rev 1 Purge"}</span>
+                                            <p className="text-xs text-zinc-400 mt-1 font-mono">
+                                                Target: <span className="text-zinc-200">{telemetry.target || "Local Storage Volumes"}</span> • Method: <span className="text-zinc-200">{telemetry.method || "NIST SP 800-88 Purge"}</span>
                                             </p>
                                         </div>
 
                                         {telemetry.is_wiping && (
-                                            <div className="text-right">
-                                                <span className="text-3xl font-black text-cyan-400 font-mono">{telemetry.progress || 0}%</span>
-                                                <p className="text-xs font-mono text-[#8e8a83] mt-0.5">{telemetry.speed_mb_s || 0} MB/s Throughput</p>
+                                            <div className="text-right font-mono">
+                                                <span className="text-xl font-semibold text-zinc-100">{telemetry.progress || 0}%</span>
+                                                <p className="text-xs text-zinc-400">{telemetry.speed_mb_s || 0} MB/s</p>
                                             </div>
                                         )}
                                     </div>
 
                                     {telemetry.is_wiping && (
-                                        <div className="w-full bg-[#101115] rounded-full h-3 overflow-hidden border border-white/10 mt-3 p-0.5">
+                                        <div className="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-zinc-800 mt-2">
                                             <div
-                                                className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(0,240,255,0.6)]"
+                                                className="bg-emerald-500 h-full rounded-full transition-all duration-300"
                                                 style={{ width: `${telemetry.progress || 0}%` }}
                                             />
                                         </div>
                                     )}
 
-                                    {/* Forensic Terminal Console Log */}
-                                    <div className="mt-4 p-4 bg-[#0a0b0e] border border-white/[0.08] rounded-xl font-mono text-[11px] text-emerald-400/90 shadow-inner flex items-center justify-between">
-                                        <div className="flex items-center gap-3 truncate">
-                                            <span className="text-cyan-400 font-bold text-xs">$</span>
-                                            <span className="truncate">{telemetry.new_log || `[TELEMETRY] Device bridge synchronized with ${telemetry.target || "system storage"}`}</span>
+                                    {/* Terminal Telemetry Log Row */}
+                                    <div className="mt-3 p-3 bg-zinc-950 rounded-lg border border-zinc-800/80 font-mono text-xs text-zinc-400 flex items-center justify-between">
+                                        <div className="flex items-center gap-2 truncate">
+                                            <span className="text-zinc-500">$</span>
+                                            <span className="truncate">{telemetry.new_log || `Device bridge synchronized with ${telemetry.target || "system storage"}`}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 shrink-0 ml-3">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                                            <span className="text-[10px] text-[#8e8a83] uppercase tracking-wider">STREAM ACTIVE</span>
+                                        <div className="flex items-center gap-1.5 shrink-0 ml-3 text-[11px] text-zinc-400">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                            <span>Online</span>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Environmental Impact Reduction per Wipe Graph Card */}
+                            {/* Environmental Impact & Carbon Reduction Card */}
                             <EnvironmentalImpactCard auditEvents={auditEvents} telemetry={telemetry} />
 
-                            {/* Cryptographic Hash Chain Ledger Table */}
-                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
-                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-5">
+                            {/* Chronological Hash Chain Ledger Table */}
+                            <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                                <div className="flex justify-between items-center mb-4">
                                     <div>
-                                        <h3 className="font-extrabold text-white text-base tracking-tight flex items-center gap-2.5">
-                                            <span>Chronological Hash Chain Ledger</span>
-                                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/[0.06] text-[#b1a696] border border-white/10">
-                                                LATEST BLOCKS
-                                            </span>
+                                        <h3 className="text-sm font-semibold text-zinc-100">
+                                            Chronological Hash Chain Ledger
                                         </h3>
-                                        <p className="text-xs text-[#8e8a83] mt-0.5">Live tamper-evident event stream loaded from audit_trail.json</p>
+                                        <p className="text-xs text-zinc-400 mt-0.5">
+                                            Live immutable audit trail loaded from audit_trail.json
+                                        </p>
                                     </div>
                                     <button
                                         onClick={() => setActiveTab("audit")}
-                                        className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-cyan-500/10"
+                                        className="text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer flex items-center gap-1"
                                     >
-                                        <span>View Full Audit Ledger ({auditEvents.length})</span>
+                                        <span>View all {auditEvents.length} records</span>
                                         <span>→</span>
                                     </button>
                                 </div>
 
-                                <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
+                                <div className="overflow-x-auto rounded-lg border border-zinc-800/80">
                                     <table className="w-full text-left text-xs">
                                         <thead>
-                                            <tr className="border-b border-white/[0.08] text-[#8e8a83] font-mono text-[10px] uppercase tracking-wider bg-[#111217]">
-                                                <th className="py-3.5 px-4"># Block</th>
-                                                <th className="py-3.5 px-4">Timestamp (UTC)</th>
-                                                <th className="py-3.5 px-4">Operator</th>
-                                                <th className="py-3.5 px-4">Forensic Action</th>
-                                                <th className="py-3.5 px-4">Target Target</th>
-                                                <th className="py-3.5 px-4 text-right">Block Hash (SHA-256)</th>
+                                            <tr className="border-b border-zinc-800 text-zinc-400 font-mono text-[10px] uppercase tracking-wider bg-zinc-950/60">
+                                                <th className="py-2.5 px-3"># Block</th>
+                                                <th className="py-2.5 px-3">Timestamp (UTC)</th>
+                                                <th className="py-2.5 px-3">Operator</th>
+                                                <th className="py-2.5 px-3">Action</th>
+                                                <th className="py-2.5 px-3">Target</th>
+                                                <th className="py-2.5 px-3 text-right">Hash (SHA-256)</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-white/[0.04] font-mono text-[11px]">
+                                        <tbody className="divide-y divide-zinc-800/60 font-mono text-xs">
                                             {auditEvents.slice(-7).reverse().map((ev) => (
-                                                <tr key={ev.index} className="hover:bg-white/[0.03] transition-colors group">
-                                                    <td className="py-3 px-4 font-bold text-cyan-400">
+                                                <tr key={ev.index} className="hover:bg-zinc-800/30 transition-colors group">
+                                                    <td className="py-2.5 px-3 font-semibold text-zinc-300">
                                                         #{String(ev.index).padStart(4, "0")}
                                                     </td>
-                                                    <td className="py-3 px-4 text-[#b1a696] font-sans">
+                                                    <td className="py-2.5 px-3 text-zinc-400 font-sans">
                                                         {new Date(ev.timestamp).toLocaleString()}
                                                     </td>
-                                                    <td className="py-3 px-4 font-sans font-semibold text-white">
+                                                    <td className="py-2.5 px-3 font-sans font-medium text-zinc-200">
                                                         {ev.operator}
                                                     </td>
-                                                    <td className="py-3 px-4">
-                                                        <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold border ${getActionBadgeColor(ev.action)}`}>
+                                                    <td className="py-2.5 px-3">
+                                                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-medium border ${getActionBadgeColor(ev.action)}`}>
                                                             {ev.action}
                                                         </span>
                                                     </td>
-                                                    <td className="py-3 px-4 text-[#f4efe7]/80 truncate max-w-[200px]" title={ev.target}>
+                                                    <td className="py-2.5 px-3 text-zinc-300 truncate max-w-[200px]" title={ev.target}>
                                                         {ev.target}
                                                     </td>
-                                                    <td className="py-3 px-4 text-right">
-                                                        <div className="flex items-center justify-end gap-2">
-                                                            <span className="text-[#8e8a83] group-hover:text-cyan-300 transition-colors font-mono">
+                                                    <td className="py-2.5 px-3 text-right">
+                                                        <div className="flex items-center justify-end gap-1.5">
+                                                            <span className="text-zinc-400 font-mono">
                                                                 {ev.event_hash ? `${ev.event_hash.substring(0, 10)}...` : "N/A"}
                                                             </span>
                                                             {ev.event_hash && (
                                                                 <button
                                                                     onClick={() => copyToClipboard(ev.event_hash, ev.index)}
-                                                                    className="opacity-0 group-hover:opacity-100 text-[10px] text-cyan-400 hover:text-white px-2 py-0.5 rounded bg-white/10 hover:bg-cyan-500/20 transition-all cursor-pointer"
-                                                                    title="Copy SHA-256 Hash"
+                                                                    className="opacity-0 group-hover:opacity-100 text-[10px] text-zinc-400 hover:text-zinc-100 px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700 transition-opacity cursor-pointer"
+                                                                    title="Copy hash"
                                                                 >
                                                                     {copiedHash === ev.index ? "✓" : "Copy"}
                                                                 </button>
@@ -1145,66 +1046,65 @@ const DashboardView = ({ onBackToLanding }) => {
 
                     {/* ═════════════════ TAB 2: CASES ═════════════════ */}
                     {activeTab === "cases" && (
-                        <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
-                                <div className="flex justify-between items-center mb-6">
+                        <div className="space-y-4">
+                            <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                                <div className="flex justify-between items-center mb-4">
                                     <div>
-                                        <h3 className="text-base font-bold text-white">Forensic Investigation Cases</h3>
-                                        <p className="text-xs text-[#8e8a83]">
-                                            Synchronized directly from forensic_cases.json recorded by ZeroTrace.exe.
+                                        <h3 className="text-sm font-semibold text-zinc-100">Forensic Investigation Cases</h3>
+                                        <p className="text-xs text-zinc-400 mt-0.5">
+                                            Synchronized from forensic_cases.json recorded by desktop client.
                                         </p>
                                     </div>
-                                    <span className="text-xs bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-xl border border-cyan-500/20 font-mono">
-                                        {casesData.length} Registered Cases
+                                    <span className="text-xs font-mono font-medium text-zinc-400 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-md">
+                                        {casesData.length} Cases
                                     </span>
                                 </div>
 
                                 {casesData.length === 0 ? (
-                                    <div className="p-12 text-center text-[#8e8a83] border border-dashed border-white/10 rounded-2xl">
-                                        <span className="text-3xl block mb-2">📁</span>
-                                        <p className="font-semibold text-sm text-white">No investigation cases registered yet.</p>
-                                        <p className="text-xs mt-1 text-[#8e8a83]">Open ZeroTrace.exe to initialize a forensic case investigation.</p>
+                                    <div className="p-8 text-center text-zinc-500 border border-dashed border-zinc-800 rounded-lg">
+                                        <p className="text-sm font-medium text-zinc-300">No registered cases found</p>
+                                        <p className="text-xs text-zinc-500 mt-1">Initialize a case in the ZeroTrace desktop tool to see records here.</p>
                                     </div>
                                 ) : (
-                                    <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
+                                    <div className="overflow-x-auto rounded-lg border border-zinc-800/80">
                                         <table className="w-full text-left text-xs">
                                             <thead>
-                                                <tr className="border-b border-white/[0.08] text-[#8e8a83] font-mono text-[10px] uppercase tracking-wider bg-[#111217]">
-                                                    <th className="py-3.5 px-4">Case ID</th>
-                                                    <th className="py-3.5 px-4">Title & Agency</th>
-                                                    <th className="py-3.5 px-4">Investigator</th>
-                                                    <th className="py-3.5 px-4">Status</th>
-                                                    <th className="py-3.5 px-4">Created Date</th>
-                                                    <th className="py-3.5 px-4">Evidence</th>
-                                                    <th className="py-3.5 px-4 text-right">Action</th>
+                                                <tr className="border-b border-zinc-800 text-zinc-400 font-mono text-[10px] uppercase tracking-wider bg-zinc-950/60">
+                                                    <th className="py-2.5 px-3">Case ID</th>
+                                                    <th className="py-2.5 px-3">Title & Agency</th>
+                                                    <th className="py-2.5 px-3">Investigator</th>
+                                                    <th className="py-2.5 px-3">Status</th>
+                                                    <th className="py-2.5 px-3">Created</th>
+                                                    <th className="py-2.5 px-3">Evidence</th>
+                                                    <th className="py-2.5 px-3 text-right">Action</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-white/[0.04]">
+                                            <tbody className="divide-y divide-zinc-800/60">
                                                 {casesData.map((c) => (
-                                                    <tr key={c.case_id} className="hover:bg-white/[0.03] transition-colors">
-                                                        <td className="py-4 px-4 font-mono font-bold text-cyan-400">{c.case_id}</td>
-                                                        <td className="py-4 px-4">
-                                                            <div className="font-bold text-white">{c.title}</div>
-                                                            <div className="text-[10px] text-[#8e8a83]">{c.agency}</div>
+                                                    <tr key={c.case_id} className="hover:bg-zinc-800/30 transition-colors">
+                                                        <td className="py-3 px-3 font-mono font-semibold text-zinc-200">{c.case_id}</td>
+                                                        <td className="py-3 px-3">
+                                                            <div className="font-medium text-zinc-100">{c.title}</div>
+                                                            <div className="text-[11px] text-zinc-500">{c.agency}</div>
                                                         </td>
-                                                        <td className="py-4 px-4 text-[#f4efe7]">{c.investigator}</td>
-                                                        <td className="py-4 px-4">
-                                                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                                                        <td className="py-3 px-3 text-zinc-300">{c.investigator}</td>
+                                                        <td className="py-3 px-3">
+                                                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                                                                 {c.status || "ACTIVE"}
                                                             </span>
                                                         </td>
-                                                        <td className="py-4 px-4 text-[#b1a696] font-mono text-[11px]">
-                                                            {new Date(c.created_at).toLocaleString()}
+                                                        <td className="py-3 px-3 text-zinc-400 font-mono text-[11px]">
+                                                            {new Date(c.created_at).toLocaleDateString()}
                                                         </td>
-                                                        <td className="py-4 px-4 font-mono font-bold text-white">
-                                                            {c.evidence_items?.length || 0} Items
+                                                        <td className="py-3 px-3 font-mono text-zinc-300">
+                                                            {c.evidence_items?.length || 0} items
                                                         </td>
-                                                        <td className="py-4 px-4 text-right">
+                                                        <td className="py-3 px-3 text-right">
                                                             <button
                                                                 onClick={() => setSelectedCase(c)}
-                                                                className="px-3 py-1.5 bg-white/[0.06] hover:bg-cyan-500/20 text-cyan-300 rounded-lg font-bold text-xs transition-colors border border-white/10 cursor-pointer"
+                                                                className="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 rounded-md text-xs font-medium border border-zinc-800 transition-colors cursor-pointer"
                                                             >
-                                                                Inspect Case
+                                                                Inspect
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -1216,25 +1116,25 @@ const DashboardView = ({ onBackToLanding }) => {
                             </div>
 
                             {selectedCase && (
-                                <div className="bg-[#15161d] p-6 rounded-2xl border border-cyan-500/40 shadow-2xl">
-                                    <div className="flex justify-between items-center pb-3.5 border-b border-white/10">
-                                        <h3 className="font-black text-white text-base">{selectedCase.title}</h3>
-                                        <button onClick={() => setSelectedCase(null)} className="text-[#8e8a83] hover:text-white font-bold cursor-pointer text-xs">
-                                            ✕ Close
+                                <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                                    <div className="flex justify-between items-center pb-3 border-b border-zinc-800">
+                                        <h3 className="font-semibold text-zinc-100 text-sm">{selectedCase.title}</h3>
+                                        <button onClick={() => setSelectedCase(null)} className="text-zinc-500 hover:text-zinc-300 text-xs cursor-pointer">
+                                            Close
                                         </button>
                                     </div>
-                                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs">
-                                        <div className="p-3.5 bg-[#101115] rounded-xl border border-white/5">
-                                            <p className="text-[#8e8a83] font-semibold">Case Identifier</p>
-                                            <p className="font-mono font-bold text-cyan-400 mt-1">{selectedCase.case_id}</p>
+                                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                                        <div className="p-3 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
+                                            <p className="text-zinc-500 font-medium">Case Identifier</p>
+                                            <p className="font-mono text-zinc-200 mt-1">{selectedCase.case_id}</p>
                                         </div>
-                                        <div className="p-3.5 bg-[#101115] rounded-xl border border-white/5">
-                                            <p className="text-[#8e8a83] font-semibold">Description</p>
-                                            <p className="text-white mt-1">{selectedCase.description || "Forensic investigation archive."}</p>
+                                        <div className="p-3 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
+                                            <p className="text-zinc-500 font-medium">Description</p>
+                                            <p className="text-zinc-300 mt-1">{selectedCase.description || "Forensic investigation archive."}</p>
                                         </div>
-                                        <div className="p-3.5 bg-[#101115] rounded-xl border border-white/5">
-                                            <p className="text-[#8e8a83] font-semibold">Registration Date</p>
-                                            <p className="font-mono text-white mt-1">{new Date(selectedCase.created_at).toUTCString()}</p>
+                                        <div className="p-3 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
+                                            <p className="text-zinc-500 font-medium">Created</p>
+                                            <p className="font-mono text-zinc-300 mt-1">{new Date(selectedCase.created_at).toUTCString()}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1244,83 +1144,78 @@ const DashboardView = ({ onBackToLanding }) => {
 
                     {/* ═════════════════ TAB 3: EVIDENCE ═════════════════ */}
                     {activeTab === "evidence" && (
-                        <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
-                                <div className="flex justify-between items-center mb-6">
-                                    <div>
-                                        <h3 className="text-base font-bold text-white">Registered Evidence Pool</h3>
-                                        <p className="text-xs text-[#8e8a83]">Physical storage devices and disk volumes acquired during active investigations.</p>
-                                    </div>
-                                    <span className="text-xs bg-emerald-500/10 text-emerald-400 font-bold px-3 py-1.5 rounded-xl border border-emerald-500/20 font-mono">
-                                        {realEvidenceList.length} Media Registered
-                                    </span>
+                        <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                            <div className="flex justify-between items-center mb-4">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-zinc-100">Registered Evidence Pool</h3>
+                                    <p className="text-xs text-zinc-400 mt-0.5">Physical storage devices and disk volumes acquired during active investigations.</p>
                                 </div>
-
-                                {realEvidenceList.length === 0 ? (
-                                    <div className="p-12 text-center text-[#8e8a83] border border-dashed border-white/10 rounded-2xl">
-                                        <span className="text-3xl block mb-2">🔍</span>
-                                        <p className="font-semibold text-sm text-white">No evidence drives registered in the active case.</p>
-                                        <p className="text-xs mt-1 text-[#8e8a83]">Mount or register a physical drive / disk image in ZeroTrace.exe.</p>
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4.5">
-                                        {realEvidenceList.map((e, idx) => (
-                                            <div key={idx} className="p-5.5 rounded-2xl border border-white/[0.08] bg-[#121318] shadow-lg hover:border-white/20 transition-all">
-                                                <div className="flex justify-between items-start">
-                                                    <span className="px-2.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-mono font-bold border border-cyan-500/30">
-                                                        {e.evidence_id || `EVID-${idx + 1}`}
-                                                    </span>
-                                                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
-                                                        {e.status || "SECURED"}
-                                                    </span>
-                                                </div>
-                                                <h4 className="font-bold text-white text-sm mt-3">{e.label || e.target_path}</h4>
-                                                <p className="text-[11px] text-[#8e8a83]">{e.evidence_type || "Storage Volume"}</p>
-                                                <div className="mt-3.5 space-y-1.5 text-xs font-mono text-[#b1a696] border-t border-white/[0.05] pt-2.5">
-                                                    <div>Path: <span className="text-white">{e.target_path}</span></div>
-                                                    <div>Size: <span className="text-white">{e.size_bytes ? `${(e.size_bytes / 1024 / 1024).toFixed(2)} MB` : "Auto-detected"}</span></div>
-                                                    <div>Acquired: <span className="text-white">{e.acquired_by || "Forensic Operator"}</span></div>
-                                                </div>
-                                                {e.sha256 && (
-                                                    <div className="mt-3 text-[10px] font-mono text-[#8e8a83] truncate bg-black/40 p-2 rounded-lg border border-white/5">
-                                                        SHA: {e.sha256}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                <span className="text-xs font-mono font-medium text-zinc-400 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-md">
+                                    {realEvidenceList.length} Items
+                                </span>
                             </div>
+
+                            {realEvidenceList.length === 0 ? (
+                                <div className="p-8 text-center text-zinc-500 border border-dashed border-zinc-800 rounded-lg">
+                                    <p className="text-sm font-medium text-zinc-300">No evidence items registered</p>
+                                    <p className="text-xs text-zinc-500 mt-1">Register a disk image or drive in the ZeroTrace desktop tool.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    {realEvidenceList.map((e, idx) => (
+                                        <div key={idx} className="p-4 rounded-lg border border-zinc-800/80 bg-zinc-950/60">
+                                            <div className="flex justify-between items-start">
+                                                <span className="px-2 py-0.5 rounded bg-zinc-900 text-zinc-300 text-[10px] font-mono border border-zinc-800">
+                                                    {e.evidence_id || `EVID-${idx + 1}`}
+                                                </span>
+                                                <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                                                    {e.status || "SECURED"}
+                                                </span>
+                                            </div>
+                                            <h4 className="font-semibold text-zinc-100 text-sm mt-2">{e.label || e.target_path}</h4>
+                                            <p className="text-[11px] text-zinc-400">{e.evidence_type || "Storage Volume"}</p>
+                                            <div className="mt-3 space-y-1 text-xs font-mono text-zinc-400 border-t border-zinc-800 pt-2">
+                                                <div>Path: <span className="text-zinc-200">{e.target_path}</span></div>
+                                                <div>Size: <span className="text-zinc-200">{e.size_bytes ? `${(e.size_bytes / 1024 / 1024).toFixed(2)} MB` : "Auto-detected"}</span></div>
+                                                <div>Acquired: <span className="text-zinc-200">{e.acquired_by || "Forensic Operator"}</span></div>
+                                            </div>
+                                            {e.sha256 && (
+                                                <div className="mt-2.5 text-[10px] font-mono text-zinc-500 truncate bg-zinc-900 p-1.5 rounded border border-zinc-800">
+                                                    SHA: {e.sha256}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
 
                     {/* ═════════════════ TAB 4: OPERATIONS ═════════════════ */}
                     {activeTab === "operations" && (
-                        <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
-                                <div className="flex justify-between items-center mb-6">
-                                    <div>
-                                        <h3 className="font-bold text-white text-base">Live Hardware Operations Console</h3>
-                                        <p className="text-xs text-[#8e8a83]">Active desktop wiping and carving telemetry feed.</p>
-                                    </div>
-                                    <span className="text-xs font-mono font-bold px-3 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full">
-                                        LIVE TELEMETRY
-                                    </span>
+                        <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                            <div className="flex justify-between items-center mb-4">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-zinc-100">Live Hardware Console</h3>
+                                    <p className="text-xs text-zinc-400 mt-0.5">Desktop wiping and carving telemetry feed.</p>
                                 </div>
+                                <span className="text-xs font-mono font-medium text-zinc-400 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-md">
+                                    LIVE FEED
+                                </span>
+                            </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4.5 p-5 bg-[#101115] rounded-xl border border-white/5 text-xs">
-                                    <div>
-                                        <p className="text-[#8e8a83] font-semibold">Active Hardware Target</p>
-                                        <p className="font-mono font-bold text-white mt-1 text-sm">{telemetry?.target || "None currently selected"}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[#8e8a83] font-semibold">Sanitization Standard</p>
-                                        <p className="font-mono font-bold text-cyan-400 mt-1 text-sm">{telemetry?.method || "NIST SP 800-88 Purge"}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[#8e8a83] font-semibold">Operation Status</p>
-                                        <p className="font-mono font-bold text-emerald-400 mt-1 text-sm">{telemetry?.status || "STANDBY"}</p>
-                                    </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-zinc-950/60 rounded-lg border border-zinc-800/60 text-xs">
+                                <div>
+                                    <p className="text-zinc-500 font-medium">Hardware Target</p>
+                                    <p className="font-mono text-zinc-200 mt-1 font-semibold">{telemetry?.target || "None currently selected"}</p>
+                                </div>
+                                <div>
+                                    <p className="text-zinc-500 font-medium">Sanitization Standard</p>
+                                    <p className="font-mono text-zinc-200 mt-1">{telemetry?.method || "NIST SP 800-88 Purge"}</p>
+                                </div>
+                                <div>
+                                    <p className="text-zinc-500 font-medium">Operation Status</p>
+                                    <p className="font-mono text-emerald-400 mt-1">{telemetry?.status || "STANDBY"}</p>
                                 </div>
                             </div>
                         </div>
@@ -1328,120 +1223,110 @@ const DashboardView = ({ onBackToLanding }) => {
 
                     {/* ═════════════════ TAB 5: INTEGRITY ═════════════════ */}
                     {activeTab === "integrity" && (
-                        <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
-                                <div className="flex justify-between items-center mb-6">
-                                    <div>
-                                        <h3 className="text-base font-bold text-white">Cryptographic Merkle Tree & Hash Chain Verification</h3>
-                                        <p className="text-xs text-[#8e8a83]">
-                                            Recursive SHA-256 binary hash tree computed across {auditEvents.length} chronological blocks.
-                                        </p>
-                                    </div>
-                                    <button
-                                        onClick={runChainVerification}
-                                        disabled={verifying}
-                                        className="px-4.5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl text-xs transition-all shadow-[0_4px_16px_rgba(0,240,255,0.25)] cursor-pointer border border-cyan-400/20"
-                                    >
-                                        {verifying ? "Auditing Chain..." : "Run Cryptographic Audit"}
-                                    </button>
-                                </div>
-
-                                <div className="p-8 bg-[#101115] rounded-2xl border border-white/5 text-center">
-                                    <span className="text-xs font-mono font-bold text-[#8e8a83] uppercase tracking-wider">Dynamic Merkle Root Hash</span>
-                                    <div className="mt-3 flex justify-center">
-                                        <div className="p-4 bg-[#181920] border border-cyan-500/30 text-cyan-300 rounded-xl shadow-xl text-xs font-mono font-bold max-w-2xl break-all">
-                                            ROOT: {merkleRoot || "Computing from real leaf hashes..."}
-                                        </div>
-                                    </div>
-                                    <p className="text-xs font-mono text-[#8e8a83] mt-4">
-                                        Tree Height: {Math.ceil(Math.log2(Math.max(1, auditEvents.length))) + 1} levels | Leaf Hashes: {auditEvents.length}
+                        <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                            <div className="flex justify-between items-center mb-4">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-zinc-100">Merkle Tree & Hash Chain Verification</h3>
+                                    <p className="text-xs text-zinc-400 mt-0.5">
+                                        Recursive binary SHA-256 tree computed across {auditEvents.length} chronological blocks.
                                     </p>
                                 </div>
+                                <button
+                                    onClick={runChainVerification}
+                                    disabled={verifying}
+                                    className="px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-900 font-medium rounded-md text-xs transition-colors cursor-pointer"
+                                >
+                                    {verifying ? "Auditing..." : "Run Cryptographic Audit"}
+                                </button>
+                            </div>
+
+                            <div className="p-6 bg-zinc-950/60 rounded-lg border border-zinc-800/60 text-center">
+                                <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">Dynamic Merkle Root</span>
+                                <div className="mt-2 flex justify-center">
+                                    <div className="p-3 bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-md text-xs font-mono max-w-xl break-all">
+                                        {merkleRoot || "Computing from leaf hashes..."}
+                                    </div>
+                                </div>
+                                <p className="text-xs font-mono text-zinc-500 mt-3">
+                                    Tree Depth: {Math.ceil(Math.log2(Math.max(1, auditEvents.length))) + 1} levels • Leaf Hashes: {auditEvents.length}
+                                </p>
                             </div>
                         </div>
                     )}
 
                     {/* ═════════════════ TAB 6: AUDIT LOGS ═════════════════ */}
                     {activeTab === "audit" && (
-                        <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
-                                <div className="flex justify-between items-center mb-6">
-                                    <div>
-                                        <h3 className="text-base font-bold text-white">Cryptographic Hash Chain Audit Trail</h3>
-                                        <p className="text-xs text-[#8e8a83]">
-                                            Full chronological ledger ({filteredAudit.length} of {auditEvents.length} matching events).
-                                        </p>
-                                    </div>
-                                    <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                        Chain Integrity: 100% UNBROKEN
-                                    </span>
+                        <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                            <div className="flex justify-between items-center mb-4">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-zinc-100">Hash Chain Audit Trail</h3>
+                                    <p className="text-xs text-zinc-400 mt-0.5">
+                                        Full chronological ledger ({filteredAudit.length} of {auditEvents.length} records matching).
+                                    </p>
                                 </div>
+                                <span className="text-xs font-mono font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
+                                    Chain Intact
+                                </span>
+                            </div>
 
-                                <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
-                                    <table className="w-full text-left text-xs">
-                                        <thead>
-                                            <tr className="border-b border-white/[0.08] text-[#8e8a83] font-mono text-[10px] uppercase tracking-wider bg-[#111217]">
-                                                <th className="py-3 px-3"># Block</th>
-                                                <th className="py-3 px-3">Timestamp (UTC)</th>
-                                                <th className="py-3 px-3">Operator</th>
-                                                <th className="py-3 px-3">Action</th>
-                                                <th className="py-3 px-3">Target</th>
-                                                <th className="py-3 px-3">Case ID</th>
-                                                <th className="py-3 px-3 text-right">Event Hash</th>
+                            <div className="overflow-x-auto rounded-lg border border-zinc-800/80">
+                                <table className="w-full text-left text-xs">
+                                    <thead>
+                                        <tr className="border-b border-zinc-800 text-zinc-400 font-mono text-[10px] uppercase tracking-wider bg-zinc-950/60">
+                                            <th className="py-2.5 px-3"># Block</th>
+                                            <th className="py-2.5 px-3">Timestamp (UTC)</th>
+                                            <th className="py-2.5 px-3">Operator</th>
+                                            <th className="py-2.5 px-3">Action</th>
+                                            <th className="py-2.5 px-3">Target</th>
+                                            <th className="py-2.5 px-3">Case ID</th>
+                                            <th className="py-2.5 px-3 text-right">Event Hash</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-zinc-800/60 font-mono text-xs">
+                                        {filteredAudit.map((ev) => (
+                                            <tr key={ev.index} className="hover:bg-zinc-800/30 transition-colors">
+                                                <td className="py-2.5 px-3 font-semibold text-zinc-300">#{String(ev.index).padStart(4, "0")}</td>
+                                                <td className="py-2.5 px-3 text-zinc-400 font-sans">{new Date(ev.timestamp).toLocaleString()}</td>
+                                                <td className="py-2.5 px-3 font-sans font-medium text-zinc-200">{ev.operator}</td>
+                                                <td className="py-2.5 px-3">
+                                                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-medium border ${getActionBadgeColor(ev.action)}`}>
+                                                        {ev.action}
+                                                    </span>
+                                                </td>
+                                                <td className="py-2.5 px-3 text-zinc-300 truncate max-w-[180px] font-sans" title={ev.target}>{ev.target}</td>
+                                                <td className="py-2.5 px-3 text-zinc-400 font-sans">{ev.case_id}</td>
+                                                <td className="py-2.5 px-3 text-right text-zinc-500">{ev.event_hash ? `${ev.event_hash.substring(0, 10)}...` : "N/A"}</td>
                                             </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/[0.04] font-mono text-[11px]">
-                                            {filteredAudit.map((ev) => (
-                                                <tr key={ev.index} className="hover:bg-white/[0.03] transition-colors">
-                                                    <td className="py-3 px-3 font-bold text-cyan-400">#{String(ev.index).padStart(4, "0")}</td>
-                                                    <td className="py-3 px-3 text-[#b1a696] font-sans">{new Date(ev.timestamp).toLocaleString()}</td>
-                                                    <td className="py-3 px-3 font-sans font-semibold text-white">{ev.operator}</td>
-                                                    <td className="py-3 px-3">
-                                                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold border ${getActionBadgeColor(ev.action)}`}>
-                                                            {ev.action}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-3 px-3 text-[#f4efe7]/80 truncate max-w-[180px] font-sans" title={ev.target}>{ev.target}</td>
-                                                    <td className="py-3 px-3 text-cyan-400 font-sans">{ev.case_id}</td>
-                                                    <td className="py-3 px-3 text-right text-[#8e8a83]">{ev.event_hash ? `${ev.event_hash.substring(0, 10)}...` : "N/A"}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     )}
 
-                    {/* ═════════════════ TAB 7: DEVICES / WORKERS ═════════════════ */}
+                    {/* ═════════════════ TAB 7: WORKSTATIONS ═════════════════ */}
                     {activeTab === "devices" && (
-                        <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
-                                <h3 className="text-base font-bold text-white mb-2">Connected Forensic Workstations</h3>
-                                <p className="text-xs text-[#8e8a83] mb-6">Physical hardware endpoints connected to the telemetry bridge.</p>
+                        <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                            <h3 className="text-sm font-semibold text-zinc-100 mb-1">Connected Workstations</h3>
+                            <p className="text-xs text-zinc-400 mb-4">Endpoints connected to the local telemetry bridge.</p>
 
-                                <div className="p-6 rounded-2xl border border-white/[0.08] bg-[#101115] shadow-lg max-w-md">
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-xs font-mono font-bold text-cyan-400">HOST-LOCAL-01</span>
-                                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
-                                            {isAgentOnline ? "ONLINE" : "STANDBY"}
-                                        </span>
+                            <div className="p-4 rounded-lg border border-zinc-800/80 bg-zinc-950/60 max-w-sm">
+                                <div className="flex justify-between items-start">
+                                    <span className="text-xs font-mono font-medium text-zinc-300">HOST-LOCAL-01</span>
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-medium border ${isAgentOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"}`}>
+                                        {isAgentOnline ? "ONLINE" : "STANDBY"}
+                                    </span>
+                                </div>
+                                <h4 className="font-semibold text-zinc-100 text-sm mt-2">ZeroTrace Forensic Agent</h4>
+                                <p className="text-xs text-zinc-500">Desktop Win32 Runtime</p>
+                                <div className="mt-3 space-y-1.5 text-xs font-mono text-zinc-400 border-t border-zinc-800 pt-2.5">
+                                    <div className="flex justify-between">
+                                        <span>Socket:</span>
+                                        <span className="text-zinc-200">127.0.0.1:5173</span>
                                     </div>
-                                    <h4 className="font-bold text-white text-base mt-2.5">ZeroTrace Forensic Workstation</h4>
-                                    <p className="text-xs text-[#8e8a83]">ZeroTrace.exe Desktop Application (Win32)</p>
-                                    <div className="mt-4 space-y-2 text-xs font-mono text-[#b1a696] border-t border-white/5 pt-3.5">
-                                        <div className="flex justify-between">
-                                            <span>Bridge Socket:</span>
-                                            <span className="text-white">127.0.0.1:5173 / 5174</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Recorded Audit Blocks:</span>
-                                            <span className="font-bold text-cyan-400">#{auditEvents.length}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Active Cases in Memory:</span>
-                                            <span className="font-bold text-white">{casesData.length}</span>
-                                        </div>
+                                    <div className="flex justify-between">
+                                        <span>Blocks:</span>
+                                        <span className="font-medium text-zinc-200">#{auditEvents.length}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1450,76 +1335,72 @@ const DashboardView = ({ onBackToLanding }) => {
 
                     {/* ═════════════════ TAB 8: REPORTS ═════════════════ */}
                     {activeTab === "reports" && (
-                        <div className="space-y-6 max-w-7xl mx-auto">
-                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
-                                <div className="flex justify-between items-center mb-6">
-                                    <div>
-                                        <h3 className="text-base font-bold text-white">Forensic Audit & Certificate Reports</h3>
-                                        <p className="text-xs text-[#8e8a83]">Export cryptographically signed ledgers and case reports.</p>
-                                    </div>
-                                    <button
-                                        onClick={() => {
-                                            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(auditEvents, null, 2));
-                                            const dl = document.createElement("a");
-                                            dl.setAttribute("href", dataStr);
-                                            dl.setAttribute("download", `ZeroTrace_Audit_Trail_${Date.now()}.json`);
-                                            dl.click();
-                                        }}
-                                        className="px-4.5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl text-xs transition-all shadow-[0_4px_16px_rgba(0,240,255,0.25)] cursor-pointer border border-cyan-400/20"
-                                    >
-                                        Export Audit Ledger (JSON)
-                                    </button>
+                        <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80">
+                            <div className="flex justify-between items-center mb-4">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-zinc-100">Audit Reports & Export</h3>
+                                    <p className="text-xs text-zinc-400 mt-0.5">Export cryptographically signed ledgers and audit records.</p>
                                 </div>
+                                <button
+                                    onClick={() => {
+                                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(auditEvents, null, 2));
+                                        const dl = document.createElement("a");
+                                        dl.setAttribute("href", dataStr);
+                                        dl.setAttribute("download", `ZeroTrace_Audit_Trail_${Date.now()}.json`);
+                                        dl.click();
+                                    }}
+                                    className="px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-900 font-medium rounded-md text-xs transition-colors cursor-pointer"
+                                >
+                                    Export Ledger (JSON)
+                                </button>
+                            </div>
 
-                                <div className="p-5 rounded-xl border border-white/[0.08] bg-[#101115] flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-bold text-white text-xs">Full Cryptographic Hash Chain Audit Ledger</h4>
-                                        <p className="text-[11px] text-[#8e8a83] font-mono mt-0.5">
-                                            Contains {auditEvents.length} cryptographically signed blocks from genesis block.
-                                        </p>
-                                    </div>
-                                    <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
-                                        VERIFIED INTACT
-                                    </span>
+                            <div className="p-4 rounded-lg border border-zinc-800/80 bg-zinc-950/60 flex items-center justify-between">
+                                <div>
+                                    <h4 className="font-medium text-zinc-200 text-xs">Full Cryptographic Audit Ledger</h4>
+                                    <p className="text-[11px] text-zinc-500 font-mono mt-0.5">
+                                        Contains {auditEvents.length} signed blocks from genesis.
+                                    </p>
                                 </div>
+                                <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                                    Validated
+                                </span>
                             </div>
                         </div>
                     )}
 
                     {/* ═════════════════ TAB 9: SETTINGS ═════════════════ */}
                     {activeTab === "settings" && (
-                        <div className="space-y-6 max-w-4xl mx-auto">
-                            <div className="bg-[#15161d] p-6 rounded-2xl border border-white/[0.08] shadow-xl">
-                                <h3 className="text-base font-bold text-white mb-2">Bridge Configuration & Storage Paths</h3>
-                                <p className="text-xs text-[#8e8a83] mb-5">Local data bridge paths connecting Desktop Agent with the Web Hub.</p>
-                                <div className="space-y-4 text-xs font-mono">
-                                    <div>
-                                        <label className="block font-sans font-semibold text-[#b1a696] mb-1.5">Desktop Audit Trail Source</label>
-                                        <input
-                                            type="text"
-                                            value="/public/audit_trail.json"
-                                            disabled
-                                            className="w-full p-3 bg-[#101115] border border-white/10 rounded-xl text-cyan-300 font-mono"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block font-sans font-semibold text-[#b1a696] mb-1.5">Desktop Cases Source</label>
-                                        <input
-                                            type="text"
-                                            value="/public/forensic_cases.json"
-                                            disabled
-                                            className="w-full p-3 bg-[#101115] border border-white/10 rounded-xl text-cyan-300 font-mono"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block font-sans font-semibold text-[#b1a696] mb-1.5">Real-Time Telemetry Socket</label>
-                                        <input
-                                            type="text"
-                                            value="/public/live_wipe_telemetry.json"
-                                            disabled
-                                            className="w-full p-3 bg-[#101115] border border-white/10 rounded-xl text-cyan-300 font-mono"
-                                        />
-                                    </div>
+                        <div className="bg-[#111215] p-5 rounded-xl border border-zinc-800/80 max-w-2xl">
+                            <h3 className="text-sm font-semibold text-zinc-100 mb-1">Bridge Storage Paths</h3>
+                            <p className="text-xs text-zinc-400 mb-4">Local file-bridge endpoints connecting the desktop client to the console.</p>
+                            <div className="space-y-3 text-xs font-mono">
+                                <div>
+                                    <label className="block text-zinc-400 font-sans mb-1">Desktop Audit Trail Source</label>
+                                    <input
+                                        type="text"
+                                        value="/public/audit_trail.json"
+                                        disabled
+                                        className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-md text-zinc-300"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-zinc-400 font-sans mb-1">Desktop Cases Source</label>
+                                    <input
+                                        type="text"
+                                        value="/public/forensic_cases.json"
+                                        disabled
+                                        className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-md text-zinc-300"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-zinc-400 font-sans mb-1">Telemetry Bridge</label>
+                                    <input
+                                        type="text"
+                                        value="/public/live_wipe_telemetry.json"
+                                        disabled
+                                        className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-md text-zinc-300"
+                                    />
                                 </div>
                             </div>
                         </div>
