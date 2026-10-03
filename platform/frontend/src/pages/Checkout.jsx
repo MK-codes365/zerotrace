@@ -617,27 +617,31 @@ const Checkout = () => {
                     </h3>
                     
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Full Name</label>
+                      <label htmlFor="checkout-full-name" style={styles.label}>Full Name</label>
                       <input 
+                        id="checkout-full-name"
                         type="text" 
                         name="name" 
                         placeholder="John Doe" 
                         required 
                         value={formInputs.name}
                         onChange={handleInputChange}
+                        autoComplete="name"
                         style={styles.input} 
                       />
                     </div>
                     
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Email Address</label>
+                      <label htmlFor="checkout-email" style={styles.label}>Email Address</label>
                       <input 
+                        id="checkout-email"
                         type="email" 
                         name="email" 
                         placeholder="johndoe@security.com" 
                         required 
                         value={formInputs.email}
                         onChange={handleInputChange}
+                        autoComplete="email"
                         style={styles.input} 
                       />
                     </div>

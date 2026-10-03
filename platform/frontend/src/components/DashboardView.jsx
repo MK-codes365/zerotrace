@@ -773,10 +773,13 @@ const DashboardView = ({ onBackToLanding }) => {
                     <div className="flex items-center gap-3">
                         <div className="relative">
                             <input
-                                type="text"
+                                id="dashboard-search-input"
+                                name="dashboardSearch"
+                                type="search"
                                 placeholder="Search hashes, cases, actions..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                autoComplete="off"
                                 className="pl-8 pr-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-md text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 w-64 transition-colors font-mono"
                             />
                             <span className="absolute left-2.5 top-2 text-zinc-500 pointer-events-none">
@@ -1376,8 +1379,10 @@ const DashboardView = ({ onBackToLanding }) => {
                             <p className="text-xs text-zinc-400 mb-4">Local file-bridge endpoints connecting the desktop client to the console.</p>
                             <div className="space-y-3 text-xs font-mono">
                                 <div>
-                                    <label className="block text-zinc-400 font-sans mb-1">Desktop Audit Trail Source</label>
+                                    <label htmlFor="setting-audit-trail" className="block text-zinc-400 font-sans mb-1">Desktop Audit Trail Source</label>
                                     <input
+                                        id="setting-audit-trail"
+                                        name="settingAuditTrail"
                                         type="text"
                                         value="/public/audit_trail.json"
                                         disabled
@@ -1385,8 +1390,10 @@ const DashboardView = ({ onBackToLanding }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-zinc-400 font-sans mb-1">Desktop Cases Source</label>
+                                    <label htmlFor="setting-cases-source" className="block text-zinc-400 font-sans mb-1">Desktop Cases Source</label>
                                     <input
+                                        id="setting-cases-source"
+                                        name="settingCasesSource"
                                         type="text"
                                         value="/public/forensic_cases.json"
                                         disabled
@@ -1394,8 +1401,10 @@ const DashboardView = ({ onBackToLanding }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-zinc-400 font-sans mb-1">Telemetry Bridge</label>
+                                    <label htmlFor="setting-telemetry-bridge" className="block text-zinc-400 font-sans mb-1">Telemetry Bridge</label>
                                     <input
+                                        id="setting-telemetry-bridge"
+                                        name="settingTelemetryBridge"
                                         type="text"
                                         value="/public/live_wipe_telemetry.json"
                                         disabled

@@ -72,12 +72,26 @@ export default function SanitizationPage() {
         <h3 className="font-semibold">Step 1: Select Target</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs text-zt-text-dim mb-1 block">Target Path</label>
-            <input className="zt-input" value={target} onChange={e => setTarget(e.target.value)} placeholder="/dev/sdb or C:\path\to\file" />
+            <label htmlFor="sanitization-target-path" className="text-xs text-zt-text-dim mb-1 block">Target Path</label>
+            <input
+              id="sanitization-target-path"
+              name="targetPath"
+              className="zt-input"
+              value={target}
+              onChange={e => setTarget(e.target.value)}
+              placeholder="/dev/sdb or C:\path\to\file"
+              autoComplete="off"
+            />
           </div>
           <div>
-            <label className="text-xs text-zt-text-dim mb-1 block">Target Type</label>
-            <select className="zt-input" value={targetType} onChange={e => setTargetType(e.target.value)}>
+            <label htmlFor="sanitization-target-type" className="text-xs text-zt-text-dim mb-1 block">Target Type</label>
+            <select
+              id="sanitization-target-type"
+              name="targetType"
+              className="zt-input"
+              value={targetType}
+              onChange={e => setTargetType(e.target.value)}
+            >
               <option value="drive">Drive</option>
               <option value="file">File</option>
               <option value="folder">Folder</option>
@@ -124,15 +138,28 @@ export default function SanitizationPage() {
 
           <div className="border-t border-zt-border pt-4 space-y-3">
             <div>
-              <label className="text-sm font-medium text-zt-red block mb-1">
+              <label htmlFor="sanitization-confirm-text" className="text-sm font-medium text-zt-red block mb-1">
                 Type "CONFIRM SANITIZATION" to proceed:
               </label>
-              <input className="zt-input border-zt-red/30 focus:border-zt-red" value={confirmText}
-                onChange={e => setConfirmText(e.target.value)} placeholder="CONFIRM SANITIZATION" />
+              <input
+                id="sanitization-confirm-text"
+                name="confirmText"
+                className="zt-input border-zt-red/30 focus:border-zt-red"
+                value={confirmText}
+                onChange={e => setConfirmText(e.target.value)}
+                placeholder="CONFIRM SANITIZATION"
+                autoComplete="off"
+              />
             </div>
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={secondConfirm} onChange={e => setSecondConfirm(e.target.checked)}
-                className="rounded border-zt-border" />
+              <input
+                id="sanitization-second-confirm"
+                name="secondConfirm"
+                type="checkbox"
+                checked={secondConfirm}
+                onChange={e => setSecondConfirm(e.target.checked)}
+                className="rounded border-zt-border"
+              />
               I understand this is a destructive operation (second confirmation)
             </label>
             <button onClick={executeSanitization}

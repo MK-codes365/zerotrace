@@ -721,10 +721,13 @@ const Cart = () => {
                   {/* Promo Form */}
                   <form onSubmit={handleApplyPromo} style={styles.promoForm}>
                     <input 
+                      id="cart-promo-code"
+                      name="promoCode"
                       type="text" 
                       placeholder="Promo Code (e.g. ZEROTRACE20)" 
                       value={promoCode} 
                       onChange={(e) => setPromoCode(e.target.value)}
+                      autoComplete="off"
                       className="promo-input"
                     />
                     <button type="submit" className="promo-btn">Apply</button>

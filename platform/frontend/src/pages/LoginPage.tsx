@@ -69,27 +69,62 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             <>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zt-text-dim" />
-                <input className="zt-input pl-10" placeholder="Full Name" value={form.full_name}
-                  onChange={e => setForm({ ...form, full_name: e.target.value })} required />
+                <input
+                  id="register-full-name"
+                  name="full_name"
+                  className="zt-input pl-10"
+                  placeholder="Full Name"
+                  value={form.full_name}
+                  onChange={e => setForm({ ...form, full_name: e.target.value })}
+                  autoComplete="name"
+                  required
+                />
               </div>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zt-text-dim" />
-                <input className="zt-input pl-10" type="email" placeholder="Email" value={form.email}
-                  onChange={e => setForm({ ...form, email: e.target.value })} required />
+                <input
+                  id="register-email"
+                  name="email"
+                  className="zt-input pl-10"
+                  type="email"
+                  placeholder="Email"
+                  value={form.email}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                  autoComplete="email"
+                  required
+                />
               </div>
             </>
           )}
 
           <div className="relative">
             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zt-text-dim" />
-            <input className="zt-input pl-10" placeholder="Username" value={form.username}
-              onChange={e => setForm({ ...form, username: e.target.value })} required />
+            <input
+              id="login-username"
+              name="username"
+              className="zt-input pl-10"
+              placeholder="Username"
+              value={form.username}
+              onChange={e => setForm({ ...form, username: e.target.value })}
+              autoComplete="username"
+              required
+            />
           </div>
 
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zt-text-dim" />
-            <input className="zt-input pl-10" type="password" placeholder="Password" value={form.password}
-              onChange={e => setForm({ ...form, password: e.target.value })} required minLength={8} />
+            <input
+              id="login-password"
+              name="password"
+              className="zt-input pl-10"
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={e => setForm({ ...form, password: e.target.value })}
+              autoComplete={isRegister ? "new-password" : "current-password"}
+              required
+              minLength={8}
+            />
           </div>
 
           <button type="submit" disabled={loading}
