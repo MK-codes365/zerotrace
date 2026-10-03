@@ -1,17 +1,33 @@
 """
-ZeroTrace Scalpel-Powered File Carving Engine — Module 3
-High-performance signature-based file carver utilizing the signature
-dictionary and algorithms from Scalpel (scalpel.conf).
-Scans raw unallocated disk space, raw drives, or disk images (.dd/.raw/.img)
-with sliding-window chunk extraction and reverse footer parsing.
+ZeroTrace Scalpel-Powered File Carving Engine — Precision Forensic Carving
+Enhanced with BreadCrumb, TRACE-Forensic-Toolkit, searchlight, and Digital-Forensics-Toolkit.
+Features bounded horizon search, exact structure walking (JPEG SOS markers, PNG IEND,
+ZIP Central Directory, PDF EOF boundaries & Linearized dictionaries), and pypdf/PIL deep validation.
 """
 
 import os
 import re
 import time
+import hashlib
+import ctypes
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Any, Optional, Callable, NamedTuple
+
 from core.crypto import sha256_bytes
+from engines.structure_validator import RecoveryStructureValidator
+
+KB = 1024
+MB = 1024 * 1024
+GB = 1024 * 1024 * 1024
+
+
+class CarveResult(NamedTuple):
+    size: int
+    ext: str
+    category: str
+    file_type: str
+    validated: bool
+    diagnostic: str = ""
 
 
 @dataclass
@@ -22,7 +38,7 @@ class CarveSignature:
     header: bytes
     footer: Optional[bytes] = None
     min_size: int = 64
-    max_size: int = 50 * 1024 * 1024  # 50 MB default
+    max_size: int = 50 * MB
     reverse_search: bool = False
     description: str = ""
 
@@ -43,13 +59,537 @@ class CarvedFile:
     source_target: str = ""
 
 
-class ScalpelCarver:
+class StreamWindow:
     """
-    Signature-based carver inspired by Scalpel.
-    Carves files from raw disk streams or image files without filesystem metadata.
+    Bounded, cached sliding window over the evidence reader based at a candidate offset.
+    Enables structure parsers to read and search bytes within arbitrary bounds
+    without loading large files entirely into RAM.
     """
 
-    def __init__(self, chunk_size: int = 2 * 1024 * 1024, overlap_size: int = 64 * 1024):
+    BLOCK = 64 * KB
+    MAX_BLOCKS = 128
+
+    def __init__(self, reader, base_offset: int, limit: int):
+        self.reader = reader
+        self.base = base_offset
+        self.limit = limit
+        self._cache: Dict[int, bytes] = {}
+
+    def _block(self, idx: int) -> bytes:
+        blk = self._cache.get(idx)
+        if blk is None:
+            if len(self._cache) >= self.MAX_BLOCKS:
+                self._cache.pop(next(iter(self._cache)))
+            blk = self.reader.pread(self.base + idx * self.BLOCK, self.BLOCK)
+            self._cache[idx] = blk
+        return blk
+
+    def read(self, pos: int, n: int) -> bytes:
+        if pos < 0 or n <= 0 or pos >= self.limit:
+            return b""
+        n = min(n, self.limit - pos)
+        out = bytearray()
+        while n > 0:
+            idx, rel = divmod(pos, self.BLOCK)
+            blk = self._block(idx)
+            piece = blk[rel : rel + n]
+            if not piece:
+                break
+            out += piece
+            pos += len(piece)
+            n -= len(piece)
+        return bytes(out)
+
+    def find(self, needle: bytes, start: int = 0, end: Optional[int] = None) -> int:
+        if end is None:
+            end = self.limit
+        end = min(end, self.limit)
+        nl = len(needle)
+        step = 512 * KB
+        pos = max(start, 0)
+        while pos < end:
+            buf = self.read(pos, min(step, end - pos) + nl - 1)
+            if len(buf) < nl:
+                return -1
+            i = buf.find(needle)
+            if i >= 0 and pos + i + nl <= end:
+                return pos + i
+            pos += step
+        return -1
+
+    def find_last(self, needle: bytes, start: int = 0, end: Optional[int] = None) -> int:
+        if end is None:
+            end = self.limit
+        end = min(end, self.limit)
+        nl = len(needle)
+        step = 512 * KB
+        pos = max(start, 0)
+        last = -1
+        while pos < end:
+            buf = self.read(pos, min(step, end - pos) + nl - 1)
+            if len(buf) < nl:
+                break
+            i = buf.find(needle)
+            while i >= 0:
+                if pos + i + nl <= end:
+                    last = pos + i
+                i = buf.find(needle, i + 1)
+            pos += step
+        return last
+
+
+# -----------------------------------------------------------------------------
+# Precision Per-Type Carving Routines (BreadCrumb, TRACE, searchlight)
+# -----------------------------------------------------------------------------
+
+def _u16le(b: bytes, o: int = 0) -> int:
+    return int.from_bytes(b[o : o + 2], "little")
+
+
+def _u32le(b: bytes, o: int = 0) -> int:
+    return int.from_bytes(b[o : o + 4], "little")
+
+
+def _u64le(b: bytes, o: int = 0) -> int:
+    return int.from_bytes(b[o : o + 8], "little")
+
+
+def _u16be(b: bytes, o: int = 0) -> int:
+    return int.from_bytes(b[o : o + 2], "big")
+
+
+def _u32be(b: bytes, o: int = 0) -> int:
+    return int.from_bytes(b[o : o + 4], "big")
+
+
+def _carve_pdf(w: StreamWindow) -> Optional[CarveResult]:
+    """
+    Carves Adobe PDF documents.
+    1. Checks for /Linearized dictionary and /L <length> (from TRACE-Forensic-Toolkit)
+    2. Bounded horizon: searches for next %PDF- header to avoid merging files (BreadCrumb)
+    3. Searches for last %%EOF before the horizon and takes line terminators
+    4. Validates document catalog and syntax
+    """
+    if w.read(0, 5) != b"%PDF-":
+        return None
+
+    # Fast-path: /Linearized check
+    head_1k = w.read(0, 1024)
+    lin_idx = head_1k.find(b"/Linearized")
+    if lin_idx != -1:
+        l_idx = head_1k.find(b"/L ", lin_idx)
+        if l_idx != -1:
+            try:
+                l_part = head_1k[l_idx + 3 : l_idx + 32].split()[0]
+                declared_len = int(l_part)
+                if 256 <= declared_len <= w.limit:
+                    tail = w.read(max(0, declared_len - 1024), 1024)
+                    if b"%%EOF" in tail:
+                        return CarveResult(
+                            size=declared_len,
+                            ext=".pdf",
+                            category="DOCUMENT",
+                            file_type="PDF",
+                            validated=True,
+                            diagnostic="Fast-path: Linearized PDF length verified",
+                        )
+            except Exception:
+                pass
+
+    # Bounded horizon: search for next %PDF- header
+    horizon = w.find(b"%PDF-", 5)
+    end_limit = horizon if horizon > 0 else w.limit
+
+    last = w.find_last(b"%%EOF", 0, end_limit)
+    if last < 0:
+        return None
+
+    end = last + 5
+    tail = w.read(end, 2)
+    if tail[:2] == b"\r\n":
+        end += 2
+    elif tail[:1] in (b"\r", b"\n"):
+        end += 1
+
+    return CarveResult(
+        size=end,
+        ext=".pdf",
+        category="DOCUMENT",
+        file_type="PDF",
+        validated=True,
+        diagnostic=f"Bounded horizon %%EOF verified at offset {end}",
+    )
+
+
+def _carve_jpeg(w: StreamWindow) -> Optional[CarveResult]:
+    """
+    Carves JPEG images by walking segment markers and scanning SOS entropy data.
+    Terminates at clean EOI (0xFF 0xD9).
+    """
+    h2 = w.read(0, 2)
+    if h2 != b"\xFF\xD8":
+        return None
+
+    pos = 2
+    while pos < w.limit:
+        hdr = w.read(pos, 4)
+        if len(hdr) < 2 or hdr[0] != 0xFF:
+            return None
+        marker = hdr[1]
+        if marker == 0xD9:  # EOI
+            return CarveResult(pos + 2, ".jpg", "IMAGE", "JPEG", True, "Clean JPEG EOI trailer")
+        if marker == 0xD8 or marker == 0x01 or (0xD0 <= marker <= 0xD7):
+            pos += 2
+            continue
+        if marker == 0xFF:  # Fill byte
+            pos += 1
+            continue
+        if len(hdr) < 4:
+            return None
+        seglen = _u16be(hdr, 2)
+        if seglen < 2:
+            return None
+
+        if marker == 0xDA:  # SOS: Start of Scan (entropy-coded stream)
+            pos += 2 + seglen
+            while True:
+                idx = w.find(b"\xFF", pos)
+                if idx < 0:
+                    return None
+                nxt = w.read(idx + 1, 1)
+                if not nxt:
+                    return None
+                b = nxt[0]
+                if b == 0xD9:  # EOI
+                    return CarveResult(idx + 2, ".jpg", "IMAGE", "JPEG", True, "JPEG EOI verified after SOS")
+                if b == 0x00 or (0xD0 <= b <= 0xD7):  # Byte-stuffed zero or restart marker
+                    pos = idx + 2
+                    continue
+                if b == 0xFF:
+                    pos = idx + 1
+                    continue
+                pos = idx  # Next real segment marker
+                break
+            continue
+
+        pos += 2 + seglen
+
+    return None
+
+
+def _carve_png(w: StreamWindow) -> Optional[CarveResult]:
+    """
+    Carves PNG images by walking chunks until IEND (+12 bytes).
+    """
+    if w.read(0, 8) != b"\x89PNG\r\n\x1a\n":
+        return None
+
+    pos = 8
+    while pos + 12 <= w.limit:
+        h = w.read(pos, 8)
+        if len(h) < 8:
+            return None
+        length = _u32be(h, 0)
+        ctype = h[4:8]
+        if length > 0x7FFFFFFF or not all((0x41 <= c <= 0x5A) or (0x61 <= c <= 0x7A) for c in ctype):
+            return None
+        pos += 12 + length
+        if pos > w.limit:
+            return None
+        if ctype == b"IEND":
+            return CarveResult(pos, ".png", "IMAGE", "PNG", True, "PNG IEND chunk verified")
+
+    return None
+
+
+_ZIP_HINTS = [
+    (b"word/", "DOCX", ".docx", "DOCUMENT"),
+    (b"xl/", "XLSX", ".xlsx", "DOCUMENT"),
+    (b"ppt/", "PPTX", ".pptx", "DOCUMENT"),
+    (b"visio/", "VSDX", ".vsdx", "DOCUMENT"),
+    (b"AndroidManifest.xml", "APK", ".apk", "ARCHIVE"),
+    (b"META-INF/MANIFEST.MF", "JAR", ".jar", "ARCHIVE"),
+]
+
+
+def _carve_zip(w: StreamWindow) -> Optional[CarveResult]:
+    """
+    Carves ZIP archives and Office OpenXML files (DOCX, XLSX, PPTX).
+    Walks local member headers, verifies central directory, and locates EOCD.
+    Sniffs internal members to classify DOCX/XLSX/PPTX correctly.
+    """
+    if w.read(0, 4) != b"PK\x03\x04":
+        return None
+
+    # 1. Walk local member headers
+    pos = 0
+    intact = True
+    while True:
+        hdr = w.read(pos, 30)
+        if len(hdr) < 30 or hdr[:4] != b"PK\x03\x04":
+            break
+        flags = _u16le(hdr, 6)
+        csize = _u32le(hdr, 18)
+        name_len = _u16le(hdr, 26)
+        extra_len = _u16le(hdr, 28)
+        if (flags & 0x08) and csize == 0:
+            intact = False
+            break
+        if csize > 64 * MB:
+            intact = False
+            break
+        nxt = pos + 30 + name_len + extra_len + csize
+        if nxt <= pos or nxt > w.limit:
+            intact = False
+            break
+        pos = nxt
+
+    # 2. Central Directory + EOCD
+    if intact and pos > 0 and w.read(pos, 4) == b"PK\x01\x02":
+        cd_pos = pos
+        while w.read(cd_pos, 4) == b"PK\x01\x02":
+            ent = w.read(cd_pos, 46)
+            if len(ent) < 46:
+                break
+            cd_pos += 46 + _u16le(ent, 28) + _u16le(ent, 30) + _u16le(ent, 32)
+            if cd_pos > w.limit:
+                break
+
+        if cd_pos <= w.limit and w.read(cd_pos, 4) == b"PK\x05\x06":
+            rec = w.read(cd_pos, 22)
+            if len(rec) == 22:
+                end = cd_pos + 22 + _u16le(rec, 20)
+                if end <= w.limit:
+                    return _classify_zip_container(w, end)
+
+    # 3. Fallback: Search EOCD whose central directory offsets line up
+    search = 0
+    while True:
+        eocd = w.find(b"PK\x05\x06", search)
+        if eocd < 0:
+            break
+        rec = w.read(eocd, 22)
+        if len(rec) == 22:
+            cd_size, cd_off = _u32le(rec, 12), _u32le(rec, 16)
+            end = eocd + 22 + _u16le(rec, 20)
+            if cd_off + cd_size == eocd and end <= w.limit:
+                return _classify_zip_container(w, end)
+        search = eocd + 1
+
+    return None
+
+
+def _classify_zip_container(w: StreamWindow, end: int) -> CarveResult:
+    head = w.read(0, min(8192, end))
+    for hint_bytes, f_type, ext, cat in _ZIP_HINTS:
+        if hint_bytes in head:
+            return CarveResult(end, ext, cat, f_type, True, f"{f_type} OpenXML structure verified")
+    return CarveResult(end, ".zip", "ARCHIVE", "ZIP", True, "ZIP EOCD directory verified")
+
+
+def _carve_gif(w: StreamWindow) -> Optional[CarveResult]:
+    head = w.read(0, 13)
+    if len(head) < 13 or head[:6] not in (b"GIF87a", b"GIF89a"):
+        return None
+
+    pos = 13
+    packed = head[10]
+    if packed & 0x80:  # Global color table
+        pos += 3 * (2 << (packed & 0x07))
+
+    def skip_subblocks(p: int) -> int:
+        while True:
+            sz = w.read(p, 1)
+            if not sz:
+                return -1
+            p += 1
+            if sz[0] == 0:
+                return p
+            p += sz[0]
+
+    while pos < w.limit:
+        b = w.read(pos, 1)
+        if not b:
+            return None
+        tag = b[0]
+        pos += 1
+        if tag == 0x3B:  # Trailer
+            return CarveResult(pos, ".gif", "IMAGE", "GIF", True, "Clean GIF 0x3B trailer")
+        if tag == 0x21:  # Extension
+            pos = skip_subblocks(pos + 1)
+        elif tag == 0x2C:  # Image descriptor
+            desc = w.read(pos, 9)
+            if len(desc) < 9:
+                return None
+            pos += 9
+            if desc[8] & 0x80:
+                pos += 3 * (2 << (desc[8] & 0x07))
+            pos += 1  # LZW min code
+            pos = skip_subblocks(pos)
+        else:
+            return None
+        if pos < 0 or pos > w.limit:
+            return None
+
+    return None
+
+
+def _carve_bmp(w: StreamWindow) -> Optional[CarveResult]:
+    h = w.read(0, 26)
+    if len(h) < 26 or h[:2] != b"BM":
+        return None
+    size = _u32le(h, 2)
+    if not (26 <= size <= w.limit):
+        return None
+    dib_size = _u32le(h, 14)
+    if dib_size not in (12, 40, 52, 56, 64, 108, 124):
+        return None
+    return CarveResult(size, ".bmp", "IMAGE", "BMP", True, f"BMP header verified, size={size}B")
+
+
+def _carve_riff(w: StreamWindow) -> Optional[CarveResult]:
+    h = w.read(0, 12)
+    if len(h) < 12 or h[:4] != b"RIFF":
+        return None
+    form = h[8:12]
+    size = _u32le(h, 4) + 8
+    if size > w.limit or size < 12:
+        return None
+    if form == b"WAVE":
+        return CarveResult(size, ".wav", "MEDIA", "WAV", True, f"RIFF/WAVE stream verified, {size}B")
+    if form == b"WEBP":
+        return CarveResult(size, ".webp", "IMAGE", "WEBP", True, f"RIFF/WEBP image verified, {size}B")
+    if form == b"AVI ":
+        return CarveResult(size, ".avi", "MEDIA", "AVI", True, f"RIFF/AVI video verified, {size}B")
+    return None
+
+
+def _carve_sqlite(w: StreamWindow) -> Optional[CarveResult]:
+    h = w.read(0, 100)
+    if len(h) < 100 or not h.startswith(b"SQLite format 3\x00"):
+        return None
+    page_size = _u16be(h, 16)
+    if page_size == 1:
+        page_size = 65536
+    if page_size < 512 or (page_size & (page_size - 1)):
+        return None
+    page_count = _u32be(h, 28)
+    if page_count == 0:
+        return None
+    size = page_size * page_count
+    if size > w.limit:
+        return None
+    return CarveResult(size, ".sqlite", "DATABASE", "SQLITE", True, f"SQLite DB verified: {page_count} pages")
+
+
+def _carve_7z(w: StreamWindow) -> Optional[CarveResult]:
+    h = w.read(0, 32)
+    if len(h) < 32 or not h.startswith(b"7z\xbc\xaf\x27\x1c"):
+        return None
+    nh_off, nh_size = _u64le(h, 12), _u64le(h, 20)
+    end = 32 + nh_off + nh_size
+    if nh_size == 0 or end > w.limit:
+        return None
+    return CarveResult(end, ".7z", "ARCHIVE", "7Z", True, "7-Zip header verified")
+
+
+def _carve_rtf(w: StreamWindow) -> Optional[CarveResult]:
+    if w.read(0, 5) != b"{\\rtf":
+        return None
+    pos = 0
+    depth = 0
+    while pos < w.limit:
+        buf = w.read(pos, 64 * KB)
+        if not buf:
+            break
+        i = 0
+        while i < len(buf):
+            c = buf[i]
+            if c == 0x5C:  # Backslash
+                tail = buf[i : i + 24]
+                if tail[1:4] == b"bin" and len(tail) > 4:
+                    j = 4
+                    digits = b""
+                    while j < len(tail) and tail[j : j + 1].isdigit():
+                        digits += tail[j : j + 1]
+                        j += 1
+                    if digits:
+                        skip = int(digits)
+                        if tail[j : j + 1] == b" ":
+                            j += 1
+                        pos += i + j + skip
+                        break
+                i += 2
+                continue
+            if c == 0x7B:  # {
+                depth += 1
+            elif c == 0x7D:  # }
+                depth -= 1
+                if depth == 0:
+                    return CarveResult(pos + i + 1, ".rtf", "DOCUMENT", "RTF", True, "Balanced RTF groups")
+            i += 1
+        else:
+            pos += len(buf)
+    return None
+
+
+class RawHandleStream:
+    """Read wrapper over Windows CreateFileW raw device handle."""
+
+    def __init__(self, handle: int):
+        self.handle = handle
+        self.pos = 0
+
+    def read(self, size: int) -> bytes:
+        if not self.handle:
+            return b""
+        buf = ctypes.create_string_buffer(size)
+        br = ctypes.c_ulong()
+        ok = ctypes.windll.kernel32.ReadFile(
+            ctypes.c_void_p(self.handle), buf, size, ctypes.byref(br), None
+        )
+        if ok and br.value > 0:
+            self.pos += br.value
+            return buf.raw[: br.value]
+        return b""
+
+    def pread(self, offset: int, length: int) -> bytes:
+        aligned_start = (offset // 512) * 512
+        offset_in_sector = offset - aligned_start
+        end_offset = offset + length
+        aligned_end = ((end_offset + 511) // 512) * 512
+        aligned_length = aligned_end - aligned_start
+
+        ctypes.windll.kernel32.SetFilePointerEx(
+            ctypes.c_void_p(self.handle), ctypes.c_int64(aligned_start), None, 0
+        )
+        buf = ctypes.create_string_buffer(aligned_length)
+        br = ctypes.c_ulong()
+        ok = ctypes.windll.kernel32.ReadFile(
+            ctypes.c_void_p(self.handle), buf, aligned_length, ctypes.byref(br), None
+        )
+        if not ok or br.value == 0:
+            return b""
+        raw = buf.raw[: br.value]
+        return raw[offset_in_sector : offset_in_sector + length]
+
+    def close(self):
+        if self.handle:
+            try:
+                ctypes.windll.kernel32.CloseHandle(ctypes.c_void_p(self.handle))
+            except Exception:
+                pass
+            self.handle = None
+
+
+class ScalpelCarver:
+    """
+    High-precision signature and structure-based file carver.
+    Combines Scalpel signature scanning with BreadCrumb, TRACE-Forensic-Toolkit,
+    and searchlight structural verification routines.
+    """
+
+    def __init__(self, chunk_size: int = 4 * MB, overlap_size: int = 128 * KB):
         self.chunk_size = chunk_size
         self.overlap_size = overlap_size
         self.signatures: List[CarveSignature] = []
@@ -58,197 +598,66 @@ class ScalpelCarver:
         self._load_signatures()
 
     def _load_signatures(self):
-        """Load comprehensive forensic signatures matching Scalpel configuration."""
-        # Images
+        """Load comprehensive forensic signatures."""
+        self.signatures.append(CarveSignature(
+            file_type="PDF", extension=".pdf", category="DOCUMENT",
+            header=b"%PDF-", footer=b"%%EOF",
+            min_size=256, max_size=80 * MB,
+            reverse_search=True, description="Adobe Portable Document Format"
+        ))
         self.signatures.append(CarveSignature(
             file_type="JPEG", extension=".jpg", category="IMAGE",
             header=b"\xFF\xD8\xFF", footer=b"\xFF\xD9",
-            min_size=100, max_size=30 * 1024 * 1024,
+            min_size=100, max_size=40 * MB,
             description="JPEG Image with EXIF/JFIF marker"
         ))
         self.signatures.append(CarveSignature(
             file_type="PNG", extension=".png", category="IMAGE",
             header=b"\x89PNG\r\n\x1a\n", footer=b"IEND\xaeB`\x82",
-            min_size=64, max_size=30 * 1024 * 1024,
+            min_size=64, max_size=40 * MB,
             description="Portable Network Graphics"
-        ))
-        self.signatures.append(CarveSignature(
-            file_type="GIF", extension=".gif", category="IMAGE",
-            header=b"GIF89a", footer=b"\x00\x3B",
-            min_size=64, max_size=20 * 1024 * 1024,
-            description="Graphics Interchange Format (GIF89a)"
-        ))
-        self.signatures.append(CarveSignature(
-            file_type="GIF", extension=".gif", category="IMAGE",
-            header=b"GIF87a", footer=b"\x00\x3B",
-            min_size=64, max_size=20 * 1024 * 1024,
-            description="Graphics Interchange Format (GIF87a)"
-        ))
-        self.signatures.append(CarveSignature(
-            file_type="BMP", extension=".bmp", category="IMAGE",
-            header=b"BM", footer=None,
-            min_size=128, max_size=25 * 1024 * 1024,
-            description="Windows Bitmap Image"
-        ))
-
-        # Documents
-        self.signatures.append(CarveSignature(
-            file_type="PDF", extension=".pdf", category="DOCUMENT",
-            header=b"%PDF-", footer=b"%%EOF",
-            min_size=256, max_size=60 * 1024 * 1024,
-            reverse_search=True,
-            description="Adobe Portable Document Format"
         ))
         self.signatures.append(CarveSignature(
             file_type="ZIP/OFFICE", extension=".zip", category="ARCHIVE",
             header=b"PK\x03\x04", footer=b"PK\x05\x06",
-            min_size=128, max_size=100 * 1024 * 1024,
-            reverse_search=True,
-            description="ZIP Archive or Office OpenXML (DOCX, XLSX, PPTX)"
+            min_size=128, max_size=120 * MB,
+            reverse_search=True, description="ZIP Archive or Office OpenXML (DOCX, XLSX, PPTX)"
         ))
         self.signatures.append(CarveSignature(
-            file_type="RAR", extension=".rar", category="ARCHIVE",
-            header=b"Rar!\x1a\x07", footer=None,
-            min_size=128, max_size=100 * 1024 * 1024,
-            description="WinRAR Compressed Archive"
+            file_type="GIF", extension=".gif", category="IMAGE",
+            header=b"GIF89a", footer=b"\x00\x3B",
+            min_size=64, max_size=25 * MB, description="GIF89a"
+        ))
+        self.signatures.append(CarveSignature(
+            file_type="GIF", extension=".gif", category="IMAGE",
+            header=b"GIF87a", footer=b"\x00\x3B",
+            min_size=64, max_size=25 * MB, description="GIF87a"
+        ))
+        self.signatures.append(CarveSignature(
+            file_type="BMP", extension=".bmp", category="IMAGE",
+            header=b"BM", footer=None,
+            min_size=128, max_size=35 * MB, description="Windows Bitmap Image"
+        ))
+        self.signatures.append(CarveSignature(
+            file_type="RIFF", extension=".wav", category="MEDIA",
+            header=b"RIFF", footer=None,
+            min_size=128, max_size=80 * MB, description="RIFF Container (WAV/WEBP/AVI)"
+        ))
+        self.signatures.append(CarveSignature(
+            file_type="SQLITE", extension=".sqlite", category="DATABASE",
+            header=b"SQLite format 3\x00", footer=None,
+            min_size=512, max_size=100 * MB, description="SQLite Database"
         ))
         self.signatures.append(CarveSignature(
             file_type="7Z", extension=".7z", category="ARCHIVE",
             header=b"7z\xbc\xaf\x27\x1c", footer=None,
-            min_size=128, max_size=100 * 1024 * 1024,
-            description="7-Zip Compressed Archive"
-        ))
-
-        # Media
-        self.signatures.append(CarveSignature(
-            file_type="MP4", extension=".mp4", category="MEDIA",
-            header=b"\x00\x00\x00\x18ftypmp42", footer=None,
-            min_size=1024, max_size=100 * 1024 * 1024,
-            description="MPEG-4 Video File"
+            min_size=128, max_size=120 * MB, description="7-Zip Archive"
         ))
         self.signatures.append(CarveSignature(
-            file_type="MP4", extension=".mp4", category="MEDIA",
-            header=b"\x00\x00\x00\x20ftypisom", footer=None,
-            min_size=1024, max_size=100 * 1024 * 1024,
-            description="ISO Base Media File / MP4"
+            file_type="RTF", extension=".rtf", category="DOCUMENT",
+            header=b"{\\rtf", footer=None,
+            min_size=64, max_size=50 * MB, description="Rich Text Format"
         ))
-        self.signatures.append(CarveSignature(
-            file_type="MP3", extension=".mp3", category="MEDIA",
-            header=b"ID3", footer=None,
-            min_size=512, max_size=50 * 1024 * 1024,
-            description="MPEG Audio Layer III (ID3 Tagged)"
-        ))
-        self.signatures.append(CarveSignature(
-            file_type="WAV", extension=".wav", category="MEDIA",
-            header=b"RIFF", footer=None,
-            min_size=1024, max_size=100 * 1024 * 1024,
-            description="Waveform Audio File Format"
-        ))
-
-        # Forensic Artifacts
-        self.signatures.append(CarveSignature(
-            file_type="SQLITE", extension=".sqlite", category="DATABASE",
-            header=b"SQLite format 3\x00", footer=None,
-            min_size=512, max_size=100 * 1024 * 1024,
-            description="SQLite 3 Database File"
-        ))
-        self.signatures.append(CarveSignature(
-            file_type="EVTX", extension=".evtx", category="FORENSIC",
-            header=b"ElfFile\x00", footer=None,
-            min_size=4096, max_size=60 * 1024 * 1024,
-            description="Windows Event Log (EVTX)"
-        ))
-        self.signatures.append(CarveSignature(
-            file_type="REGISTRY", extension=".dat", category="FORENSIC",
-            header=b"regf", footer=None,
-            min_size=4096, max_size=50 * 1024 * 1024,
-            description="Windows Registry Hive (regf)"
-        ))
-
-        # Dynamically load from scalpel.conf if present
-        conf_candidates = [
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scalpel.conf"),
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "reference_repos", "scalpel", "scalpel.conf"),
-        ]
-        for conf_path in conf_candidates:
-            if os.path.isfile(conf_path):
-                self._load_from_conf_file(conf_path)
-                break
-
-    def _load_from_conf_file(self, conf_path: str):
-        """Parse active rules from a Scalpel configuration file."""
-        try:
-            with open(conf_path, "r", encoding="utf-8", errors="ignore") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#"):
-                        continue
-                    parts = line.split()
-                    if len(parts) >= 4:
-                        ext = parts[0].lower()
-                        if not ext.startswith("."):
-                            ext = f".{ext}"
-                        case_sens = parts[1].lower() == "y"
-                        size_spec = parts[2]
-                        header_raw = parts[3]
-                        footer_raw = parts[4] if len(parts) >= 5 and parts[4] != "REVERSE" else None
-                        reverse = "REVERSE" in parts
-
-                        min_sz, max_sz = 64, 50 * 1024 * 1024
-                        if ":" in size_spec:
-                            s_parts = size_spec.split(":")
-                            try:
-                                min_sz = int(s_parts[0])
-                                max_sz = int(s_parts[1])
-                            except Exception:
-                                pass
-                        else:
-                            try:
-                                max_sz = int(size_spec)
-                            except Exception:
-                                pass
-
-                        header_bytes = self._parse_escape_seq(header_raw)
-                        footer_bytes = self._parse_escape_seq(footer_raw) if footer_raw else None
-
-                        if header_bytes and not any(s.extension == ext for s in self.signatures):
-                            self.signatures.append(CarveSignature(
-                                file_type=ext.replace(".", "").upper(),
-                                extension=ext,
-                                category="IMAGE" if ext in (".jpg", ".png", ".gif", ".bmp") else "DOCUMENT",
-                                header=header_bytes,
-                                footer=footer_bytes,
-                                min_size=min_sz,
-                                max_size=max_sz,
-                                reverse_search=reverse,
-                                description=f"Scalpel rule: {ext}"
-                            ))
-        except Exception:
-            pass
-
-    def _parse_escape_seq(self, s: str) -> Optional[bytes]:
-        """Convert Scalpel slash-hex escaped string into bytes."""
-        if not s:
-            return None
-        try:
-            res = bytearray()
-            i = 0
-            while i < len(s):
-                if s[i:i+2] == "\\x" and i + 4 <= len(s):
-                    res.append(int(s[i+2:i+4], 16))
-                    i += 4
-                elif s[i:i+2] == "\\s":
-                    res.append(0x20)
-                    i += 2
-                elif s[i] == "\\" and i + 1 < len(s):
-                    res.append(ord(s[i+1]))
-                    i += 2
-                else:
-                    res.append(ord(s[i]))
-                    i += 1
-            return bytes(res)
-        except Exception:
-            return None
 
     def cancel(self):
         self.is_cancelled = True
@@ -261,64 +670,59 @@ class ScalpelCarver:
         file_found_callback: Optional[Callable[[CarvedFile], None]] = None,
         max_files: int = 500,
     ) -> List[CarvedFile]:
-        """
-        Carve files from a disk image, volume, or raw drive stream.
-        """
+        """Carve files from a disk image, volume, or raw drive stream."""
         self.is_running = True
         self.is_cancelled = False
         carved_results: List[CarvedFile] = []
+        carved_offsets = set()
         start_time = time.time()
 
         if total_bytes_to_scan <= 0:
             if os.path.isfile(source_path):
                 total_bytes_to_scan = os.path.getsize(source_path)
             else:
-                total_bytes_to_scan = 100 * 1024 * 1024  # Default 100MB scan window for raw volume
+                m = re.search(r"([A-Za-z]):", source_path)
+                if m:
+                    try:
+                        tot_b = ctypes.c_ulonglong()
+                        free_b = ctypes.c_ulonglong()
+                        ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                            f"{m.group(1)}:\\", None, ctypes.byref(tot_b), ctypes.byref(free_b)
+                        )
+                        if tot_b.value > 0:
+                            total_bytes_to_scan = tot_b.value
+                    except Exception:
+                        pass
+                if total_bytes_to_scan <= 0:
+                    total_bytes_to_scan = 1024 * MB
 
         bytes_scanned = 0
         overlap_buffer = b""
         stream_offset = 0
 
-        # Try opening target
-        f = None
+        # Open target reader
+        reader: Any = None
         is_simulated = False
         try:
             if os.path.isfile(source_path):
-                f = open(source_path, "rb")
+                from engines.tsk_filesystem import ForensicDeviceReader
+                reader = ForensicDeviceReader(source_path)
             else:
-                # Raw handle or device
-                import ctypes
+                dev_path = source_path
+                m = re.search(r"([A-Za-z]):", source_path)
+                if m and not dev_path.startswith("\\\\.\\"):
+                    dev_path = f"\\\\.\\{m.group(1).upper()}:"
                 ctypes.windll.kernel32.CreateFileW.restype = ctypes.c_void_p
-                target_dev = source_path
                 handle = ctypes.windll.kernel32.CreateFileW(
-                    target_dev, 0x80000000, 3, None, 3, 0, None
+                    dev_path, 0x80000000, 3, None, 3, 0, None
                 )
-                if not handle or handle == ctypes.c_void_p(-1).value:
-                    # Attempt fallback from PhysicalDrive to volume letter (e.g. \\.\F:)
-                    vol_letter = None
-                    m = re.search(r"([A-Za-z]):", source_path)
-                    if m:
-                        vol_letter = m.group(1).upper()
-                    elif "PHYSICALDRIVE" in source_path.upper():
-                        try:
-                            from engines.tsk_filesystem import _resolve_target_to_volume
-                            vol_letter = _resolve_target_to_volume(source_path)
-                        except Exception:
-                            pass
-                    if vol_letter:
-                        target_dev = f"\\\\.\\{vol_letter}:"
-                        handle = ctypes.windll.kernel32.CreateFileW(
-                            target_dev, 0x80000000, 3, None, 3, 0, None
-                        )
-
                 if handle and handle != ctypes.c_void_p(-1).value:
-                    # Wrapped raw reader
-                    f = RawHandleStream(handle)
+                    reader = RawHandleStream(handle)
                 else:
                     if "DEMO" in source_path.upper() or "SIMULAT" in source_path.upper():
                         is_simulated = True
                     else:
-                        raise PermissionError(f"Cannot open raw evidence device '{source_path}'. Run ZeroTrace as Administrator or select the logical drive directly.")
+                        raise PermissionError(f"Cannot open raw evidence device '{source_path}'. Run ZeroTrace as Administrator or select disk image.")
         except PermissionError:
             raise
         except Exception:
@@ -333,12 +737,11 @@ class ScalpelCarver:
                     break
 
                 read_size = min(self.chunk_size, total_bytes_to_scan - bytes_scanned)
-                if not is_simulated and f:
-                    chunk = f.read(read_size)
+                if not is_simulated and reader:
+                    chunk = reader.read(read_size)
                     if not chunk:
                         break
                 else:
-                    # Generates simulated raw forensic disk chunk with embedded artifacts
                     chunk = self._generate_simulated_chunk(read_size, stream_offset)
                     time.sleep(0.04)
 
@@ -360,50 +763,93 @@ class ScalpelCarver:
 
                         abs_offset = chunk_base_offset + hdr_idx
 
-                        # Search for footer or calculate size
+                        if abs_offset in carved_offsets:
+                            start_pos = hdr_idx + sig_len
+                            continue
+
+                        # Execute precision carving handler if available
+                        carve_res = None
+                        if reader and not is_simulated:
+                            w = StreamWindow(reader, abs_offset, sig.max_size)
+                            if sig.header == b"%PDF-":
+                                carve_res = _carve_pdf(w)
+                            elif sig.header == b"\xFF\xD8\xFF":
+                                carve_res = _carve_jpeg(w)
+                            elif sig.header == b"\x89PNG\r\n\x1a\n":
+                                carve_res = _carve_png(w)
+                            elif sig.header == b"PK\x03\x04":
+                                carve_res = _carve_zip(w)
+                            elif sig.header in (b"GIF89a", b"GIF87a"):
+                                carve_res = _carve_gif(w)
+                            elif sig.header == b"BM":
+                                carve_res = _carve_bmp(w)
+                            elif sig.header == b"RIFF":
+                                carve_res = _carve_riff(w)
+                            elif sig.header == b"SQLite format 3\x00":
+                                carve_res = _carve_sqlite(w)
+                            elif sig.header == b"7z\xbc\xaf\x27\x1c":
+                                carve_res = _carve_7z(w)
+                            elif sig.header == b"{\\rtf":
+                                carve_res = _carve_rtf(w)
+
                         candidate_data = None
-                        carve_size = 0
+                        candidate_size = 0
                         footer_found = False
+                        f_ext = sig.extension
+                        f_cat = sig.category
+                        f_type = sig.file_type
 
-                        if sig.footer:
-                            # Forward or reverse search
-                            max_search_len = min(sig.max_size, len(combined_chunk) - hdr_idx)
-                            payload_window = combined_chunk[hdr_idx : hdr_idx + max_search_len]
+                        has_handler = sig.header in (
+                            b"%PDF-", b"\xFF\xD8\xFF", b"\x89PNG\r\n\x1a\n", b"PK\x03\x04",
+                            b"GIF89a", b"GIF87a", b"BM", b"RIFF", b"SQLite format 3\x00",
+                            b"7z\xbc\xaf\x27\x1c", b"{\\rtf"
+                        )
 
-                            if sig.reverse_search:
-                                ftr_idx = payload_window.rfind(sig.footer)
+                        if carve_res and carve_res.size >= sig.min_size:
+                            candidate_size = carve_res.size
+                            f_ext = carve_res.ext
+                            f_cat = carve_res.category
+                            f_type = carve_res.file_type
+                            footer_found = carve_res.validated
+                            # Read candidate payload
+                            if reader and not is_simulated:
+                                candidate_data = reader.pread(abs_offset, candidate_size)
                             else:
-                                ftr_idx = payload_window.find(sig.footer)
-
-                            if ftr_idx != -1:
-                                carve_size = ftr_idx + len(sig.footer)
-                                candidate_data = payload_window[:carve_size]
-                                footer_found = True
-                            elif len(payload_window) >= sig.min_size:
-                                # Truncated candidate
-                                carve_size = len(payload_window)
-                                candidate_data = payload_window
-                        else:
-                            # Signature has no footer; estimate plausible size
-                            carve_size = min(sig.max_size, max(sig.min_size, 64 * 1024))
-                            candidate_data = combined_chunk[hdr_idx : hdr_idx + carve_size]
+                                candidate_data = combined_chunk[hdr_idx : hdr_idx + candidate_size]
+                        elif not has_handler:
+                            # Standard fallback footer extraction for generic signatures without dedicated handlers
+                            if sig.footer:
+                                max_search_len = min(sig.max_size, len(combined_chunk) - hdr_idx)
+                                payload_window = combined_chunk[hdr_idx : hdr_idx + max_search_len]
+                                ftr_idx = payload_window.rfind(sig.footer) if sig.reverse_search else payload_window.find(sig.footer)
+                                if ftr_idx != -1:
+                                    candidate_size = ftr_idx + len(sig.footer)
+                                    candidate_data = payload_window[:candidate_size]
+                                    footer_found = True
+                            elif len(combined_chunk) - hdr_idx >= sig.min_size:
+                                candidate_size = min(sig.max_size, 64 * KB)
+                                candidate_data = combined_chunk[hdr_idx : hdr_idx + candidate_size]
 
                         if candidate_data and len(candidate_data) >= sig.min_size:
-                            # Validate file isn't duplicate offset
-                            if not any(c.offset == abs_offset for c in carved_results):
-                                c_file = self._build_carved_file(
-                                    sig=sig,
-                                    offset=abs_offset,
-                                    data=candidate_data,
-                                    footer_found=footer_found,
-                                    source_target=source_path,
-                                    carve_id=len(carved_results) + 1,
-                                )
-                                carved_results.append(c_file)
-                                if file_found_callback:
-                                    file_found_callback(c_file)
+                            carved_offsets.add(abs_offset)
+                            c_file = self._build_carved_file(
+                                file_type=f_type,
+                                extension=f_ext,
+                                category=f_cat,
+                                offset=abs_offset,
+                                data=candidate_data,
+                                footer_found=footer_found,
+                                source_target=source_path,
+                                carve_id=len(carved_results) + 1,
+                                diagnostic=carve_res.diagnostic if carve_res else "",
+                            )
+                            carved_results.append(c_file)
+                            if file_found_callback:
+                                file_found_callback(c_file)
 
-                        start_pos = hdr_idx + sig_len
+                            start_pos = hdr_idx + max(sig_len, min(candidate_size, 256))
+                        else:
+                            start_pos = hdr_idx + sig_len
 
                 bytes_scanned += len(chunk)
                 stream_offset += len(chunk)
@@ -412,7 +858,7 @@ class ScalpelCarver:
                 # Telemetry
                 now = time.time()
                 elapsed = max(0.001, now - start_time)
-                speed_mb_s = (bytes_scanned / (1024 * 1024)) / elapsed
+                speed_mb_s = (bytes_scanned / MB) / elapsed
 
                 if progress_callback:
                     progress_callback({
@@ -426,9 +872,9 @@ class ScalpelCarver:
                     })
 
         finally:
-            if f:
+            if reader:
                 try:
-                    f.close()
+                    reader.close()
                 except Exception:
                     pass
 
@@ -436,112 +882,68 @@ class ScalpelCarver:
 
     def _build_carved_file(
         self,
-        sig: CarveSignature,
+        file_type: str,
+        extension: str,
+        category: str,
         offset: int,
         data: bytes,
         footer_found: bool,
         source_target: str,
         carve_id: int,
+        diagnostic: str = "",
     ) -> CarvedFile:
         """Create structured CarvedFile object with hash, confidence, and preview."""
-        c_hash = sha256_bytes(data)
-        preview = data[:32].hex(" ")
+        val = RecoveryStructureValidator.validate_and_score(file_type, data, footer_matched=footer_found)
+        h = sha256_bytes(data)
+        md5_h = hashlib.md5(data).hexdigest()
 
-        # Initial confidence heuristic (further refined by structure validator)
-        confidence = 0.50
-        if footer_found:
-            confidence += 0.35
-        if len(data) > sig.min_size * 2:
-            confidence += 0.10
+        # Generate snippet preview
+        snippet = ""
+        if "PDF" in file_type:
+            snippet = f"PDF Header: {data[:16].decode('latin1', errors='ignore')}"
+        elif "IMAGE" in category:
+            snippet = f"{file_type} Binary stream [{len(data)} bytes]"
+        else:
+            snippet = f"{file_type} Artifact [{len(data)} bytes]"
+
+        metadata = {
+            "footer_matched": footer_found,
+            "validation": val,
+            "md5": md5_h,
+            "diagnostic": diagnostic or (val["diagnostics"][0] if val.get("diagnostics") else ""),
+            "carve_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        }
 
         return CarvedFile(
             file_id=f"CARVE-{carve_id:04d}",
-            file_type=sig.file_type,
-            extension=sig.extension,
-            category=sig.category,
+            file_type=file_type,
+            extension=extension,
+            category=category,
             offset=offset,
             size=len(data),
-            sha256=c_hash,
-            confidence=min(1.0, round(confidence, 2)),
+            sha256=h,
+            confidence=val["confidence"],
             data=data,
-            preview_snippet=preview,
+            preview_snippet=snippet,
+            metadata=metadata,
             source_target=source_target,
-            metadata={"footer_matched": footer_found, "description": sig.description},
         )
 
-    def _generate_simulated_chunk(self, size: int, current_offset: int) -> bytes:
-        """
-        Creates authentic forensic raw byte blocks containing deleted artifacts
-        for safe live demonstrations on any system without requiring raw unallocated disk images.
-        """
-        buf = bytearray(b"\x00" * size)
+    def _generate_simulated_chunk(self, size: int, stream_offset: int) -> bytes:
+        """Generate realistic forensic disk image chunk with embedded artifacts."""
+        buf = bytearray(size)
+        if stream_offset == 0:
+            # Embed a sample valid PDF
+            from core.payload_generator import generate_valid_pdf
+            pdf_bytes = generate_valid_pdf("CARVE-0001", "CASE-ZT-2026-001", "Forensic Carving Demonstration PDF")
+            if len(buf) >= 1024 + len(pdf_bytes):
+                buf[1024 : 1024 + len(pdf_bytes)] = pdf_bytes
 
-        # Inject sample JPEG
-        if current_offset == 0:
-            try:
-                from core.payload_generator import generate_valid_jpeg
-                jpeg_sample = generate_valid_jpeg(
-                    file_id="CARVE-0001",
-                    details="Restored from physical sector 0x400 (NTFS unallocated cluster run)"
-                )
-            except Exception:
-                jpeg_sample = b"\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00" + (b"\x12\x34\x56" * 500) + b"\xFF\xD9"
-            if len(jpeg_sample) < size - 2048:
-                buf[1024 : 1024 + len(jpeg_sample)] = jpeg_sample
-
-        # Inject sample PDF
-        if current_offset < 2 * 1024 * 1024:
-            try:
-                from core.payload_generator import generate_valid_pdf
-                pdf_sample = generate_valid_pdf(
-                    file_id="CARVE-0002",
-                    details="Executive Briefing & Forensic Telemetry Document"
-                )
-            except Exception:
-                pdf_sample = b"%PDF-1.4\n1 0 obj\n<< /Title (ZeroTrace Forensic Audit Report) >>\nendobj\nxref\n0 2\ntrailer\n<< /Size 2 >>\nstartxref\n120\n%%EOF"
-            if len(pdf_sample) < size - 65536:
-                buf[65536 : 65536 + len(pdf_sample)] = pdf_sample
-
-        # Inject sample ZIP / DOCX
-        if current_offset >= 2 * 1024 * 1024:
-            try:
-                from core.payload_generator import generate_valid_docx
-                zip_sample = generate_valid_docx(
-                    file_id="CARVE-0003",
-                    details="Recovered Operational Debrief & System Architecture"
-                )
-            except Exception:
-                zip_sample = b"PK\x03\x04\x14\x00\x00\x00\x08\x00" + b"[Content_Types].xml" + (b"\xAA\xBB\xCC" * 100) + b"PK\x05\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-            if len(zip_sample) < size - 32768:
-                buf[32768 : 32768 + len(zip_sample)] = zip_sample
+            # Embed a sample valid PNG
+            from core.payload_generator import generate_valid_png
+            png_bytes = generate_valid_png(file_id="CARVE-0002", case_id="CASE-ZT-2026-001", details="Forensic Demonstration PNG Artifact")
+            offset_png = 1024 + len(pdf_bytes) + 2048
+            if len(buf) >= offset_png + len(png_bytes):
+                buf[offset_png : offset_png + len(png_bytes)] = png_bytes
 
         return bytes(buf)
-
-
-class RawHandleStream:
-    """Helper wrapper for Win32 device handle reading with sector alignment."""
-
-    def __init__(self, handle, sector_size: int = 512):
-        self.handle = handle
-        self.sector_size = sector_size
-
-    def read(self, size: int) -> bytes:
-        import ctypes
-        if size <= 0:
-            return b""
-        aligned_size = ((size + self.sector_size - 1) // self.sector_size) * self.sector_size
-        buf = ctypes.create_string_buffer(aligned_size)
-        bytes_read = ctypes.c_ulong()
-        ok = ctypes.windll.kernel32.ReadFile(
-            ctypes.c_void_p(self.handle), buf, aligned_size, ctypes.byref(bytes_read), None
-        )
-        if not ok or bytes_read.value == 0:
-            return b""
-        return buf.raw[:min(size, bytes_read.value)]
-
-    def close(self):
-        import ctypes
-        try:
-            ctypes.windll.kernel32.CloseHandle(ctypes.c_void_p(self.handle))
-        except Exception:
-            pass

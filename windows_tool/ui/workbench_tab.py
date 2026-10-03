@@ -6,14 +6,13 @@ structural diagnostics, and selective or batch evidence extraction.
 """
 
 import os
-import time
 from tkinter import messagebox, filedialog
 import customtkinter as ctk
 
 from ui.theme import (
     COLOR_CARD, COLOR_BORDER, COLOR_ACCENT_CYAN,
-    COLOR_ACCENT_GREEN, COLOR_ACCENT_RED, COLOR_ACCENT_AMBER,
-    COLOR_ACCENT_BLUE, COLOR_TEXT_PRIMARY, COLOR_TEXT_SECONDARY, COLOR_TEXT_MUTED
+    COLOR_ACCENT_GREEN, COLOR_ACCENT_BLUE,
+    COLOR_TEXT_PRIMARY, COLOR_TEXT_SECONDARY, COLOR_TEXT_MUTED
 )
 from disk_manager import format_size
 from certificate import generate_recovery_report
@@ -207,16 +206,36 @@ class WorkbenchTab(ctk.CTkFrame):
         fid = str(getattr(f, "file_id", "ARTIFACT") if not isinstance(f, dict) else f.get("file_id", "ARTIFACT"))
         case_id = getattr(self.case_manager, "active_case_id", "CASE-ZT-2026-001") if hasattr(self, "case_manager") else "CASE-ZT-2026-001"
 
+        def is_openable_payload(raw_bytes: bytes, file_ext: str) -> bool:
+            if not raw_bytes or len(raw_bytes) < 16:
+                return False
+            if b"[ZoneTransfer]" in raw_bytes or b"ZoneId=" in raw_bytes:
+                return False
+            if file_ext == ".pdf":
+                if not raw_bytes.startswith(b"%PDF-"):
+                    return False
+                try:
+                    # pyrefly: ignore [missing-import]
+                    import pypdf, io
+                    r = pypdf.PdfReader(io.BytesIO(raw_bytes), strict=False)
+                    return len(r.pages) > 0
+                except Exception:
+                    return b"%%EOF" in raw_bytes[-1024:] and (b"trailer" in raw_bytes or b"/Root" in raw_bytes)
+            return True
+
         # 1. Direct data attribute or dict key (real bytes from disk)
         data = getattr(f, "data", None) if not isinstance(f, dict) else f.get("data")
         if isinstance(data, (bytes, bytearray)) and len(data) > 0:
-            return bytes(data)
+            if is_openable_payload(bytes(data), ext):
+                return bytes(data)
 
         # 2. Check metadata for data or r_path (Recycle Bin / filesystem record)
         metadata = getattr(f, "metadata", {}) if not isinstance(f, dict) else f.get("metadata", {})
         if isinstance(metadata, dict):
-            if metadata.get("data"):
-                return bytes(metadata["data"])
+            m_data = metadata.get("data")
+            if isinstance(m_data, (bytes, bytearray)) and len(m_data) > 0:
+                if is_openable_payload(bytes(m_data), ext):
+                    return bytes(m_data)
             r_path = metadata.get("r_path")
             if r_path and os.path.exists(r_path):
                 try:

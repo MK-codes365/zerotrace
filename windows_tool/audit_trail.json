@@ -309,5 +309,380 @@
     "prev_hash": "b72046b322dec96f7640bdcaeaed04536518b007f06a94e1b4d460e03dafb9e6",
     "event_hash": "ce6efd28e1046975d1aa6e71f11b3ebce3f53aa618778b6fc58e04abdea84bc0",
     "signature": "1b7d1985791d874ee320d24131d050f786a40fd59ab56d15f1791f7e4bab2b6c"
+  },
+  {
+    "index": 19,
+    "timestamp": "2026-10-03T16:37:40.430690+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "SleuthKit Filesystem Undelete (NTFS $MFT / FAT Records)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "ce6efd28e1046975d1aa6e71f11b3ebce3f53aa618778b6fc58e04abdea84bc0",
+    "event_hash": "cc8bdf2090ea90cb48967223eb19d22a078f31128a7ea80795afffd80863e648",
+    "signature": "b14b0354f7a2e4d5eb3a703bbfb1372e29fe41b8bc52e3f1c3a9bf9a2e6935e4"
+  },
+  {
+    "index": 20,
+    "timestamp": "2026-10-03T16:37:46.878803+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Scalpel Deep Signature Carving (Raw Unallocated Space)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "cc8bdf2090ea90cb48967223eb19d22a078f31128a7ea80795afffd80863e648",
+    "event_hash": "11965cc9e49d89bc30c48500f9c2873ded87fa9358effb2bb14acf1ad6202c4f",
+    "signature": "a879c58765975eaf65e4fb84b4ed9028a3be4074480ed4a6d018f6018790cc62"
+  },
+  {
+    "index": 21,
+    "timestamp": "2026-10-03T16:40:05.727471+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Hybrid Consensus Mode (Both Scalpel + SleuthKit)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "11965cc9e49d89bc30c48500f9c2873ded87fa9358effb2bb14acf1ad6202c4f",
+    "event_hash": "f43893c872439876af6e200291145f44bc82d94728df9574ac8f0bda0f4eed6a",
+    "signature": "9247cd1172f5d3a7cd724d4d352cde4c9b91a2970daf624751164f96077d4c27"
+  },
+  {
+    "index": 22,
+    "timestamp": "2026-10-03T16:40:13.182301+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Scalpel Deep Signature Carving (Raw Unallocated Space)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "f43893c872439876af6e200291145f44bc82d94728df9574ac8f0bda0f4eed6a",
+    "event_hash": "aafa6a3ddbe28060dbc74b3503bb6e20e477f2481b3b1251abf2c9125d684a29",
+    "signature": "6b78cbe4651551bd7fdce0824d7dde2dffc1028efd4e2de5d8dd0892f0f19c6a"
+  },
+  {
+    "index": 23,
+    "timestamp": "2026-10-03T16:40:20.494256+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "SleuthKit Filesystem Undelete (NTFS $MFT / FAT Records)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "aafa6a3ddbe28060dbc74b3503bb6e20e477f2481b3b1251abf2c9125d684a29",
+    "event_hash": "540e84d7db76e41df747621e1ebb87f98918c5f93534a3d6ec8190ad9733b6eb",
+    "signature": "3fd71f367ba388de804c53d4acc4bdd8e8fd1a6508adc599860ec4223e537e22"
+  },
+  {
+    "index": 24,
+    "timestamp": "2026-10-03T16:40:25.454969+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Scalpel Deep Signature Carving (Raw Unallocated Space)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "540e84d7db76e41df747621e1ebb87f98918c5f93534a3d6ec8190ad9733b6eb",
+    "event_hash": "70ae26e25ed8d421703222a80f49be5daf7cd96262112f0711970485799cbf60",
+    "signature": "d8d1b1d7ff9b239408917017db60de7a0ff700b4d026836414b56bc1eb3c168b"
+  },
+  {
+    "index": 25,
+    "timestamp": "2026-10-03T16:44:13.230731+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Hybrid Consensus Mode (Both Scalpel + SleuthKit)",
+      "max_scan_bytes": 1073741824
+    },
+    "prev_hash": "70ae26e25ed8d421703222a80f49be5daf7cd96262112f0711970485799cbf60",
+    "event_hash": "18beb314cbf60cab5efd7b21b9db9d50dfa127d10fce07097d1c742f3e572aa9",
+    "signature": "d89684a12c59699d2738bc8a8ee88fd56377e2fc4677e090fd8f896ce633d148"
+  },
+  {
+    "index": 26,
+    "timestamp": "2026-10-03T16:44:39.422204+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "SleuthKit Filesystem Undelete (NTFS $MFT / FAT Records)",
+      "max_scan_bytes": 1073741824
+    },
+    "prev_hash": "18beb314cbf60cab5efd7b21b9db9d50dfa127d10fce07097d1c742f3e572aa9",
+    "event_hash": "8338aeeb2622f7522c87e15251951792161ab1696d43922bb989a4ee7cc16807",
+    "signature": "334eb2b98fae9aa09c2513b206bb4e8ceb20b1e42decb4687fa3b82f96048595"
+  },
+  {
+    "index": 27,
+    "timestamp": "2026-10-03T16:44:45.727046+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Hybrid Consensus Mode (Both Scalpel + SleuthKit)",
+      "max_scan_bytes": 1073741824
+    },
+    "prev_hash": "8338aeeb2622f7522c87e15251951792161ab1696d43922bb989a4ee7cc16807",
+    "event_hash": "67de3a46198457b684ed1c1986e03296c7e3ea2e44a2364246975885b84958a7",
+    "signature": "634a70bc0e0aabf072fd129b94b9097d9e9c281f091416b16278108a1ba4d44a"
+  },
+  {
+    "index": 28,
+    "timestamp": "2026-10-03T16:45:16.174671+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Hybrid Consensus Mode (Both Scalpel + SleuthKit)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "67de3a46198457b684ed1c1986e03296c7e3ea2e44a2364246975885b84958a7",
+    "event_hash": "a6fca872e06aee83727cf20af2026c0c31940bdaf4a7e7aa5113c531a03bab1e",
+    "signature": "c320e5052aa042570270962a0d0c05fa9868cbdb8f69f5af2f81c83aff73022a"
+  },
+  {
+    "index": 29,
+    "timestamp": "2026-10-03T16:55:19.967004+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "SleuthKit Filesystem Undelete (NTFS $MFT / FAT Records)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "a6fca872e06aee83727cf20af2026c0c31940bdaf4a7e7aa5113c531a03bab1e",
+    "event_hash": "f5bf92618282677c14bff40f0b5341ab44593e1b4a7af7e7fda16baa085000de",
+    "signature": "3ba3b5e56ebaf19f0873683a3bd27a7fb735d6ff914565a0a4a4e208f41abed3"
+  },
+  {
+    "index": 30,
+    "timestamp": "2026-10-03T16:55:43.875170+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "EVIDENCE_FILE_EXPORTED",
+    "target": "G:/HSS PPT.pdf",
+    "details": {
+      "file_id": "NTFS-0001",
+      "sha256": "02c047015387b96d8ca46e7525e5a01d1ce4dfd82af0e8f656b250ae3c9732cf"
+    },
+    "prev_hash": "f5bf92618282677c14bff40f0b5341ab44593e1b4a7af7e7fda16baa085000de",
+    "event_hash": "690390c4222e740544718f522b192ed1b423661eed6c1f827749870b1f3d10a9",
+    "signature": "68d842a17333d886648cc75737a7a0ec2f05b4d23da7b7863244be418494e6bd"
+  },
+  {
+    "index": 31,
+    "timestamp": "2026-10-03T16:55:49.827654+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "EVIDENCE_FILE_EXPORTED",
+    "target": "G:/HSS PPT Final.pdf",
+    "details": {
+      "file_id": "NTFS-0002",
+      "sha256": "02c047015387b96d8ca46e7525e5a01d1ce4dfd82af0e8f656b250ae3c9732cf"
+    },
+    "prev_hash": "690390c4222e740544718f522b192ed1b423661eed6c1f827749870b1f3d10a9",
+    "event_hash": "a272bddbc19cd57f1346416f80cad501278db14c7a33772ec2f9a44514dde5bc",
+    "signature": "345a973908c791833acbd0a3d36702ea10e5071cea156c854cb05367abf954f8"
+  },
+  {
+    "index": 32,
+    "timestamp": "2026-10-03T16:56:13.062561+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "EVIDENCE_FILE_EXPORTED",
+    "target": "C:/Users/mukui/OneDrive/Desktop/HSS PPT.pdf",
+    "details": {
+      "file_id": "NTFS-0001",
+      "sha256": "02c047015387b96d8ca46e7525e5a01d1ce4dfd82af0e8f656b250ae3c9732cf"
+    },
+    "prev_hash": "a272bddbc19cd57f1346416f80cad501278db14c7a33772ec2f9a44514dde5bc",
+    "event_hash": "ed9260e17b569e179f44e8270db359093045153945b5f22413844311b9018fe1",
+    "signature": "ccfe2754c7ca7cf2cabd5fdeba925479f56e35d71a768ecfdd56e593aedc15b2"
+  },
+  {
+    "index": 33,
+    "timestamp": "2026-10-03T16:57:43.151167+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Scalpel Deep Signature Carving (Raw Unallocated Space)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "ed9260e17b569e179f44e8270db359093045153945b5f22413844311b9018fe1",
+    "event_hash": "8a4375009ad2d5b4fc24abae4d52f07c55a4ed416380df254e81f02ede474138",
+    "signature": "082d2915d3e44fdd6e8761d49a6422bcf00f7a39deb4400993edc2c94c389ec9"
+  },
+  {
+    "index": 34,
+    "timestamp": "2026-10-03T16:57:54.400983+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Hybrid Consensus Mode (Both Scalpel + SleuthKit)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "8a4375009ad2d5b4fc24abae4d52f07c55a4ed416380df254e81f02ede474138",
+    "event_hash": "b2fefdbd927a6b72406617d2860c445b10c9def130b7eeca53dc199ef37386c3",
+    "signature": "73329002f5ffbd1e2ead29dbf0dff9e09c4fa17851085bf66e2bab2436ef3191"
+  },
+  {
+    "index": 35,
+    "timestamp": "2026-10-03T16:58:00.831251+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "SleuthKit Filesystem Undelete (NTFS $MFT / FAT Records)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "b2fefdbd927a6b72406617d2860c445b10c9def130b7eeca53dc199ef37386c3",
+    "event_hash": "f21bf966e336a4b876457772814d88ea46dd4a748d394489910f457847fcbb56",
+    "signature": "31cefdc2a8d9cf398aae31d19b63752360134733fdbe03841cfe3db152cc70c8"
+  },
+  {
+    "index": 36,
+    "timestamp": "2026-10-03T16:58:11.055155+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "SleuthKit Filesystem Undelete (NTFS $MFT / FAT Records)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "f21bf966e336a4b876457772814d88ea46dd4a748d394489910f457847fcbb56",
+    "event_hash": "987101c3aff24f81dc628cfdcad86f5fa6e8af30b28082517813394405521665",
+    "signature": "3727d65e5017ebcbf930844cdeb98108642bbd309e33eae8c830f5ecdec4e40b"
+  },
+  {
+    "index": 37,
+    "timestamp": "2026-10-03T16:58:16.750631+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Hybrid Consensus Mode (Both Scalpel + SleuthKit)",
+      "max_scan_bytes": 104857600
+    },
+    "prev_hash": "987101c3aff24f81dc628cfdcad86f5fa6e8af30b28082517813394405521665",
+    "event_hash": "be503cb0e63202c0b739b0a76f07713731e79a4017e4ffaa2cbcbdb4f0fc7d6e",
+    "signature": "86afc3e7a51d95960c225dae08218310c6c5964cc511c0cf191bc99f3257c657"
+  },
+  {
+    "index": 38,
+    "timestamp": "2026-10-03T16:59:24.710905+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Hybrid Consensus Mode (Both Scalpel + SleuthKit)",
+      "max_scan_bytes": 524288000
+    },
+    "prev_hash": "be503cb0e63202c0b739b0a76f07713731e79a4017e4ffaa2cbcbdb4f0fc7d6e",
+    "event_hash": "cb7f10ab46dd9e287256c3ab34e90f30f5705b8fa8064d11ab13f913708dd330",
+    "signature": "a2ab807159b2f7b42c1c83daf7ea7bc8efc365e2b553960feeab05f785e0f4ca"
+  },
+  {
+    "index": 39,
+    "timestamp": "2026-10-03T17:00:45.271005+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Hybrid Consensus Mode (Both Scalpel + SleuthKit)",
+      "max_scan_bytes": 262144000
+    },
+    "prev_hash": "cb7f10ab46dd9e287256c3ab34e90f30f5705b8fa8064d11ab13f913708dd330",
+    "event_hash": "68fdf05c5443ed8e34418d89bd23eff5aa58ef954ad656c74312f6606918d43b",
+    "signature": "e227179b5a5759909fbdd428946a6ef0abaec5c34d344183749db8bb391b6532"
+  },
+  {
+    "index": 40,
+    "timestamp": "2026-10-03T17:01:05.421719+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "EVIDENCE_FILE_EXPORTED",
+    "target": "C:/Users/mukui/Downloads/HSS PPT.pdf",
+    "details": {
+      "file_id": "NTFS-0001",
+      "sha256": "02c047015387b96d8ca46e7525e5a01d1ce4dfd82af0e8f656b250ae3c9732cf"
+    },
+    "prev_hash": "68fdf05c5443ed8e34418d89bd23eff5aa58ef954ad656c74312f6606918d43b",
+    "event_hash": "74cf68f159294377960c44fdf8060acc52bafe54874dcd81502eda599dbe087e",
+    "signature": "c6d8774048df907d37839df59d0c53cb3b61372a053bb629e45f1bb40d308d10"
+  },
+  {
+    "index": 41,
+    "timestamp": "2026-10-03T17:11:05.182635+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "Hybrid Consensus Mode (Both Scalpel + SleuthKit)",
+      "max_scan_bytes": 262144000
+    },
+    "prev_hash": "74cf68f159294377960c44fdf8060acc52bafe54874dcd81502eda599dbe087e",
+    "event_hash": "1de72ca1622ae9951220c603f8b56dc5566879831f7139d835b810edcf94eb1d",
+    "signature": "125d7c1ab58529bf307c14fe3fb4a1f96aebcc18ad1dd295bc808d97c89228c5"
+  },
+  {
+    "index": 42,
+    "timestamp": "2026-10-03T17:11:26.296844+00:00",
+    "case_id": "DEFAULT-CASE",
+    "operator": "mukui",
+    "action": "EVIDENCE_FILE_EXPORTED",
+    "target": "C:/HSS PPT.pdf",
+    "details": {
+      "file_id": "NTFS-0001",
+      "sha256": "7abf04980c886ce471415f6bc8a371a11310f619915688a3141e11687f7b3fad"
+    },
+    "prev_hash": "1de72ca1622ae9951220c603f8b56dc5566879831f7139d835b810edcf94eb1d",
+    "event_hash": "df992e7816221de192be7314bfef767894381e076470514fe437708cf2fb7d33",
+    "signature": "d67177bb339914c8037836210cb2bbe34968947193ce95881a5b9432221a23ee"
+  },
+  {
+    "index": 43,
+    "timestamp": "2026-10-03T17:14:18.571559+00:00",
+    "case_id": "CASE-ZT-2026-001",
+    "operator": "mukui",
+    "action": "FORENSIC_CARVE_STARTED",
+    "target": "\\\\.\\G:",
+    "details": {
+      "strategy": "SleuthKit Filesystem Undelete (NTFS $MFT / FAT Records)",
+      "max_scan_bytes": 262144000
+    },
+    "prev_hash": "df992e7816221de192be7314bfef767894381e076470514fe437708cf2fb7d33",
+    "event_hash": "850493bcf309b652cc283315f5a6815ddf27cf0226d6917baa3f5ea5dcde6738",
+    "signature": "0a0101c7db2e86dc3becca32f521081f5ec23285f64f0a04310b3e5b11a20871"
   }
 ]

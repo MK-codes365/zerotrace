@@ -90,8 +90,8 @@ class CarverRecoveryTab(ctk.CTkFrame):
 
         # Scan limits
         ctk.CTkLabel(row2, text="Scan Window:", font=ctk.CTkFont(size=11), width=90, anchor="e").pack(side="left", padx=(10, 5))
-        self.scan_size_dropdown = ctk.CTkComboBox(row2, values=["100 MB", "250 MB", "500 MB", "1 GB", "Full Media"], width=110)
-        self.scan_size_dropdown.set("100 MB")
+        self.scan_size_dropdown = ctk.CTkComboBox(row2, values=["100 MB", "250 MB", "500 MB", "1 GB", "2 GB", "5 GB", "Full Media"], width=110)
+        self.scan_size_dropdown.set("Full Media")
         self.scan_size_dropdown.pack(side="left")
 
         # Telemetry Bar
@@ -240,17 +240,69 @@ class CarverRecoveryTab(ctk.CTkFrame):
     def _start_scan(self):
         choice = self.target_dropdown.get()
         target_path = ""
+        target_size = 0
 
         if self.custom_image_path and os.path.basename(self.custom_image_path) in choice:
             target_path = self.custom_image_path
+            try:
+                target_size = os.path.getsize(self.custom_image_path)
+            except Exception:
+                pass
         else:
             match = next((t for t in self.targets if t.get("display_name") == choice or t["device_id"] == choice), None)
             target_path = match["device_id"] if match else choice
+            if match and "size" in match:
+                target_size = match["size"]
+
+        if target_size <= 0:
+            import re
+            m = re.search(r"([A-Za-z]):", target_path)
+            if m:
+                try:
+                    import ctypes
+                    free_b = ctypes.c_ulonglong()
+                    tot_b = ctypes.c_ulonglong()
+                    ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                        f"{m.group(1)}:\\", None, ctypes.byref(tot_b), ctypes.byref(free_b)
+                    )
+                    target_size = tot_b.value
+                except Exception:
+                    pass
 
         # Parse scan size limit
         size_str = self.scan_size_dropdown.get()
-        size_map = {"100 MB": 100 * 1024 * 1024, "250 MB": 250 * 1024 * 1024, "500 MB": 500 * 1024 * 1024, "1 GB": 1024 * 1024 * 1024}
-        max_bytes = size_map.get(size_str, 100 * 1024 * 1024)
+        size_map = {
+            "100 MB": 100 * 1024 * 1024,
+            "250 MB": 250 * 1024 * 1024,
+            "500 MB": 500 * 1024 * 1024,
+            "1 GB": 1024 * 1024 * 1024,
+            "2 GB": 2 * 1024 * 1024 * 1024,
+            "5 GB": 5 * 1024 * 1024 * 1024,
+            "Full Media": target_size,
+        }
+        max_bytes = size_map.get(size_str, target_size if target_size > 0 else 100 * 1024 * 1024)
+        if size_str == "Full Media" and max_bytes <= 0:
+            max_bytes = target_size
+
+        # Check if scanning raw drive requires Administrator privileges
+        if not os.path.isfile(target_path) and "DEMO" not in target_path.upper() and "SIMULAT" not in target_path.upper():
+            import ctypes
+            is_admin = bool(ctypes.windll.shell32.IsUserAnAdmin())
+            if not is_admin:
+                resp = messagebox.askyesno(
+                    "Administrator Rights Required",
+                    f"Direct sector-level forensic access for device ({target_path}) requires Windows Administrator privileges.\n\nWould you like to restart ZeroTrace as Administrator now?",
+                    icon="warning"
+                )
+                if resp:
+                    import sys
+                    script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "main.py"))
+                    ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, f'"{script_path}"', None, 1)
+                    try:
+                        self.winfo_toplevel().destroy()
+                    except Exception:
+                        pass
+                return
 
         # Clear existing table rows
         for child in self.results_scroll.winfo_children():
@@ -316,9 +368,9 @@ class CarverRecoveryTab(ctk.CTkFrame):
                     file_found_callback=self._on_file_discovered
                 )
 
-            self.after(0, self._on_scan_finished)
         except Exception as e:
-            self.after(0, lambda: messagebox.showerror("Carving Error", str(e)))
+            err_msg = str(e)
+            self.after(0, lambda: messagebox.showerror("Carving Error", err_msg))
             self.after(0, self._on_scan_finished)
 
     def _update_progress(self, data: dict):

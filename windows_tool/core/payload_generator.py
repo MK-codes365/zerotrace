@@ -25,12 +25,22 @@ except ImportError:
     HAS_FPDF = False
 
 
-def generate_valid_jpeg(file_id: str = "CARVE-0001", case_id: str = "CASE-ZT-2026-001", details: str = "") -> bytes:
+def generate_valid_jpeg(
+    file_id: str = "CARVE-0001",
+    case_id: str = "CASE-ZT-2026-001",
+    details: str = "",
+    width: int = 960,
+    height: int = 640,
+    color: tuple = (15, 23, 42),
+    **kwargs,
+) -> bytes:
     """Generate a 100% valid baseline JPEG image renderable in Windows Photos."""
     if HAS_PIL:
-        width, height = 960, 640
+        width = max(width or 960, 400)
+        height = max(height or 640, 300)
+        bg = color if isinstance(color, (tuple, list)) and len(color) == 3 else (15, 23, 42)
         # Dark forensic theme background
-        img = Image.new("RGB", (width, height), color=(15, 23, 42))
+        img = Image.new("RGB", (width, height), color=bg)
         draw = ImageDraw.Draw(img)
 
         # Outer border & header bar
@@ -88,11 +98,21 @@ def generate_valid_jpeg(file_id: str = "CARVE-0001", case_id: str = "CASE-ZT-202
         ])
 
 
-def generate_valid_png(file_id: str = "CARVE-0002", case_id: str = "CASE-ZT-2026-001", details: str = "") -> bytes:
+def generate_valid_png(
+    file_id: str = "CARVE-0002",
+    case_id: str = "CASE-ZT-2026-001",
+    details: str = "",
+    width: int = 960,
+    height: int = 640,
+    color: tuple = (13, 27, 42),
+    **kwargs,
+) -> bytes:
     """Generate a 100% valid PNG image renderable in Windows Photos."""
     if HAS_PIL:
-        width, height = 960, 640
-        img = Image.new("RGB", (width, height), color=(13, 27, 42))
+        width = max(width or 960, 400)
+        height = max(height or 640, 300)
+        bg = color if isinstance(color, (tuple, list)) and len(color) == 3 else (13, 27, 42)
+        img = Image.new("RGB", (width, height), color=bg)
         draw = ImageDraw.Draw(img)
 
         # Outer border
@@ -117,9 +137,9 @@ def generate_valid_png(file_id: str = "CARVE-0002", case_id: str = "CASE-ZT-2026
         ]
 
         y_pos = 140
-        for label, val, color in info_lines:
+        for label, val, text_color in info_lines:
             draw.text((60, y_pos), label, fill=(148, 163, 184))
-            draw.text((260, y_pos), val, fill=color)
+            draw.text((260, y_pos), val, fill=text_color)
             y_pos += 36
 
         if details:
