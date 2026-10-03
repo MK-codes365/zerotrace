@@ -5,6 +5,7 @@ import { CartProvider } from "./context/CartContext";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import RecoveryAdvisorChat from "./components/RecoveryAdvisorChat";
 
 // Lazy-load subpages to reduce initial bundle size & unused JavaScript on landing page
 const Terms = lazy(() => import("./pages/Terms"));
@@ -32,6 +33,7 @@ const Layout = () => {
                     <Route path="/checkout" element={<Checkout />} />
                 </Routes>
                 {!isHome && <Footer />}
+                <RecoveryAdvisorChat />
             </Suspense>
         </div>
     );
