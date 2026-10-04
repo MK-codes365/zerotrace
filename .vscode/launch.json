@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "e:/zero-trace/windows_tool",
-      "program": "e:/zero-trace/windows_tool/build/Debug/outDebug",
+      "cwd": "e:/zero-trace/reference_repos/scalpel/src",
+      "program": "e:/zero-trace/reference_repos/scalpel/src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

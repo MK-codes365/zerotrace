@@ -17,6 +17,43 @@ from typing import List, Dict, Any, Optional, Callable, Tuple
 FILETIME_EPOCH = 116444736000000000  # 1601-01-01 -> 1970-01-01, in 100ns units
 SANITIZE_PATH = re.compile(r'[\\/:*?"<>|\x00-\x1f]')
 
+# -----------------------------------------------------------------------------
+# Explicit 64-bit Win32 Kernel32 API declarations for sector-aligned forensic I/O
+# Prevents 32-bit integer overflow and seek corruption on media > 2.0 GB
+# -----------------------------------------------------------------------------
+_kernel32 = ctypes.windll.kernel32
+
+_kernel32.SetFilePointerEx.restype = ctypes.c_bool
+_kernel32.SetFilePointerEx.argtypes = [
+    ctypes.c_void_p,
+    ctypes.c_int64,
+    ctypes.POINTER(ctypes.c_int64),
+    ctypes.c_ulong,
+]
+
+_kernel32.ReadFile.restype = ctypes.c_bool
+_kernel32.ReadFile.argtypes = [
+    ctypes.c_void_p,
+    ctypes.c_void_p,
+    ctypes.c_ulong,
+    ctypes.POINTER(ctypes.c_ulong),
+    ctypes.c_void_p,
+]
+
+_kernel32.CreateFileW.restype = ctypes.c_void_p
+_kernel32.CreateFileW.argtypes = [
+    ctypes.c_wchar_p,
+    ctypes.c_ulong,
+    ctypes.c_ulong,
+    ctypes.c_void_p,
+    ctypes.c_ulong,
+    ctypes.c_ulong,
+    ctypes.c_void_p,
+]
+
+_kernel32.CloseHandle.restype = ctypes.c_bool
+_kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+
 
 def _u16(b: bytes, o: int = 0) -> int:
     return int.from_bytes(b[o : o + 2], "little")
@@ -104,11 +141,10 @@ class ForensicDeviceReader:
             dev_path = f"\\\\.\\{m.group(1).upper()}:"
 
         try:
-            ctypes.windll.kernel32.CreateFileW.restype = ctypes.c_void_p
-            h = ctypes.windll.kernel32.CreateFileW(
+            h = _kernel32.CreateFileW(
                 dev_path, 0x80000000, 3, None, 3, 0, None
             )
-            if h and h != ctypes.c_void_p(-1).value:
+            if h and h != ctypes.c_void_p(-1).value and h != 0xFFFFFFFFFFFFFFFF and h != -1:
                 self.handle = h
                 # Query geometry or disk size if possible
                 try:
@@ -116,7 +152,7 @@ class ForensicDeviceReader:
                     free_b = ctypes.c_ulonglong()
                     drive_root = f"{m.group(1).upper()}:\\" if m else None
                     if drive_root:
-                        ctypes.windll.kernel32.GetDiskFreeSpaceExW(drive_root, None, ctypes.byref(tot_b), ctypes.byref(free_b))
+                        _kernel32.GetDiskFreeSpaceExW(drive_root, None, ctypes.byref(tot_b), ctypes.byref(free_b))
                         self.size = tot_b.value
                 except Exception:
                     self.size = 0
@@ -137,19 +173,42 @@ class ForensicDeviceReader:
             offset_in_sector = offset - aligned_start
             end_offset = offset + length
             aligned_end = ((end_offset + self.sector_size - 1) // self.sector_size) * self.sector_size
-            aligned_length = aligned_end - aligned_start
+            total_aligned = aligned_end - aligned_start
 
-            ctypes.windll.kernel32.SetFilePointerEx(
-                ctypes.c_void_p(self.handle), ctypes.c_int64(aligned_start), None, 0
-            )
-            buf = ctypes.create_string_buffer(aligned_length)
-            br = ctypes.c_ulong()
-            ok = ctypes.windll.kernel32.ReadFile(
-                ctypes.c_void_p(self.handle), buf, aligned_length, ctypes.byref(br), None
-            )
-            if not ok or br.value == 0:
-                return b""
-            raw = buf.raw[: br.value]
+            # Read in max 1 MB chunks to guarantee OS driver compatibility
+            MAX_CHUNK = 1024 * 1024
+            raw_buf = bytearray()
+            curr = aligned_start
+            rem = total_aligned
+            while rem > 0:
+                chunk_len = min(rem, MAX_CHUNK)
+                new_pos = ctypes.c_int64(0)
+                ok_seek = _kernel32.SetFilePointerEx(
+                    ctypes.c_void_p(self.handle),
+                    ctypes.c_int64(curr),
+                    ctypes.byref(new_pos),
+                    0
+                )
+                if not ok_seek:
+                    break
+                buf = ctypes.create_string_buffer(chunk_len)
+                br = ctypes.c_ulong(0)
+                ok_read = _kernel32.ReadFile(
+                    ctypes.c_void_p(self.handle),
+                    buf,
+                    ctypes.c_ulong(chunk_len),
+                    ctypes.byref(br),
+                    None
+                )
+                if not ok_read or br.value == 0:
+                    break
+                raw_buf.extend(buf.raw[: br.value])
+                curr += br.value
+                rem -= br.value
+                if br.value < chunk_len:
+                    break
+
+            raw = bytes(raw_buf)
             return raw[offset_in_sector : offset_in_sector + length]
 
         return b""
@@ -351,6 +410,8 @@ class NTFSVolume:
             "namespace": -1,
             "timestamps": {},
             "data": [],  # (stream_name, attr_dict)
+            "fn_alloc": 0,
+            "fn_size": 0,
         }
         for a in self._attributes(rec):
             if a["type"] == 0x10 and a["resident"] and len(a["content"]) >= 32:
@@ -372,6 +433,8 @@ class NTFSVolume:
                         info["name"] = c[66 : 66 + namelen * 2].decode("utf-16-le", "replace")
                         info["parent"] = _u64(c, 0) & 0xFFFFFFFFFFFF
                         info["namespace"] = namespace
+                        info["fn_alloc"] = _u64(c, 40)
+                        info["fn_size"] = _u64(c, 48)
             elif a["type"] == 0x80:
                 cast_data = info["data"]
                 if isinstance(cast_data, list):
@@ -460,36 +523,6 @@ class TSKFilesystemRecoverer:
             except Exception:
                 pass
 
-        # 4. Fallback simulation ONLY if target is not a real volume and nothing was found
-        if not deleted_records and not os.path.exists(f"{drive_letter}:\\") and not os.path.isfile(target_volume):
-            simulated = [
-                {
-                    "item_id": "TSK-0001",
-                    "original_name": "Executive_Financial_Forensic_Report.docx",
-                    "original_path": f"{drive_letter}:\\Confidential\\Documents\\Executive_Financial_Forensic_Report.docx",
-                    "file_type": "DOCX",
-                    "size_bytes": 145820,
-                    "deletion_timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() - 3600 * 24)),
-                    "recovery_status": "INTACT (Clusters Unallocated)",
-                    "integrity_state": "100% Recoverable",
-                    "source": "NTFS $MFT Record (Flag: Deleted)",
-                    "is_simulated": True,
-                },
-                {
-                    "item_id": "TSK-0002",
-                    "original_name": "Surveillance_Telemetry_Log.xlsx",
-                    "original_path": f"{drive_letter}:\\Logs\\2026\\Surveillance_Telemetry_Log.xlsx",
-                    "file_type": "XLSX",
-                    "size_bytes": 89400,
-                    "deletion_timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() - 3600 * 48)),
-                    "recovery_status": "INTACT (Clusters Free)",
-                    "integrity_state": "100% Recoverable",
-                    "source": "FAT32 Directory Entry (0xE5 Deleted Flag)",
-                    "is_simulated": True,
-                }
-            ]
-            deleted_records.extend(simulated)
-
         if progress_callback:
             progress_callback({
                 "status": "COMPLETED",
@@ -560,24 +593,41 @@ class TSKFilesystemRecoverer:
                 # Extract payload
                 file_content = None
                 file_size = 0
+                cluster_offset = 0
                 if primary_attr["resident"]:
                     file_content = primary_attr.get("content", b"")
                     file_size = len(file_content)
                 else:
                     runs = primary_attr.get("runs")
                     file_size = primary_attr.get("real", 0)
-                    if runs and file_size > 0 and file_size <= 250 * 1024 * 1024:
-                        # Validate cluster bounds
-                        ok = all(
-                            lcn is None or (lcn + cnt) * vol.cluster <= vol.volume_size
-                            for lcn, cnt in runs
-                        )
-                        if ok:
-                            data = vol._read_clusters(runs, file_size)
-                            if len(data) >= file_size:
-                                file_content = data[:file_size]
-                            else:
-                                file_content = data
+                    if file_size <= 0 and info.get("fn_size", 0) > 0:
+                        file_size = info["fn_size"]
+
+                    if runs:
+                        first_lcn = next((lcn for lcn, cnt in runs if lcn is not None), None)
+                        if first_lcn is not None:
+                            cluster_offset = vol.base + first_lcn * vol.cluster
+
+                        total_run_clusters = sum(cnt for lcn, cnt in runs if lcn is not None)
+                        total_run_bytes = total_run_clusters * vol.cluster
+                        if file_size <= 0:
+                            file_size = total_run_bytes
+
+                        if file_size > 0 and file_size <= 250 * 1024 * 1024:
+                            # Check if all runs are deallocated (sparse/lcn is None)
+                            has_real_clusters = any(lcn is not None for lcn, cnt in runs)
+                            if has_real_clusters:
+                                ok = all(
+                                    lcn is None or (lcn + cnt) * vol.cluster <= vol.volume_size
+                                    for lcn, cnt in runs
+                                )
+                                if ok:
+                                    data = vol._read_clusters(runs, file_size)
+                                    # Validate that the read data is not just an empty stream of zeroes
+                                    if any(b != 0 for b in data[:4096]):
+                                        file_content = data[:file_size] if len(data) >= file_size else data
+                                    else:
+                                        file_content = None
 
                 # Reject Alternate Data Stream ZoneTransfer text residue
                 if file_content and (b"[ZoneTransfer]" in file_content or b"ZoneId=" in file_content):
@@ -586,28 +636,22 @@ class TSKFilesystemRecoverer:
                 filename = info["name"]
                 ext = os.path.splitext(filename)[1].lstrip(".").upper() or "FILE"
 
-                # Check and validate PDF files
-                if ext == "PDF":
-                    if file_content and file_content.startswith(b"%PDF-"):
-                        # Validated payload!
-                        pass
-                    else:
-                        # Synthesize clean openable PDF if clusters were overwritten
-                        from core.payload_generator import generate_valid_pdf
-                        file_content = generate_valid_pdf(
-                            file_id=f"NTFS-{len(records)+1:04d}",
-                            case_id="CASE-ZT-2026-001",
-                            details=f"Recovered from NTFS Master File Table: {filename}"
-                        )
-                        file_size = len(file_content)
-
                 # Preserved timestamps
                 ts_dict = info.get("timestamps", {})
                 mtime = ts_dict.get("mtime", 0)
                 del_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(mtime)) if mtime > 0 else time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-                sha256_hash = hashlib.sha256(file_content).hexdigest() if file_content else "COMPUTED_ON_RESTORE"
-                md5_hash = hashlib.md5(file_content).hexdigest() if file_content else ""
+                if file_content and len(file_content) > 0 and any(b != 0 for b in file_content[:1024]):
+                    recovery_status = "INTACT (NTFS MFT Record & Clusters)"
+                    integrity_state = f"Authentic Raw Stream ({len(file_content)} bytes)"
+                    sha256_hash = hashlib.sha256(file_content).hexdigest()
+                    md5_hash = hashlib.md5(file_content).hexdigest()
+                else:
+                    recovery_status = "METADATA_ONLY (Clusters Overwritten/Freed)"
+                    integrity_state = "MFT Record Preserved (0 Raw Cluster Bytes)"
+                    sha256_hash = "N/A (NO_CLUSTERS)"
+                    md5_hash = ""
+                    file_content = b""
 
                 rel_path = paths.get(num, filename)
                 drive_pfx = _resolve_target_to_volume(target_volume) or "G"
@@ -619,9 +663,10 @@ class TSKFilesystemRecoverer:
                     "original_path": full_path,
                     "file_type": ext,
                     "size_bytes": file_size,
+                    "cluster_offset": cluster_offset,
                     "deletion_timestamp": del_time,
-                    "recovery_status": "INTACT (NTFS MFT Record)",
-                    "integrity_state": "100% Intact / Stream Verified",
+                    "recovery_status": recovery_status,
+                    "integrity_state": integrity_state,
                     "source": "NTFS Master File Table ($MFT Undelete)",
                     "data": file_content,
                     "sha256": sha256_hash,
@@ -804,34 +849,21 @@ class TSKFilesystemRecoverer:
 
         # 1. If raw memory buffer is attached (from FAT32/NTFS extraction)
         data = record.get("data")
-        if not record.get("is_simulated") and data:
-            ext = os.path.splitext(record.get("original_name", ""))[1].lower()
-            if not (b"[ZoneTransfer]" in data or (ext == ".pdf" and not data.startswith(b"%PDF-"))):
-                with open(dest_path, "wb") as f:
-                    f.write(data)
-                return dest_path
+        if data and len(data) > 0 and not record.get("is_simulated"):
+            with open(dest_path, "wb") as f:
+                f.write(data)
+            return dest_path
 
         # 2. If Recycle Bin source file is available
-        if not record.get("is_simulated") and "r_path" in record and os.path.exists(record["r_path"]):
+        if "r_path" in record and record["r_path"] and os.path.exists(record["r_path"]):
             import shutil
             shutil.copy2(record["r_path"], dest_path)
             return dest_path
 
-        # 3. Fallback synthesis
-        try:
-            from core.payload_generator import synthesize_openable_payload
-            ext = os.path.splitext(record.get("original_name", ""))[1]
-            f_type = record.get("file_type", "")
-            data = synthesize_openable_payload(
-                file_type=f_type,
-                extension=ext,
-                file_id=record.get("item_id", "TSK-0001"),
-                details=f"Path: {record.get('original_path', '')}"
-            )
-        except Exception:
-            data = b"RECOVERED_FORENSIC_EVIDENCE_STREAM\x00" * 100
+        # 3. If any raw data bytes exist, save them
+        if data and len(data) > 0:
+            with open(dest_path, "wb") as f:
+                f.write(data)
+            return dest_path
 
-        with open(dest_path, "wb") as f:
-            f.write(data)
-
-        return dest_path
+        raise ValueError(f"No raw data clusters could be read from disk for {record.get('original_name', 'file')}.")

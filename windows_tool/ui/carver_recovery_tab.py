@@ -309,6 +309,10 @@ class CarverRecoveryTab(ctk.CTkFrame):
             child.destroy()
         self.discovered_files = []
 
+        # Reset cancellation flags so new scans always proceed cleanly
+        self.scalpel_carver.is_cancelled = False
+        self.tsk_recoverer.is_cancelled = False
+
         self.scan_btn.configure(state="disabled")
         self.stop_btn.configure(state="normal")
         self.view_wb_btn.configure(state="disabled")
@@ -324,6 +328,7 @@ class CarverRecoveryTab(ctk.CTkFrame):
         self.stop_btn.configure(state="disabled")
 
     def _run_carve_worker(self, target_path: str, max_bytes: int, strategy: str):
+        error_msg = None
         try:
             case = self.case_manager.get_active_case()
             self.audit_service.log_event(
@@ -334,15 +339,19 @@ class CarverRecoveryTab(ctk.CTkFrame):
             )
 
             # 1. Run SleuthKit filesystem scan if requested
-            if "SleuthKit" in strategy or "Hybrid" in strategy:
+            if ("SleuthKit" in strategy or "Hybrid" in strategy) and not self.tsk_recoverer.is_cancelled:
                 tsk_items = self.tsk_recoverer.scan_deleted_files(target_path)
                 for item in tsk_items:
+                    if self.tsk_recoverer.is_cancelled:
+                        break
                     ext = item.get("file_type", "").lower()
                     if item.get("original_name") and "." in item["original_name"]:
                         ext = os.path.splitext(item["original_name"])[1].lower().replace(".", "")
                     category = "DOCUMENT" if ext in ("pdf", "docx", "doc", "xlsx", "pptx", "txt") else (
                         "IMAGE" if ext in ("jpg", "jpeg", "png", "gif", "bmp") else "FILE_SYSTEM"
                     )
+                    no_clusters = not item.get("data") or len(item.get("data")) == 0 or "NO_CLUSTERS" in str(item.get("sha256"))
+                    conf = 0.0 if no_clusters else 1.0
                     c_file = CarvedFile(
                         file_id=item["item_id"],
                         file_type=item.get("file_type", ext.upper()),
@@ -351,7 +360,7 @@ class CarverRecoveryTab(ctk.CTkFrame):
                         offset=item.get("cluster_offset", 0),
                         size=item["size_bytes"],
                         sha256=item.get("sha256", "COMPUTED_ON_RESTORE"),
-                        confidence=1.0,
+                        confidence=conf,
                         data=item.get("data"),
                         preview_snippet=item.get("original_name", ""),
                         source_target=target_path,
@@ -360,7 +369,7 @@ class CarverRecoveryTab(ctk.CTkFrame):
                     self._on_file_discovered(c_file)
 
             # 2. Run Scalpel deep carving if requested
-            if "Scalpel" in strategy or "Hybrid" in strategy:
+            if ("Scalpel" in strategy or "Hybrid" in strategy) and not self.scalpel_carver.is_cancelled:
                 self.scalpel_carver.carve_stream(
                     source_path=target_path,
                     total_bytes_to_scan=max_bytes,
@@ -369,9 +378,10 @@ class CarverRecoveryTab(ctk.CTkFrame):
                 )
 
         except Exception as e:
-            err_msg = str(e)
-            self.after(0, lambda: messagebox.showerror("Carving Error", err_msg))
-            self.after(0, self._on_scan_finished)
+            error_msg = str(e)
+        finally:
+            was_cancelled = getattr(self.scalpel_carver, "is_cancelled", False) or getattr(self.tsk_recoverer, "is_cancelled", False)
+            self.after(0, lambda: self._on_scan_finished(was_cancelled=was_cancelled, error_msg=error_msg))
 
     def _update_progress(self, data: dict):
         self.after(0, lambda: self._apply_telemetry(data))
@@ -458,10 +468,15 @@ class CarverRecoveryTab(ctk.CTkFrame):
         row = ctk.CTkFrame(self.results_scroll, fg_color="#182230" if index % 2 == 0 else "#141c26", corner_radius=2)
         row.pack(fill="x", pady=1)
 
-        conf_pct = int(c.confidence * 100)
-        conf_color = COLOR_ACCENT_GREEN if conf_pct >= 80 else (COLOR_ACCENT_AMBER if conf_pct >= 50 else COLOR_ACCENT_RED)
-
-        struct_valid = "✅ Validated" if c.metadata.get("validation", {}).get("structural_check", True) else "⚠️ Raw"
+        no_data = not c.data or len(c.data) == 0 or "NO_CLUSTERS" in str(c.sha256)
+        if no_data:
+            struct_valid = "❌ No Clusters"
+            conf_pct = 0
+            conf_color = COLOR_ACCENT_RED
+        else:
+            conf_pct = int(c.confidence * 100)
+            conf_color = COLOR_ACCENT_GREEN if conf_pct >= 80 else (COLOR_ACCENT_AMBER if conf_pct >= 50 else COLOR_ACCENT_RED)
+            struct_valid = "✅ Validated" if c.metadata.get("validation", {}).get("structural_check", True) else "⚠️ Raw"
 
         ctk.CTkLabel(row, text=c.file_id, font=ctk.CTkFont(size=10, weight="bold"), width=80, anchor="w").pack(side="left", padx=4)
         ctk.CTkLabel(row, text=c.file_type, font=ctk.CTkFont(size=10), width=65, anchor="w").pack(side="left", padx=4)
@@ -502,7 +517,7 @@ class CarverRecoveryTab(ctk.CTkFrame):
                 parent.workbench_view._filter_and_render_list()
                 parent.workbench_view._select_file(item)
 
-    def _on_scan_finished(self):
+    def _on_scan_finished(self, was_cancelled: bool = False, error_msg: Optional[str] = None):
         self.scan_btn.configure(state="normal")
         self.stop_btn.configure(state="disabled")
         self.view_wb_btn.configure(state="normal")
@@ -513,18 +528,30 @@ class CarverRecoveryTab(ctk.CTkFrame):
         if self.on_files_recovered_callback:
             self.on_files_recovered_callback(self.discovered_files)
 
-        messagebox.showinfo(
-            "Carving Completed",
-            f"Forensic scan finished!\nDiscovered {len(self.discovered_files)} candidate artifacts.\nFiles are now ready for inspection and export in the Recovery Workbench."
-        )
+        if error_msg:
+            messagebox.showerror("Carving Error", f"An error occurred during forensic extraction:\n{error_msg}")
+        elif was_cancelled:
+            messagebox.showinfo(
+                "Extraction Stopped",
+                f"Forensic scan was stopped by operator.\nDiscovered {len(self.discovered_files)} candidate artifacts.\nFiles are now available for inspection and export in the Recovery Workbench."
+            )
+        else:
+            messagebox.showinfo(
+                "Carving Completed",
+                f"Forensic extraction finished!\nDiscovered {len(self.discovered_files)} candidate artifacts across the evidence volume.\nFiles are now ready for inspection and export in the Recovery Workbench."
+            )
 
     def _open_workbench(self):
         # Ensure discovered files are passed to workbench
-        if self.on_files_recovered_callback and self.discovered_files:
+        if self.on_files_recovered_callback:
             self.on_files_recovered_callback(self.discovered_files)
         # Notify master window to switch to workbench tab
         parent = self.master
         while parent and not hasattr(parent, "select_tab"):
             parent = getattr(parent, "master", None)
-        if parent and hasattr(parent, "select_tab"):
-            parent.select_tab("workbench")
+        if parent:
+            if hasattr(parent, "workbench_view"):
+                parent.workbench_view.set_recovered_files(self.discovered_files)
+                parent.workbench_view._filter_and_render_list()
+            if hasattr(parent, "select_tab"):
+                parent.select_tab("workbench")

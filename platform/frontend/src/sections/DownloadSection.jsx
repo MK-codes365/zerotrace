@@ -89,7 +89,7 @@ const DownloadSection = () => {
                                 <span>Download Standalone (.EXE)</span>
                             </a>
                             <div className="text-[10px] text-[#b1a696] -mt-2">
-                                ~39.2 MB · Portable (No installation required)
+                                ~38.2 MB · Portable (No installation required)
                             </div>
 
                             <a

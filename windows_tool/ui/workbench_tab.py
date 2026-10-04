@@ -198,44 +198,19 @@ class WorkbenchTab(ctk.CTkFrame):
         Guaranteed to return a non-None bytes object.
         """
         if f is None:
-            from core.payload_generator import generate_valid_text
-            return generate_valid_text("EVID-0001", "CASE-ZT-2026-001")
+            return b""
 
-        f_type = str(getattr(f, "file_type", "") if not isinstance(f, dict) else f.get("file_type", "")).upper()
-        ext = str(getattr(f, "extension", "") if not isinstance(f, dict) else f.get("extension", "")).lower()
-        fid = str(getattr(f, "file_id", "ARTIFACT") if not isinstance(f, dict) else f.get("file_id", "ARTIFACT"))
-        case_id = getattr(self.case_manager, "active_case_id", "CASE-ZT-2026-001") if hasattr(self, "case_manager") else "CASE-ZT-2026-001"
-
-        def is_openable_payload(raw_bytes: bytes, file_ext: str) -> bool:
-            if not raw_bytes or len(raw_bytes) < 16:
-                return False
-            if b"[ZoneTransfer]" in raw_bytes or b"ZoneId=" in raw_bytes:
-                return False
-            if file_ext == ".pdf":
-                if not raw_bytes.startswith(b"%PDF-"):
-                    return False
-                try:
-                    # pyrefly: ignore [missing-import]
-                    import pypdf, io
-                    r = pypdf.PdfReader(io.BytesIO(raw_bytes), strict=False)
-                    return len(r.pages) > 0
-                except Exception:
-                    return b"%%EOF" in raw_bytes[-1024:] and (b"trailer" in raw_bytes or b"/Root" in raw_bytes)
-            return True
-
-        # 1. Direct data attribute or dict key (real bytes from disk)
+        # 1. Direct data attribute or dict key (real bytes from disk or carver)
         data = getattr(f, "data", None) if not isinstance(f, dict) else f.get("data")
         if isinstance(data, (bytes, bytearray)) and len(data) > 0:
-            if is_openable_payload(bytes(data), ext):
-                return bytes(data)
+            return bytes(data)
 
         # 2. Check metadata for data or r_path (Recycle Bin / filesystem record)
         metadata = getattr(f, "metadata", {}) if not isinstance(f, dict) else f.get("metadata", {})
         if isinstance(metadata, dict):
             m_data = metadata.get("data")
             if isinstance(m_data, (bytes, bytearray)) and len(m_data) > 0:
-                if is_openable_payload(bytes(m_data), ext):
-                    return bytes(m_data)
+                return bytes(m_data)
             r_path = metadata.get("r_path")
             if r_path and os.path.exists(r_path):
                 try:
@@ -269,11 +244,15 @@ class WorkbenchTab(ctk.CTkFrame):
                 except Exception:
                     pass
             elif source.startswith("\\\\.\\"):
+                # NEVER read from sector 0 of a disk volume — offset 0 is ALWAYS the Volume Boot Record!
+                # Files with deallocated clusters have offset=0; reading offset 0 would corrupt the export with the NTFS VBR.
+                if offset < 4096:
+                    return b""
                 try:
                     import ctypes
                     ctypes.windll.kernel32.CreateFileW.restype = ctypes.c_void_p
                     h = ctypes.windll.kernel32.CreateFileW(source, 0x80000000, 3, None, 3, 0, None)
-                    if h and h != ctypes.c_void_p(-1).value:
+                    if h and h != ctypes.c_void_p(-1).value and h != 0xFFFFFFFFFFFFFFFF and h != -1:
                         ctypes.windll.kernel32.SetFilePointerEx(ctypes.c_void_p(h), ctypes.c_int64(max(0, offset)), None, 0)
                         aligned_size = ((size + 511) // 512) * 512
                         buf = ctypes.create_string_buffer(aligned_size)
@@ -282,6 +261,9 @@ class WorkbenchTab(ctk.CTkFrame):
                         ctypes.windll.kernel32.CloseHandle(ctypes.c_void_p(h))
                         if ok and br.value > 0:
                             content = buf.raw[:size]
+                            # Reject if read data is the partition boot sector
+                            if content.startswith(b"\xebR\x90NTFS") or content.startswith(b"\xeb<\x90MSDOS"):
+                                return b""
                             if isinstance(f, dict):
                                 f["data"] = content
                             else:
@@ -290,27 +272,10 @@ class WorkbenchTab(ctk.CTkFrame):
                 except Exception:
                     pass
 
-        # 4. Synthesize 100% valid, openable evidence file
-        from core.payload_generator import synthesize_openable_payload
-        payload = synthesize_openable_payload(
-            file_type=f_type,
-            extension=ext,
-            file_id=fid,
-            case_id=case_id,
-            details=metadata.get("description", "Reconstructed forensic stream from unallocated sectors") if isinstance(metadata, dict) else ""
-        )
-
-        try:
-            if isinstance(f, dict):
-                f["data"] = payload
-                f["size"] = len(payload)
-            else:
-                f.data = payload
-                f.size = len(payload)
-        except Exception:
-            pass
-
-        return payload
+        # Return whatever bytes were found or empty bytes if clusters could not be read
+        if isinstance(data, (bytes, bytearray)):
+            return bytes(data)
+        return b""
 
     def _select_file(self, item):
         self.selected_file = item
@@ -327,15 +292,16 @@ class WorkbenchTab(ctk.CTkFrame):
         data = self._extract_file_content(item)
 
         h = getattr(item, "sha256", "N/A") if not isinstance(item, dict) else item.get("sha256", "N/A")
-        if h in ("COMPUTED_ON_RESTORE", "N/A", "", None) and data:
-            h = sha256_bytes(data)
-            try:
-                if isinstance(item, dict):
-                    item["sha256"] = h
-                else:
-                    item.sha256 = h
-            except Exception:
-                pass
+        if "NO_CLUSTERS" not in str(h):
+            if h in ("COMPUTED_ON_RESTORE", "N/A", "", None) and data:
+                h = sha256_bytes(data)
+                try:
+                    if isinstance(item, dict):
+                        item["sha256"] = h
+                    else:
+                        item.sha256 = h
+                except Exception:
+                    pass
 
         self.lbl_id.configure(text=f"File ID: {f_id} ({f_type})")
         self.lbl_specs.configure(text=f"Category: {cat} | Size: {sz} | Offset: 0x{offset:X} ({offset})")
@@ -350,6 +316,11 @@ class WorkbenchTab(ctk.CTkFrame):
     def _render_hex_data(self, data: bytes):
         self.hex_text.configure(state="normal")
         self.hex_text.delete("1.0", "end")
+
+        if not data or len(data) == 0:
+            self.hex_text.insert("1.0", "[NO RESIDENT CLUSTER BYTES FOUND ON DISK]\n\nThe file record exists in the filesystem table, but the underlying data clusters were deallocated, zeroed, or overwritten upon deletion.")
+            self.hex_text.configure(state="disabled")
+            return
 
         lines = []
         for i in range(0, len(data), 16):
@@ -372,6 +343,22 @@ class WorkbenchTab(ctk.CTkFrame):
         orig = meta.get("original_name") if isinstance(meta, dict) else None
         name = orig if orig else f"{getattr(f, 'file_id', 'Recovered_Evidence') if not isinstance(f, dict) else f.get('file_id', 'Recovered_Evidence')}{ext}"
 
+        # Check for NO_CLUSTERS before even showing the Save dialog
+        sha = getattr(f, "sha256", "") if not isinstance(f, dict) else f.get("sha256", "")
+        data = self._extract_file_content(f)
+        if (not data or len(data) == 0) or "NO_CLUSTERS" in str(sha):
+            messagebox.showwarning(
+                "Cannot Export — No Data Clusters",
+                f"The file '{name}' cannot be exported because its data clusters on disk have been freed or overwritten.\n\n"
+                f"What this means:\n"
+                f"• The NTFS Master File Table (MFT) still has the file's metadata (name, size, timestamps)\n"
+                f"• But the actual file content sectors were deallocated by the OS after deletion\n\n"
+                f"To recover the actual file content, try:\n"
+                f"• Scalpel Deep Signature Carving mode with Full Media scan window\n"
+                f"• Run ZeroTrace as Administrator for raw disk sector access"
+            )
+            return
+
         dest = filedialog.asksaveasfilename(
             title="Save Recovered Evidence",
             initialfile=name,
@@ -379,10 +366,6 @@ class WorkbenchTab(ctk.CTkFrame):
         )
         if dest:
             try:
-                data = self._extract_file_content(f)
-                if not isinstance(data, (bytes, bytearray)):
-                    data = b"RECOVERED_FILE_DATA\x00"
-
                 with open(dest, "wb") as out:
                     out.write(data)
 
@@ -408,6 +391,7 @@ class WorkbenchTab(ctk.CTkFrame):
         target_dir = filedialog.askdirectory(title="Select Destination Directory for Evidence Extraction")
         if target_dir:
             exported_count = 0
+            skipped_count = 0
             for f in self.files_pool:
                 cat = getattr(f, "category", "GENERAL") if not isinstance(f, dict) else f.get("category", "GENERAL")
                 folder = os.path.join(target_dir, cat)
@@ -420,21 +404,30 @@ class WorkbenchTab(ctk.CTkFrame):
 
                 try:
                     data = self._extract_file_content(f)
-                    if not isinstance(data, (bytes, bytearray)):
-                        data = b"RECOVERED_FORENSIC_EVIDENCE\x00"
+                    # Skip files with no recoverable data — never write placeholder bytes
+                    if not isinstance(data, (bytes, bytearray)) or len(data) == 0:
+                        skipped_count += 1
+                        continue
+                    sha = getattr(f, "sha256", "") if not isinstance(f, dict) else f.get("sha256", "")
+                    if "NO_CLUSTERS" in str(sha):
+                        skipped_count += 1
+                        continue
 
                     with open(dest_file, "wb") as out:
                         out.write(data)
                     exported_count += 1
                 except Exception:
-                    pass
+                    skipped_count += 1
 
             self.audit_service.log_event(
                 action="BATCH_EVIDENCE_EXPORT",
                 target=target_dir,
-                details={"files_exported": exported_count}
+                details={"files_exported": exported_count, "files_skipped_no_data": skipped_count}
             )
-            messagebox.showinfo("Batch Export Complete", f"Successfully extracted {exported_count} artifacts into:\n{target_dir}")
+            msg = f"Successfully extracted {exported_count} artifacts into:\n{target_dir}"
+            if skipped_count > 0:
+                msg += f"\n\n{skipped_count} file(s) were skipped because their data clusters were unavailable (metadata-only records)."
+            messagebox.showinfo("Batch Export Complete", msg)
 
     def _generate_report(self):
         if not self.files_pool:

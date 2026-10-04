@@ -225,11 +225,19 @@ class RecoveryStructureValidator:
     def _validate_bmp(data: bytes) -> Tuple[bool, str]:
         if len(data) < 26 or not data.startswith(b"BM"):
             return False, "Invalid BMP signature"
+        if data[6:10] != b"\x00\x00\x00\x00":
+            return False, "Invalid BMP: Reserved header fields non-zero"
         declared_size = struct.unpack("<I", data[2:6])[0]
         dib_header_size = struct.unpack("<I", data[14:18])[0]
-        if dib_header_size in (12, 40, 52, 56, 64, 108, 124):
-            return True, f"Valid BMP: DIB header {dib_header_size} bytes, size {declared_size} bytes"
-        return False, "Invalid BMP DIB header structure"
+        if dib_header_size not in (12, 40, 52, 56, 64, 108, 124):
+            return False, "Invalid BMP DIB header structure"
+        try:
+            from PIL import Image
+            img = Image.open(io.BytesIO(data))
+            img.verify()
+            return True, f"Valid BMP: {img.format} {img.size} verified cleanly by PIL"
+        except Exception:
+            return False, "Corrupted or unopenable BMP: Image failed PIL verification"
 
     @staticmethod
     def _validate_riff(data: bytes) -> Tuple[bool, str]:
