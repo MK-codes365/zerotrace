@@ -404,27 +404,77 @@ def _build_paths(infos: Dict[int, Any]) -> Dict[int, str]:
 class TSKFilesystemRecoverer:
     """
     Forensic filesystem undelete and metadata scanner combining
-    The Sleuth Kit, BreadCrumb, and TRACE-Forensic-Toolkit techniques.
+    The Sleuth Kit, BreadCrumb, TRACE-Forensic-Toolkit, exFAT specification,
+    and searchlight techniques.
     """
 
     def __init__(self):
         self.is_cancelled = False
+        self.filesystem_architecture: Dict[str, Any] = {"filesystem": "UNKNOWN"}
+        self.exfat_telemetry: Dict[str, Any] = {}
+        self._exfat_engine = None
 
     def cancel(self):
         self.is_cancelled = True
+
+    def _get_exfat_engine(self):
+        """Lazily construct the exFAT engine (imported to avoid a cycle)."""
+        if self._exfat_engine is None:
+            from engines.exfat_filesystem import ExFATUndeleteEngine
+
+            self._exfat_engine = ExFATUndeleteEngine()
+        return self._exfat_engine
+
+    def detect_filesystem_architecture(self, target_volume: str) -> Dict[str, Any]:
+        """
+        Identify the filesystem of an evidence target (NTFS / exFAT / FAT32)
+        and attach the geometry metadata rendered by the Recovery Workbench.
+        """
+        from engines.exfat_filesystem import detect_volume_filesystem
+
+        info = detect_volume_filesystem(target_volume)
+        drive_letter = _resolve_target_to_volume(target_volume)
+        info["drive_letter"] = drive_letter
+        info["target"] = target_volume
+
+        if info.get("filesystem") == "exFAT":
+            arch = self._get_exfat_engine().describe_architecture(target_volume, drive_letter)
+            info.update({k: v for k, v in arch.items() if v not in (None, {}, [], "")})
+            info["filesystem"] = "exFAT"
+
+        self.filesystem_architecture = info
+        return info
 
     def scan_deleted_files(
         self,
         target_volume: str,
         progress_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+        filesystem_architecture: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
         """
         Scan a volume (e.g. G:, \\\\.\\G:, or disk image) for recoverable deleted files.
         """
         self.is_cancelled = False
         deleted_records: List[Dict[str, Any]] = []
+        self.exfat_telemetry = {}
 
         drive_letter = _resolve_target_to_volume(target_volume) or "G"
+
+        # 0. Identify the filesystem so the correct engine is selected up-front
+        if filesystem_architecture is None:
+            try:
+                filesystem_architecture = self.detect_filesystem_architecture(target_volume)
+            except Exception:
+                filesystem_architecture = {"filesystem": "UNKNOWN"}
+        else:
+            self.filesystem_architecture = filesystem_architecture
+
+        if progress_callback:
+            progress_callback({
+                "status": "VOLUME_IDENTIFIED",
+                "filesystem": self.filesystem_architecture.get("filesystem", "UNKNOWN"),
+                "volume": f"{drive_letter}:",
+            })
 
         # 1. Native NTFS MFT Deleted Record Scanner with USA Fixup & Runlist decoding
         try:
@@ -434,7 +484,15 @@ class TSKFilesystemRecoverer:
         except Exception:
             pass
 
-        # 2. Native FAT32 / Removable USB directory table 0xE5 scanning
+        # 2. Native exFAT Boot Region + Directory Entry Set undelete
+        try:
+            exfat_records = self._scan_exfat_filesystem(target_volume, drive_letter, progress_callback)
+            if exfat_records:
+                deleted_records.extend(exfat_records)
+        except Exception:
+            pass
+
+        # 3. Native FAT32 / Removable USB directory table 0xE5 scanning
         try:
             fat_records = self._scan_fat32_directory(drive_letter)
             if fat_records:
@@ -442,7 +500,7 @@ class TSKFilesystemRecoverer:
         except Exception:
             pass
 
-        # 3. Inspect Recycle Bin on target volume ($Recycle.Bin)
+        # 4. Inspect Recycle Bin on target volume ($Recycle.Bin)
         recycle_path = os.path.join(f"{drive_letter}:\\", "$Recycle.Bin")
         if os.path.exists(recycle_path):
             try:
@@ -460,7 +518,7 @@ class TSKFilesystemRecoverer:
             except Exception:
                 pass
 
-        # 4. Fallback simulation ONLY if target is not a real volume and nothing was found
+        # 5. Fallback simulation ONLY if target is not a real volume and nothing was found
         if not deleted_records and not os.path.exists(f"{drive_letter}:\\") and not os.path.isfile(target_volume):
             simulated = [
                 {
@@ -495,9 +553,40 @@ class TSKFilesystemRecoverer:
                 "status": "COMPLETED",
                 "total_found": len(deleted_records),
                 "volume": f"{drive_letter}:",
+                "filesystem": self.filesystem_architecture.get("filesystem", "UNKNOWN"),
+                "filesystem_architecture": self.filesystem_architecture,
             })
 
         return deleted_records
+
+    def _scan_exfat_filesystem(
+        self,
+        target_volume: str,
+        drive_letter: str,
+        progress_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Native exFAT undelete: Main Boot Region geometry, FAT allocation
+        accounting, and 0x85/0xC0/0xC1 Directory Entry Set reconstruction of
+        deleted files (including NoFatChain contiguous runs).
+        """
+        engine = self._get_exfat_engine()
+        try:
+            records, telemetry = engine.scan(
+                target_volume,
+                drive_letter=drive_letter,
+                progress_callback=progress_callback,
+            )
+        finally:
+            self.exfat_telemetry = getattr(engine, "last_telemetry", {}) or {}
+
+        if telemetry.get("filesystem") == "exFAT":
+            self.filesystem_architecture.update({
+                k: v for k, v in telemetry.items()
+                if k not in ("cluster_runs", "status", "target", "error")
+            })
+
+        return records
 
     def _scan_ntfs_mft(self, target_volume: str) -> List[Dict[str, Any]]:
         """
@@ -506,7 +595,9 @@ class TSKFilesystemRecoverer:
         """
         records: List[Dict[str, Any]] = []
 
-        with ForensicDeviceReader(target_volume) as reader:
+        from engines.exfat_filesystem import _open_reader
+
+        with _open_reader(target_volume) as reader:
             if not reader.file_obj and not reader.handle:
                 return []
 
@@ -655,6 +746,15 @@ class TSKFilesystemRecoverer:
                 return []
 
             boot = buf.raw
+            if len(boot) < 512:
+                ctypes.windll.kernel32.CloseHandle(ctypes.c_void_p(h))
+                return []
+
+            # exFAT / NTFS volumes must not be parsed with FAT32 rules
+            if boot[3:11] == b"EXFAT   " or boot[3:11] == b"NTFS    ":
+                ctypes.windll.kernel32.CloseHandle(ctypes.c_void_p(h))
+                return []
+
             bytes_per_sec = struct.unpack_from("<H", boot, 11)[0]
             sec_per_clus = boot[13]
             reserved_sec = struct.unpack_from("<H", boot, 14)[0]
@@ -799,10 +899,20 @@ class TSKFilesystemRecoverer:
 
     def restore_file(self, record: Dict[str, Any], output_directory: str) -> str:
         """Restore deleted file to designated safe forensic output directory."""
+        import shutil
+
         os.makedirs(output_directory, exist_ok=True)
         dest_path = os.path.join(output_directory, record["original_name"])
 
-        # 1. If raw memory buffer is attached (from FAT32/NTFS extraction)
+        # 0. Large streams spilled to a temp file during exFAT/NTFS extraction are
+        #    streamed straight to the destination so >50 MB evidence keeps byte
+        #    exact stream integrity without buffering it in memory.
+        payload_path = record.get("payload_path")
+        if not record.get("is_simulated") and payload_path and os.path.exists(payload_path):
+            shutil.copy2(payload_path, dest_path)
+            return dest_path
+
+        # 1. If raw memory buffer is attached (from FAT32/NTFS/exFAT extraction)
         data = record.get("data")
         if not record.get("is_simulated") and data:
             ext = os.path.splitext(record.get("original_name", ""))[1].lower()
@@ -811,13 +921,34 @@ class TSKFilesystemRecoverer:
                     f.write(data)
                 return dest_path
 
+            # 1a. A PDF whose clusters survived but whose xref table was destroyed
+            #     by fragmentation is rebuilt before being written out.
+            if ext == ".pdf" and data.startswith(b"%PDF-"):
+                try:
+                    from engines.scalpel_carver import PdfXrefReconstructor
+
+                    repair = PdfXrefReconstructor.repair(bytes(data))
+                    with open(dest_path, "wb") as f:
+                        f.write(repair.get("data") or data)
+                    return dest_path
+                except Exception:
+                    pass
+
         # 2. If Recycle Bin source file is available
         if not record.get("is_simulated") and "r_path" in record and os.path.exists(record["r_path"]):
-            import shutil
             shutil.copy2(record["r_path"], dest_path)
             return dest_path
 
-        # 3. Fallback synthesis
+        # 3. Real filesystem records must never be replaced with synthetic data.
+        #    Reporting failure preserves evidentiary integrity.
+        if record.get("no_synthesis"):
+            raise IOError(
+                f"Recovered payload for '{record.get('original_name', 'unknown')}' is no longer "
+                "present on the evidence media (clusters re-allocated). Synthetic evidence "
+                "substitution is disabled for filesystem-sourced records."
+            )
+
+        # 4. Fallback synthesis
         try:
             from core.payload_generator import synthesize_openable_payload
             ext = os.path.splitext(record.get("original_name", ""))[1]

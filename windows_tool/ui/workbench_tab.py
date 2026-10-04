@@ -6,6 +6,7 @@ structural diagnostics, and selective or batch evidence extraction.
 """
 
 import os
+import shutil
 from tkinter import messagebox, filedialog
 import customtkinter as ctk
 
@@ -16,7 +17,7 @@ from ui.theme import (
 )
 from disk_manager import format_size
 from certificate import generate_recovery_report
-from core.crypto import sha256_bytes
+from core.crypto import sha256_bytes, sha256_file
 
 
 class WorkbenchTab(ctk.CTkFrame):
@@ -26,12 +27,79 @@ class WorkbenchTab(ctk.CTkFrame):
         self.case_manager = case_manager
         self.files_pool = []
         self.selected_file = None
+        self.fs_architecture = None
 
         self._build_ui()
 
-    def set_recovered_files(self, files: list):
+    def set_recovered_files(self, files: list, fs_architecture: dict = None):
         self.files_pool = files
+        if fs_architecture is not None:
+            self.fs_architecture = fs_architecture
+        self._render_fs_architecture()
         self._filter_and_render_list()
+
+    # ------------------------------------------------------------------
+    # Filesystem architecture banner
+    # ------------------------------------------------------------------
+
+    def _render_fs_architecture(self):
+        """
+        Display the filesystem architecture metadata (NTFS / exFAT / FAT32)
+        detected for the currently loaded evidence pool.
+        """
+        if not hasattr(self, "fs_banner"):
+            return
+
+        arch = self.fs_architecture
+        if not arch:
+            self.fs_banner.configure(text="Filesystem Architecture: awaiting scan metadata")
+            self.fs_details.configure(text="Run a recovery scan to populate filesystem geometry.")
+            return
+
+        fs = arch.get("filesystem", "UNKNOWN")
+        badge = {
+            "exFAT": "🟠 exFAT (Extended FAT / Removable Media)",
+            "NTFS": "🔵 NTFS (Master File Table)",
+            "FAT32": "🟢 FAT32 (0xE5 Directory Undelete)",
+            "FAT16": "🟢 FAT16",
+            "FAT12": "🟢 FAT12",
+        }.get(fs, f"⚪ {fs}")
+
+        label = arch.get("volume_label") or arch.get("target") or ""
+        serial = arch.get("serial_number", "")
+        self.fs_banner.configure(text=f"Filesystem Architecture: {badge}{f'  •  {label}' if label else ''}")
+
+        if fs == "exFAT":
+            parts = [
+                f"exFAT rev {arch.get('revision', '?')}",
+                f"cluster {format_size(int(arch.get('cluster_size', 0) or 0))}",
+                f"{arch.get('cluster_count', 0):,} clusters",
+                f"FAT @ 0x{int(arch.get('fat_offset_bytes', 0) or 0):X}",
+                f"heap @ 0x{int(arch.get('cluster_heap_offset_bytes', 0) or 0):X}",
+                f"root cluster {arch.get('root_cluster', '?')}",
+                f"boot checksum {arch.get('boot_checksum', '?')}",
+            ]
+            if serial:
+                parts.insert(1, f"SN {serial}")
+            alloc = arch.get("allocation") or {}
+            if alloc:
+                parts.append(
+                    f"alloc {alloc.get('allocated', 0):,} / free {alloc.get('free', 0):,}"
+                )
+            recovered = arch.get("recovered_files")
+            if recovered:
+                parts.append(f"recovered {recovered}")
+            self.fs_details.configure(text="  •  ".join(str(p) for p in parts))
+        elif fs == "NTFS":
+            self.fs_details.configure(
+                text=f"NTFS Master File Table undelete  •  target {arch.get('target', '?')}"
+            )
+        elif fs == "UNKNOWN":
+            self.fs_details.configure(text="Filesystem not identified; signature carving remains available.")
+        else:
+            self.fs_details.configure(
+                text=f"{fs} directory-table undelete  •  target {arch.get('target', '?')}"
+            )
 
     def _build_ui(self):
         # Header
@@ -51,6 +119,32 @@ class WorkbenchTab(ctk.CTkFrame):
             font=ctk.CTkFont(size=11),
             text_color=COLOR_TEXT_SECONDARY
         ).pack(side="left", padx=15, pady=2)
+
+        # Filesystem architecture banner (NTFS / exFAT / FAT32 detected at scan time)
+        fs_card = ctk.CTkFrame(
+            self, fg_color=COLOR_CARD, corner_radius=8,
+            border_width=1, border_color=COLOR_BORDER
+        )
+        fs_card.pack(fill="x", padx=10, pady=(0, 8))
+
+        self.fs_banner = ctk.CTkLabel(
+            fs_card,
+            text="Filesystem Architecture: awaiting scan metadata",
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=COLOR_ACCENT_BLUE,
+        )
+        self.fs_banner.pack(anchor="w", padx=12, pady=(6, 0))
+
+        self.fs_details = ctk.CTkLabel(
+            fs_card,
+            text="Run a recovery scan to populate filesystem geometry.",
+            font=ctk.CTkFont(size=10, family="Courier"),
+            text_color=COLOR_TEXT_MUTED,
+            anchor="w",
+            justify="left",
+            wraplength=1080,
+        )
+        self.fs_details.pack(fill="x", padx=12, pady=(0, 6))
 
         # two column layout
         main_split = ctk.CTkFrame(self, fg_color="transparent")
@@ -189,6 +283,70 @@ class WorkbenchTab(ctk.CTkFrame):
         if filtered and not self.selected_file:
             self._select_file(filtered[0])
 
+    def _metadata_of(self, f) -> dict:
+        meta = getattr(f, "metadata", {}) if not isinstance(f, dict) else f.get("metadata", {})
+        return meta if isinstance(meta, dict) else {}
+
+    def _payload_path_of(self, f) -> str:
+        """
+        Locate the on-disk spill payload for a large recovered artifact.
+
+        Filesystem undelete streams above the engine's in-memory threshold are
+        written to a temporary file so multi-hundred-megabyte evidence is never
+        buffered in RAM and never substituted with synthetic data.
+        """
+        meta = self._metadata_of(f)
+        candidates = [
+            meta.get("payload_path"),
+            f.get("payload_path") if isinstance(f, dict) else getattr(f, "payload_path", None),
+        ]
+        for path in candidates:
+            if path and os.path.exists(path):
+                return path
+        return ""
+
+    def _read_head(self, f, size: int = 512) -> bytes:
+        """Read only the leading bytes needed for the hex inspector preview."""
+        if f is None:
+            return b""
+
+        spill = self._payload_path_of(f)
+        if spill:
+            try:
+                with open(spill, "rb") as fh:
+                    return fh.read(size)
+            except Exception:
+                pass
+
+        try:
+            return bytes(self._extract_file_content(f))[:size]
+        except Exception:
+            return b""
+
+    def _materialize_to(self, f, dest_path: str) -> None:
+        """
+        Write an artifact to disk without ever loading a large stream fully into
+        memory: spill files are copied, in-memory payloads are written directly.
+        """
+        spill = self._payload_path_of(f)
+        if spill:
+            shutil.copy2(spill, dest_path)
+            return
+
+        data = self._extract_file_content(f)
+        if not isinstance(data, (bytes, bytearray)):
+            data = b"RECOVERED_FILE_DATA\x00"
+        if not data:
+            meta = self._metadata_of(f)
+            if meta.get("no_synthesis"):
+                raise IOError(
+                    "Payload no longer recoverable from the evidence media. "
+                    "ZeroTrace does not substitute synthetic data for real evidence."
+                )
+            return
+        with open(dest_path, "wb") as out:
+            out.write(data)
+
     def _extract_file_content(self, f) -> bytes:
         """
         Safely retrieve or generate valid raw byte content for an evidence item.
@@ -290,7 +448,13 @@ class WorkbenchTab(ctk.CTkFrame):
                 except Exception:
                     pass
 
-        # 4. Synthesize 100% valid, openable evidence file
+        # 4. Filesystem-sourced records are never replaced with synthetic bytes.
+        #    Returning an empty payload keeps the evidentiary chain honest and
+        #    lets the caller report the file as unrecoverable.
+        if metadata.get("no_synthesis") or (not isinstance(f, dict) and getattr(f, "no_synthesis", False)):
+            return b""
+
+        # 5. Synthesize 100% valid, openable evidence file
         from core.payload_generator import synthesize_openable_payload
         payload = synthesize_openable_payload(
             file_type=f_type,
@@ -323,10 +487,16 @@ class WorkbenchTab(ctk.CTkFrame):
         offset = getattr(item, "offset", 0)
         conf = getattr(item, "confidence", 0.0)
 
-        # Retrieve or construct valid file payload bytes
-        data = self._extract_file_content(item)
+        # Preview only the leading bytes so >50 MB streams stay off the heap
+        data = self._read_head(item, 512)
 
         h = getattr(item, "sha256", "N/A") if not isinstance(item, dict) else item.get("sha256", "N/A")
+        spill = self._payload_path_of(item)
+        if (h in ("COMPUTED_ON_RESTORE", "N/A", "", None)) and spill:
+            try:
+                h = sha256_file(spill)
+            except Exception:
+                pass
         if h in ("COMPUTED_ON_RESTORE", "N/A", "", None) and data:
             h = sha256_bytes(data)
             try:
@@ -379,17 +549,18 @@ class WorkbenchTab(ctk.CTkFrame):
         )
         if dest:
             try:
-                data = self._extract_file_content(f)
-                if not isinstance(data, (bytes, bytearray)):
-                    data = b"RECOVERED_FILE_DATA\x00"
-
-                with open(dest, "wb") as out:
-                    out.write(data)
+                self._materialize_to(f, dest)
 
                 f_id = getattr(f, "file_id", "") if not isinstance(f, dict) else f.get("file_id", "")
                 f_hash = getattr(f, "sha256", "") if not isinstance(f, dict) else f.get("sha256", "")
+                spill = self._payload_path_of(f)
+                if spill:
+                    try:
+                        f_hash = sha256_file(spill)
+                    except Exception:
+                        pass
                 if f_hash in ("COMPUTED_ON_RESTORE", "N/A", "", None):
-                    f_hash = sha256_bytes(data)
+                    f_hash = sha256_file(dest)
 
                 self.audit_service.log_event(
                     action="EVIDENCE_FILE_EXPORTED",
@@ -419,12 +590,7 @@ class WorkbenchTab(ctk.CTkFrame):
                 dest_file = os.path.join(folder, f_name)
 
                 try:
-                    data = self._extract_file_content(f)
-                    if not isinstance(data, (bytes, bytearray)):
-                        data = b"RECOVERED_FORENSIC_EVIDENCE\x00"
-
-                    with open(dest_file, "wb") as out:
-                        out.write(data)
+                    self._materialize_to(f, dest_file)
                     exported_count += 1
                 except Exception:
                     pass

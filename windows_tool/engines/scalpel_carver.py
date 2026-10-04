@@ -3,13 +3,19 @@ ZeroTrace Scalpel-Powered File Carving Engine — Precision Forensic Carving
 Enhanced with BreadCrumb, TRACE-Forensic-Toolkit, searchlight, and Digital-Forensics-Toolkit.
 Features bounded horizon search, exact structure walking (JPEG SOS markers, PNG IEND,
 ZIP Central Directory, PDF EOF boundaries & Linearized dictionaries), and pypdf/PIL deep validation.
+
+Fragmentation module: validated bi-fragment gap carving (header/trailer reassembly
+across non-adjacent cluster blocks) and automatic PDF cross-reference table (xref)
+plus indirect-object dictionary reconstruction for truncated damaged documents.
 """
 
 import os
 import re
 import time
+import zlib
 import hashlib
 import ctypes
+import io
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional, Callable, NamedTuple
 
@@ -533,6 +539,635 @@ def _carve_rtf(w: StreamWindow) -> Optional[CarveResult]:
     return None
 
 
+# ---------------------------------------------------------------------------
+# Validated Bi-Fragment Gap Carving & PDF Cross-Reference Reconstruction
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class ReassemblyFragment:
+    """One contiguous extent of a reassembled (bi-fragment) carve."""
+
+    label: str
+    start_offset: int
+    length: int
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "label": self.label,
+            "start_offset": self.start_offset,
+            "length": self.length,
+            "end_offset": self.start_offset + self.length,
+        }
+
+
+@dataclass
+class BifragmentResult:
+    """Outcome of a validated two-extent rescue."""
+
+    data: bytes
+    fragments: List[ReassemblyFragment]
+    gap_bytes: int
+    validated: bool
+    confidence: float
+    diagnostic: str
+
+
+class BifragmentReassembler:
+    """
+    Validated bi-fragment gap carver.
+
+    Removable media that has been heavily used stores large files as two or
+    more non-adjacent cluster blocks. When a stream is truncated its header and
+    its structural terminator (``%%EOF``, JPEG EOI, PNG IEND, ZIP EOCD, ...)
+    often survive in different blocks. This carver locates the header, walks to
+    the end of its cluster block, searches a bounded horizon for the terminator
+    outside that block, and stitches exactly two extents together.
+
+    Every candidate is structurally validated before it is accepted, so a
+    mis-stitch can never be reported as recovered evidence.
+    """
+
+    #: Cluster-block granularity used to bound fragment edges.
+    DEFAULT_BLOCK_ALIGN = 4 * KB
+    #: Bounded horizon for the trailer search (prevents whole-media scans).
+    DEFAULT_SEARCH_WINDOW = 512 * MB
+    #: Largest share of the spanned region that may be missing between the two
+    #: extents. The gap is measured against the region the pair claims to
+    #: describe (header -> terminator), not against the recovered payload, so
+    #: a genuinely fragmented file is not rejected for being fragmented.
+    MAX_GAP_RATIO = 0.90
+    #: Absolute ceiling on the missing region, independent of ratio.
+    MAX_GAP_BYTES = 512 * MB
+    #: Minimum accepted confidence from the structure validator.
+    MIN_CONFIDENCE = 0.60
+
+    def __init__(
+        self,
+        reader: Any,
+        block_align: int = DEFAULT_BLOCK_ALIGN,
+        search_window: int = DEFAULT_SEARCH_WINDOW,
+    ):
+        self.reader = reader
+        self.block_align = max(512, block_align)
+        self.search_window = search_window
+
+    def carve_bifragment(
+        self,
+        header_offset: int,
+        footer_sig: bytes,
+        file_type: str,
+        declared_size: int = 0,
+        occupied_end: Optional[int] = None,
+        min_size: int = 256,
+        max_size: int = 512 * MB,
+    ) -> Optional[BifragmentResult]:
+        """
+        Attempt a two-extent rescue for a truncated file starting at
+        ``header_offset``. Returns ``None`` when no validated reassembly exists.
+        """
+        if not footer_sig or header_offset < 0:
+            return None
+
+        head_block_start = _floor_align(header_offset, self.block_align)
+        head_block_end = _ceil_align(header_offset + 1, self.block_align)
+
+        # Fragment A: header -> end of the containing cluster block, clipped by
+        # the region known to hold this file (next signature or chunk end).
+        head_limit = occupied_end if occupied_end is not None else header_offset + max_size
+        head_end = min(head_limit, head_block_end)
+        if head_end <= header_offset:
+            head_end = min(head_limit, header_offset + self.block_align)
+
+        tail_search_start = head_block_end
+        tail_search_end = min(header_offset + max_size, tail_search_start + self.search_window)
+        if tail_search_end <= tail_search_start:
+            return None
+
+        footer_idx = self._find_last(footer_sig, tail_search_start, tail_search_end)
+        if footer_idx < 0:
+            return None
+
+        tail_end = footer_idx + len(footer_sig)
+        # Absorb a trailing CR/LF pair emitted by writers after %%EOF.
+        trail = self.reader.pread(tail_end, 2) or b""
+        if trail[:2] == b"\r\n":
+            tail_end += 2
+        elif trail[:1] in (b"\r", b"\n"):
+            tail_end += 1
+
+        tail_block_end = _ceil_align(tail_end, self.block_align)
+        tail_start = max(tail_search_start, tail_block_end - self.block_align)
+
+        # Prefer an exact declared size when the container advertises one.
+        if declared_size and head_limit and declared_size <= max_size:
+            head_len = declared_size - (tail_end - tail_start)
+            if head_len > 0:
+                head_end = header_offset + head_len
+        else:
+            head_len = head_end - header_offset
+
+        if head_len < min_size or (tail_end - tail_start) < 1:
+            return None
+
+        head = self.reader.pread(header_offset, head_len) or b""
+        tail = self.reader.pread(tail_start, tail_end - tail_start) or b""
+        if not head or not tail:
+            return None
+
+        combined = head + tail
+        if len(combined) > max_size:
+            return None
+
+        gap = max(0, tail_start - head_end)
+        span = max(1, tail_end - header_offset)
+        if gap > self.MAX_GAP_BYTES or gap > span * self.MAX_GAP_RATIO:
+            return None
+
+        validation = RecoveryStructureValidator.validate_and_score(
+            file_type, combined, footer_matched=True
+        )
+        confidence = float(validation.get("confidence", 0.0))
+        if confidence < self.MIN_CONFIDENCE:
+            return None
+
+        fragments = [
+            ReassemblyFragment("HEADER_BLOCK", header_offset, len(head)),
+            ReassemblyFragment("TRAILER_BLOCK", tail_start, len(tail)),
+        ]
+
+        diagnostic = (
+            f"Bi-fragment gap carve: header 0x{header_offset:X} + {len(head)}B, "
+            f"trailer 0x{tail_start:X} + {len(tail)}B, gap {gap}B, "
+            f"confidence {int(confidence * 100)}%"
+        )
+
+        return BifragmentResult(
+            data=combined,
+            fragments=fragments,
+            gap_bytes=gap,
+            validated=bool(validation.get("structural_check", True)),
+            confidence=confidence,
+            diagnostic=diagnostic,
+        )
+
+    def _find_last(self, needle: bytes, start: int, end: int) -> int:
+        """Reverse-bounded forward search with a fixed-size look-behind."""
+        nl = len(needle)
+        step = 8 * MB
+        last = -1
+        pos = max(0, start)
+        while pos < end:
+            buf = self.reader.pread(pos, min(step, end - pos) + nl - 1)
+            if not buf:
+                break
+            idx = buf.rfind(needle)
+            while idx >= 0:
+                if pos + idx + nl <= end:
+                    last = pos + idx
+                idx = buf.rfind(needle, 0, idx)
+            pos += step
+        return last
+
+
+def _floor_align(value: int, align: int) -> int:
+    return value - (value % align)
+
+
+def _ceil_align(value: int, align: int) -> int:
+    rem = value % align
+    return value if rem == 0 else value + (align - rem)
+
+
+class PdfXrefReconstructor:
+    """
+    Detects damaged PDF cross-reference tables and rebuilds a valid file.
+
+    Recovered (or bi-fragment carved) PDFs frequently arrive with a destroyed
+    ``xref`` table, a dangling ``startxref`` offset, or an ``%%EOF`` that landed
+    in the wrong cluster. Rather than discarding the document, this class:
+
+      1. inspects the ``startxref`` pointer and verifies each xref subsection
+         offset actually lands on an ``N G obj`` header,
+      2. harvests every intact indirect object (``N G obj ... endobj``),
+      3. decompresses any ``/Type /ObjStm`` object streams so objects that only
+         lived inside compressed streams are recovered too,
+      4. re-emits the document with a freshly computed classic xref table,
+         trailer dictionary (rebuilding ``/Root`` from the catalog object) and a
+         corrected ``startxref``/``%%EOF`` terminator.
+    """
+
+    _OBJ_RE = re.compile(rb"(?<![0-9])(\d{1,10})[\x20\t]+(\d{1,6})[\x20\t]+obj(?![a-zA-Z0-9])")
+    #: One classic cross-reference entry: 10-digit offset, 5-digit generation,
+    #: in-use flag and the two-byte end-of-line marker.
+    _XREF_ENTRY_RE = re.compile(rb"(\d{1,10})[\x20\t]+(\d{1,5})[\x20\t]+([nf])[\x20\t\r\n]{0,2}")
+    _STARTXREF_RE = re.compile(rb"startxref[\x00\t\n\f\r ]+(\d{1,12})")
+    _TRAILER_RE = re.compile(rb"trailer")
+    _TYPE_RE = re.compile(rb"/Type[\x20\t]*/([A-Za-z0-9#]+)")
+    _CATALOG_RE = re.compile(rb"/Type[\x20\t]*/Catalog(?![a-zA-Z0-9])")
+    _PAGES_RE = re.compile(rb"/Type[\x20\t]*/Pages(?![a-zA-Z0-9])")
+    _OBJSTM_RE = re.compile(rb"/Type[\x20\t]*/ObjStm(?![a-zA-Z0-9])")
+    _INT_RE = re.compile(rb"/(N|First|Length)[\x20\t]+(\d+)")
+
+    #: Cap on harvested objects so hostile input cannot exhaust memory.
+    MAX_OBJECTS = 100_000
+
+    @classmethod
+    def inspect(cls, data: bytes) -> Dict[str, Any]:
+        """Report whether the cross-reference structure of a PDF is intact."""
+        info: Dict[str, Any] = {
+            "needs_repair": True,
+            "reason": "Unrecognised structure",
+            "version": cls._version(data),
+            "objects": 0,
+            "declared_startxref": None,
+            "eof_present": False,
+            "trailer_present": False,
+            "root_object": None,
+        }
+
+        if not data or not data.startswith(b"%PDF-"):
+            info["reason"] = "Missing %PDF- header"
+            return info
+
+        info["eof_present"] = b"%%EOF" in data[-2048:]
+        info["trailer_present"] = bool(cls._TRAILER_RE.search(data[-8192:]))
+        info["objects"] = len(cls._iter_objects(data))
+
+        tail = data[-4096:]
+        m = None
+        for m in cls._STARTXREF_RE.finditer(tail):
+            pass
+        if m:
+            declared = int(m.group(1))
+            info["declared_startxref"] = declared
+
+            if 0 < declared < len(data):
+                target = data[declared : declared + 40]
+                if target.startswith(b"xref"):
+                    ok, detail = cls._verify_classic_xref(data, declared)
+                    info["reason"] = detail
+                    info["needs_repair"] = not ok
+                    info["root_object"] = cls._root_object_number(data)
+                    return info
+                else:
+                    # Cross-reference stream (/Type /XRef) or a stale pointer.
+                    obj = cls._object_containing(data, declared)
+                    if obj and obj.get("body", b"").find(b"/XRef") >= 0:
+                        info["reason"] = "Cross-reference stream intact"
+                        info["needs_repair"] = False
+                        info["root_object"] = cls._root_object_number(data)
+                        return info
+                    info["reason"] = f"startxref {declared} does not resolve to an xref table or stream"
+                    return info
+            else:
+                info["reason"] = f"startxref offset {declared} outside document"
+                return info
+
+        # No usable startxref at all.
+        info["needs_repair"] = True
+        if not info["eof_present"]:
+            info["reason"] = "Truncated: %%EOF terminator missing"
+        elif not info["trailer_present"]:
+            info["reason"] = "%%EOF present but trailer dictionary missing"
+        else:
+            info["reason"] = "startxref pointer missing"
+        return info
+
+    @classmethod
+    def _root_object_number(cls, data: bytes) -> Optional[int]:
+        """
+        Object number of the document catalog: the trailer ``/Root`` reference
+        when it parses, otherwise the object whose dictionary is
+        ``/Type /Catalog``.
+        """
+        trailers = list(cls._TRAILER_RE.finditer(data))
+        if trailers:
+            window = data[trailers[-1].end() : trailers[-1].end() + 512]
+            m = re.search(rb"/Root[\x00\t\n\f\r ]+(\d{1,10})[\x00\t\n\f\r ]+(\d{1,5})[\x00\t\n\f\r ]+R", window)
+            if m:
+                return int(m.group(1))
+        for obj in cls._iter_objects(data):
+            if cls._CATALOG_RE.search(obj.get("body", b"")):
+                return int(obj["num"])
+        return None
+
+    @classmethod
+    def _version(cls, data: bytes) -> str:
+        head = data[:16]
+        if head.startswith(b"%PDF-"):
+            return head[5:8].decode("latin1", "replace")
+        return "?"
+
+    # -- object harvesting --------------------------------------------------
+
+    @classmethod
+    def _iter_objects(cls, data: bytes) -> List[Dict[str, Any]]:
+        """Yield ``{num, gen, body, start}`` for every intact indirect object."""
+        objects: List[Dict[str, Any]] = []
+        for match in cls._OBJ_RE.finditer(data):
+            if len(objects) >= cls.MAX_OBJECTS:
+                break
+            num = int(match.group(1))
+            gen = int(match.group(2))
+            start = match.start()
+
+            end = data.find(b"endobj", match.end())
+            if end < 0:
+                nxt = cls._OBJ_RE.search(data, match.end())
+                end = nxt.start() if nxt else len(data)
+            body = data[match.end() : end]
+            objects.append({"num": num, "gen": gen, "body": body, "start": start})
+        return objects
+
+    @classmethod
+    def _object_containing(cls, data: bytes, offset: int) -> Optional[Dict[str, Any]]:
+        """Find the object whose header begins at or just before ``offset``."""
+        best = None
+        for obj in cls._iter_objects(data):
+            if obj["start"] <= offset:
+                best = obj
+            else:
+                break
+        return best
+
+    @classmethod
+    def _verify_classic_xref(cls, data: bytes, xref_offset: int) -> tuple:
+        """
+        Walk a classic xref table and confirm every entry offset lands on an
+        ``N G obj`` header. Returns ``(ok, diagnostic)``.
+
+        Entries are matched structurally (10-digit offset, 5-digit generation,
+        ``n``/``f`` flag and the 2-byte EOL) instead of at a fixed stride, so
+        writers that emit 19-byte CRLF records verify correctly too.
+        """
+        size = len(data)
+        pos = xref_offset + 4  # just past the "xref" keyword
+        while pos < size and data[pos : pos + 1] in (b"\x00", b"\x09", b"\x0a", b"\x0c", b"\x0d", b"\x20"):
+            pos += 1
+
+        subsection_re = re.compile(rb"(\d{1,10})[\x20\t]+(\d{1,10})")
+        checked = 0
+        bad = 0
+
+        while pos < size:
+            m = subsection_re.match(data, pos)
+            if not m:
+                break
+            first, count = int(m.group(1)), int(m.group(2))
+            pos = m.end()
+            while pos < size and data[pos : pos + 1] in (b"\x00", b"\x09", b"\x0a", b"\x0c", b"\x0d", b"\x20"):
+                pos += 1
+
+            for i in range(count):
+                entry = cls._XREF_ENTRY_RE.match(data, pos)
+                if not entry:
+                    return False, f"xref subsection truncated at object {first + i}"
+                if entry.group(3) == b"n":
+                    off = int(entry.group(1))
+                    if not (0 < off < size) or not cls._OBJ_RE.match(data, off):
+                        bad += 1
+                    checked += 1
+                pos = entry.end()
+
+            if cls._TRAILER_RE.match(data, pos):
+                break
+            if not subsection_re.match(data, pos):
+                break
+
+        if checked == 0:
+            return False, "xref table contains no object entries"
+        if bad:
+            return False, f"{bad}/{checked} xref offsets do not resolve to object headers"
+        return True, "Classic xref table verified"
+
+    @classmethod
+    def _decompress_objstm(cls, obj: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Extract objects that live inside an ``/ObjStm`` compressed stream and
+        are therefore invisible to a raw ``N G obj`` scan.
+        """
+        body = obj.get("body", b"")
+        if not cls._OBJSTM_RE.search(body):
+            return []
+
+        params: Dict[str, int] = {}
+        for key, val in cls._INT_RE.findall(body[:512]):
+            params[key.decode()] = int(val)
+
+        s = body.find(b"stream")
+        if s < 0:
+            return []
+        s += len(b"stream")
+        while s < len(body) and body[s : s + 1] in (b"\r", b"\n"):
+            s += 1
+
+        e = body.find(b"endstream", s)
+        raw = body[s:e if e > 0 else len(body)]
+        if params.get("Length") and params["Length"] <= len(raw):
+            raw = raw[: params["Length"]]
+
+        try:
+            payload = zlib.decompressobj().decompress(raw)
+        except Exception:
+            return []
+
+        count = params.get("N")
+        first = params.get("First", 0)
+        if not count or not first or first > len(payload):
+            return []
+
+        pairs: List[tuple] = []
+        header = payload[:first]
+        tokens = header.split()
+        for i in range(0, min(len(tokens) - 1, count * 2), 2):
+            try:
+                pairs.append((int(tokens[i]), int(tokens[i + 1])))
+            except ValueError:
+                break
+
+        extracted: List[Dict[str, Any]] = []
+        for idx, (num, rel) in enumerate(pairs):
+            start = first + rel
+            if not (0 <= start < len(payload)):
+                continue
+            stop = len(payload)
+            if idx + 1 < len(pairs):
+                nxt = first + pairs[idx + 1][1]
+                if nxt > start:
+                    stop = nxt
+            extracted.append({
+                "num": num,
+                "gen": 0,
+                "body": payload[start:stop],
+                "start": -1,
+                "from_objstm": True,
+            })
+        return extracted[: cls.MAX_OBJECTS]
+
+    # -- reconstruction -----------------------------------------------------
+
+    @classmethod
+    def reconstruct(cls, data: bytes) -> bytes:
+        """Rebuild a structurally valid PDF from surviving object dictionaries."""
+        if not data or not data.startswith(b"%PDF-"):
+            return data
+
+        version = cls._version(data) or "1.7"
+        objects = cls._iter_objects(data)
+
+        harvested: Dict[int, Dict[str, Any]] = {}
+        for obj in objects:
+            if obj["num"] not in harvested:
+                harvested[obj["num"]] = obj
+
+        # Pull objects out of compressed object streams, without clobbering
+        # objects that also exist as raw definitions.
+        for obj in objects:
+            if not cls._OBJSTM_RE.search(obj.get("body", b"")):
+                continue
+            for sub in cls._decompress_objstm(obj):
+                harvested.setdefault(sub["num"], sub)
+
+        if not harvested:
+            return data
+
+        # Document body: everything after the header up to the original trailer.
+        header_end = data.find(b"\n")
+        header_end = header_end + 1 if header_end >= 0 else 9
+        body_end = len(data)
+        trailer_at = data.rfind(b"trailer", header_end)
+        startxref_at = cls._STARTXREF_RE.search(data[header_end:])
+        if startxref_at:
+            body_end = min(body_end, header_end + startxref_at.start())
+        if trailer_at > header_end:
+            body_end = min(body_end, trailer_at)
+
+        body_region = data[header_end:body_end]
+
+        out = bytearray()
+        out += f"%PDF-{version}\n".encode("ascii")
+        out += b"%\xE2\xE3\xCF\xD3\n"
+
+        offsets: Dict[int, int] = {}
+        for num in sorted(harvested):
+            obj = harvested[num]
+            payload = obj["body"].strip(b"\r\n")
+            if not payload:
+                payload = b"<< >>"
+            offsets[num] = len(out)
+            out += f"{num} {obj.get('gen', 0)} obj\n".encode("ascii")
+            out += payload
+            out += b"\nendobj\n"
+
+        xref_offset = len(out)
+        size = (max(offsets) + 1) if offsets else 1
+        out += f"xref\n0 {size}\n".encode("ascii")
+        out += b"0000000000 65535 f \n"
+        for num in range(1, size):
+            if num in offsets:
+                out += f"{offsets[num]:010d} 00000 n \n".encode("ascii")
+            else:
+                out += b"0000000000 65535 f \n"
+
+        root_num = cls._find_root_object(harvested, body_region)
+        trailer = f"trailer\n<< /Size {size} /Root {root_num} 0 R >>\n".encode("ascii")
+        out += trailer
+        out += f"startxref\n{xref_offset}\n%%EOF\n".encode("ascii")
+
+        return bytes(out)
+
+    @classmethod
+    def _find_root_object(cls, harvested: Dict[int, Dict[str, Any]], body_region: bytes) -> int:
+        """Locate the document catalog, falling back to the page-tree root."""
+        for num, obj in sorted(harvested.items()):
+            if cls._CATALOG_RE.search(obj.get("body", b"")):
+                return num
+        for num, obj in sorted(harvested.items()):
+            if cls._PAGES_RE.search(obj.get("body", b"")):
+                return num
+        for num, obj in sorted(harvested.items()):
+            if cls._TYPE_RE.search(obj.get("body", b"")) and b"/Page" not in obj.get("body", b"")[:512]:
+                return num
+        return min(harvested) if harvested else 1
+
+    @classmethod
+    def repair(cls, data: bytes) -> Dict[str, Any]:
+        """
+        Attempt full xref reconstruction. Returns a report describing what was
+        done; ``data`` is the original buffer when nothing could be improved.
+        """
+        report: Dict[str, Any] = {"repaired": False, "before": cls.inspect(data) if data else {}}
+
+        if not data or not data.startswith(b"%PDF-"):
+            report["reason"] = "Not a PDF payload"
+            return report
+
+        if not report["before"].get("needs_repair", True):
+            report["reason"] = "Cross-reference table already valid"
+            report["data"] = data
+            return report
+
+        try:
+            rebuilt = cls.reconstruct(data)
+        except Exception as exc:
+            report["reason"] = f"Reconstruction failed: {exc}"
+            return report
+
+        if rebuilt == data:
+            report["reason"] = "No recoverable object dictionaries"
+            report["data"] = data
+            return report
+
+        after = cls.inspect(rebuilt)
+        report["after"] = after
+        report["objects_recovered"] = len({obj["num"] for obj in cls._iter_objects(rebuilt)})
+
+        original_ok = cls._pdf_opens(data)
+        rebuilt_ok = cls._pdf_opens(rebuilt) and not after.get("needs_repair", True)
+
+        if rebuilt_ok and (not original_ok or report["before"].get("needs_repair", True)):
+            report["repaired"] = True
+            report["data"] = rebuilt
+            report["reason"] = "xref table and object dictionaries rebuilt"
+        else:
+            report["data"] = data
+            report["reason"] = "Reconstructed file failed structural validation; original retained"
+
+        return report
+
+    @classmethod
+    def _pdf_opens(cls, data: bytes) -> bool:
+        """Best-effort 'a real PDF reader accepts this' test."""
+        try:
+            # pyrefly: ignore [missing-import]
+            import pypdf
+
+            reader = pypdf.PdfReader(io.BytesIO(data), strict=False)
+            return len(reader.pages) > 0
+        except Exception:
+            return b"%%EOF" in data[-1024:] and (b"trailer" in data or b"/Root" in data)
+
+
+def _declared_pdf_length(w: StreamWindow) -> int:
+    """
+    Read the /L value from a Linearized PDF dictionary, which advertises the
+    exact document length. Used to size bi-fragment head/tail extents exactly.
+    """
+    head = w.read(0, 4096)
+    lin_idx = head.find(b"/Linearized")
+    if lin_idx == -1:
+        return 0
+    l_idx = head.find(b"/L ", lin_idx)
+    if l_idx == -1:
+        return 0
+    try:
+        value = int(head[l_idx + 3 : l_idx + 40].split()[0])
+    except Exception:
+        return 0
+    return value if 0 < value < w.limit else 0
+
+
 class RawHandleStream:
     """Read wrapper over Windows CreateFileW raw device handle."""
 
@@ -769,10 +1404,12 @@ class ScalpelCarver:
 
                         # Execute precision carving handler if available
                         carve_res = None
+                        declared_size = 0
                         if reader and not is_simulated:
                             w = StreamWindow(reader, abs_offset, sig.max_size)
                             if sig.header == b"%PDF-":
                                 carve_res = _carve_pdf(w)
+                                declared_size = _declared_pdf_length(w)
                             elif sig.header == b"\xFF\xD8\xFF":
                                 carve_res = _carve_jpeg(w)
                             elif sig.header == b"\x89PNG\r\n\x1a\n":
@@ -798,6 +1435,7 @@ class ScalpelCarver:
                         f_ext = sig.extension
                         f_cat = sig.category
                         f_type = sig.file_type
+                        diagnostic = carve_res.diagnostic if carve_res else ""
 
                         has_handler = sig.header in (
                             b"%PDF-", b"\xFF\xD8\xFF", b"\x89PNG\r\n\x1a\n", b"PK\x03\x04",
@@ -841,15 +1479,47 @@ class ScalpelCarver:
                                 footer_found=footer_found,
                                 source_target=source_path,
                                 carve_id=len(carved_results) + 1,
-                                diagnostic=carve_res.diagnostic if carve_res else "",
+                                diagnostic=diagnostic,
                             )
                             carved_results.append(c_file)
                             if file_found_callback:
                                 file_found_callback(c_file)
 
                             start_pos = hdr_idx + max(sig_len, min(candidate_size, 256))
-                        else:
-                            start_pos = hdr_idx + sig_len
+                            continue
+
+                        # 2nd chance: the precision handler failed on a truncated
+                        # stream. Attempt validated bi-fragment gap carving when
+                        # the header and the structural terminator survived in
+                        # non-adjacent cluster blocks.
+                        if (
+                            has_handler
+                            and sig.footer
+                            and not self.is_cancelled
+                            and reader is not None
+                            and not is_simulated
+                        ):
+                            next_idx = combined_chunk.find(sig.header, hdr_idx + sig_len)
+                            occupied_end = chunk_base_offset + next_idx if next_idx > 0 else None
+                            rescued = self._attempt_bifragment_rescue(
+                                reader=reader,
+                                header_offset=abs_offset,
+                                sig=sig,
+                                file_type=f_type,
+                                declared_size=declared_size,
+                                occupied_end=occupied_end,
+                                source_path=source_path,
+                                carve_id=len(carved_results) + 1,
+                            )
+                            if rescued:
+                                carved_offsets.add(abs_offset)
+                                carved_results.append(rescued)
+                                if file_found_callback:
+                                    file_found_callback(rescued)
+                                start_pos = hdr_idx + max(sig_len, min(rescued.size, 256))
+                                continue
+
+                        start_pos = hdr_idx + sig_len
 
                 bytes_scanned += len(chunk)
                 stream_offset += len(chunk)
@@ -880,6 +1550,71 @@ class ScalpelCarver:
 
         return carved_results
 
+    def _attempt_bifragment_rescue(
+        self,
+        reader: Any,
+        header_offset: int,
+        sig: CarveSignature,
+        file_type: str,
+        declared_size: int,
+        occupied_end: Optional[int],
+        source_path: str,
+        carve_id: int,
+    ) -> Optional[CarvedFile]:
+        """
+        Second-chance rescue for truncated streams: validated bi-fragment gap
+        carving followed by PDF cross-reference reconstruction when applicable.
+        """
+        try:
+            reassembler = BifragmentReassembler(reader)
+            result = reassembler.carve_bifragment(
+                header_offset=header_offset,
+                footer_sig=sig.footer or b"",
+                file_type=file_type,
+                declared_size=declared_size,
+                occupied_end=occupied_end,
+                min_size=sig.min_size,
+                max_size=sig.max_size,
+            )
+            if result is None:
+                return None
+
+            data = result.data
+            diagnostic = result.diagnostic
+            repair_report: Dict[str, Any] = {}
+
+            if "PDF" in file_type.upper() and data.startswith(b"%PDF-"):
+                repair = PdfXrefReconstructor.repair(data)
+                repair_report = {
+                    k: v for k, v in repair.items() if k != "data"
+                }
+                if repair.get("repaired") and repair.get("data"):
+                    data = repair["data"]
+                    diagnostic += " | xref reconstructed"
+
+            carved = self._build_carved_file(
+                file_type=file_type,
+                extension=sig.extension,
+                category=sig.category,
+                offset=header_offset,
+                data=data,
+                footer_found=True,
+                source_target=source_path,
+                carve_id=carve_id,
+                diagnostic=diagnostic,
+            )
+            carved.confidence = max(carved.confidence, result.confidence)
+            carved.metadata.update({
+                "reassembly": "BI-FRAGMENT_GAP_CARVE",
+                "fragments": [f.to_dict() for f in result.fragments],
+                "gap_bytes": result.gap_bytes,
+                "fragment_count": len(result.fragments),
+                "pdf_xref_repair": repair_report,
+            })
+            return carved
+        except Exception:
+            return None
+
     def _build_carved_file(
         self,
         file_type: str,
@@ -894,6 +1629,20 @@ class ScalpelCarver:
     ) -> CarvedFile:
         """Create structured CarvedFile object with hash, confidence, and preview."""
         val = RecoveryStructureValidator.validate_and_score(file_type, data, footer_matched=footer_found)
+        pdf_repair: Dict[str, Any] = {}
+
+        # A structurally-surviving PDF whose xref table was destroyed by
+        # fragmentation is reconstructed before it is scored or exported.
+        if "PDF" in file_type.upper() and data.startswith(b"%PDF-"):
+            repair = PdfXrefReconstructor.repair(data)
+            pdf_repair = {k: v for k, v in repair.items() if k != "data"}
+            if repair.get("repaired") and repair.get("data"):
+                data = repair["data"]
+                val = RecoveryStructureValidator.validate_and_score(
+                    file_type, data, footer_matched=footer_found
+                )
+                diagnostic = (diagnostic + " | xref reconstructed").strip(" |")
+
         h = sha256_bytes(data)
         md5_h = hashlib.md5(data).hexdigest()
 
@@ -912,6 +1661,7 @@ class ScalpelCarver:
             "md5": md5_h,
             "diagnostic": diagnostic or (val["diagnostics"][0] if val.get("diagnostics") else ""),
             "carve_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+            "pdf_xref_repair": pdf_repair,
         }
 
         return CarvedFile(

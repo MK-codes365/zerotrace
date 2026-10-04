@@ -235,16 +235,19 @@ class ZeroTraceForensicsApp(ctk.CTk):
         self.current_tab_id = tab_id
         if tab_id in self.tab_views:
             if tab_id == "workbench" and hasattr(self, "carver_view") and getattr(self.carver_view, "discovered_files", None):
-                self.workbench_view.set_recovered_files(self.carver_view.discovered_files)
+                self.workbench_view.set_recovered_files(
+                    self.carver_view.discovered_files,
+                    fs_architecture=self.carver_view._current_architecture(),
+                )
             self.tab_views[tab_id].pack(fill="both", expand=True)
             self.nav_buttons[tab_id].configure(
                 fg_color="#1e293b",
                 text_color=COLOR_ACCENT_CYAN
             )
 
-    def _on_files_recovered(self, files: list):
-        """Pass discovered files from Carver to Workbench."""
-        self.workbench_view.set_recovered_files(files)
+    def _on_files_recovered(self, files: list, fs_architecture: dict = None):
+        """Pass discovered files and volume architecture from Carver to Workbench."""
+        self.workbench_view.set_recovered_files(files, fs_architecture=fs_architecture)
 
 
 def main():
