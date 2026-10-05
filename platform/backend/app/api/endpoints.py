@@ -7,15 +7,14 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import (
-    Role, create_access_token, get_current_user, hash_password,
-    require_role, verify_password,
+    create_access_token, get_current_user, hash_password, verify_password,
 )
 from app.core.logging_config import forensic_log
 from app.models import (
@@ -931,6 +930,16 @@ async def sync_sanitization_telemetry(
         )
         db.add(verification)
 
+    await record_audit_event(
+        db,
+        event_type="SANITIZATION",
+        action="WORKSTATION_WIPE_SYNCED",
+        case_id=case.id if case else None,
+        description=f"Drive wipe synced from workstation: {payload.get('target_path', 'Unknown')} via {method_str}",
+        severity="WARNING",
+        metadata={"operator": payload.get("operator"), "target": payload.get("target_path")},
+    )
+
     forensic_log(
         "WORKSTATION_SANITIZATION_SYNCED",
         operator=payload.get("operator", "Investigator"),
@@ -987,11 +996,11 @@ async def verify_integrity(
 @router.get("/audit", response_model=list[AuditEventResponse], tags=["Audit"])
 async def get_audit_events(
     db: AsyncSession = Depends(get_db),
-    user: dict = Depends(get_current_user),
     case_id: Optional[str] = None,
-    limit: int = Query(50, le=500),
+    limit: int = Query(100, le=1000),
+    offset: int = 0,
 ):
-    query = select(AuditEvent).order_by(AuditEvent.timestamp.desc()).limit(limit)
+    query = select(AuditEvent).order_by(AuditEvent.timestamp.desc()).limit(limit).offset(offset)
     if case_id:
         try:
             cid = uuid.UUID(case_id)
@@ -1173,18 +1182,6 @@ async def generate_report(
     await db.flush()
 
     return {"report_id": str(report.id), "status": "generated", "report": report_data}
-
-
-@router.get("/audit", response_model=list[AuditEventResponse], tags=["Audit"])
-async def list_audit_events(
-    db: AsyncSession = Depends(get_db),
-    limit: int = Query(100, le=1000),
-    offset: int = 0,
-):
-    result = await db.execute(
-        select(AuditEvent).order_by(AuditEvent.timestamp.desc()).limit(limit).offset(offset)
-    )
-    return [AuditEventResponse.model_validate(ae) for ae in result.scalars().all()]
 
 
 @router.get("/reports/{report_id}", tags=["Reports"])
@@ -1375,3 +1372,22 @@ async def run_demo(
         db.add(ae)
 
     return result
+
+
+# ═══════════════════════════════════════════════════════════
+# Admin / Reset (clear test data)
+# ═══════════════════════════════════════════════════════════
+
+@router.post("/admin/reset", tags=["Admin"])
+async def reset_all_data(
+    db: AsyncSession = Depends(get_db),
+):
+    """Clear all data from the database. Used during development/testing."""
+    from sqlalchemy import delete
+    for model in [
+        RecoveredFile, SanitizationVerification, SanitizationOperation,
+        HashRecord, ChainOfCustody, AuditEvent, Report, Job, Evidence, Case, Device, User,
+    ]:
+        await db.execute(delete(model))
+    await db.commit()
+    return {"status": "reset", "message": "All data cleared"}

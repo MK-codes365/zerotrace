@@ -428,8 +428,18 @@ const DashboardView = ({ onBackToLanding }) => {
             try {
                 const auditRes = await auditAPI.list({ limit: 1000 });
                 if (isMounted && Array.isArray(auditRes.data)) {
-                    setAuditEvents(auditRes.data);
-                    const hashes = auditRes.data.map((ev) => ev.event_hash || ev.prev_hash || ev.current_hash || ev.previous_hash).filter(Boolean);
+                    // Normalize API fields to what the dashboard expects
+                    const normalized = auditRes.data.map((ev, idx) => ({
+                        ...ev,
+                        index: idx,
+                        event_hash: ev.current_hash || ev.event_hash || "",
+                        prev_hash: ev.previous_hash || ev.prev_hash || "",
+                        operator: ev.description?.match(/by (\S+)/)?.[1] || ev.event_type || "System",
+                        target: ev.description || ev.action || "",
+                        case_id: ev.case_id || "",
+                    }));
+                    setAuditEvents(normalized);
+                    const hashes = normalized.map((ev) => ev.event_hash).filter(Boolean);
                     computeRealMerkleRoot(hashes).then((root) => {
                         if (isMounted) setMerkleRoot(root);
                     });
@@ -823,7 +833,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                         <span className="text-xs text-zinc-400">registered</span>
                                     </div>
                                     <p className="text-xs text-zinc-400 mt-2 font-mono">
-                                        forensic_cases.json
+                                        Central Platform DB
                                     </p>
                                 </div>
 
@@ -978,7 +988,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                             Chronological Hash Chain Ledger
                                         </h3>
                                         <p className="text-xs text-zinc-400 mt-0.5">
-                                            Live immutable audit trail loaded from audit_trail.json
+                                            Live immutable audit trail from central database
                                         </p>
                                     </div>
                                     <button
@@ -1055,7 +1065,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                     <div>
                                         <h3 className="text-sm font-semibold text-zinc-100">Forensic Investigation Cases</h3>
                                         <p className="text-xs text-zinc-400 mt-0.5">
-                                            Synchronized from forensic_cases.json recorded by desktop client.
+                                            Live investigation cases from central platform database.
                                         </p>
                                     </div>
                                     <span className="text-xs font-mono font-medium text-zinc-400 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-md">
@@ -1084,13 +1094,13 @@ const DashboardView = ({ onBackToLanding }) => {
                                             </thead>
                                             <tbody className="divide-y divide-zinc-800/60">
                                                 {casesData.map((c) => (
-                                                    <tr key={c.case_id} className="hover:bg-zinc-800/30 transition-colors">
-                                                        <td className="py-3 px-3 font-mono font-semibold text-zinc-200">{c.case_id}</td>
+                                                    <tr key={c.id || c.case_id} className="hover:bg-zinc-800/30 transition-colors">
+                                                        <td className="py-3 px-3 font-mono font-semibold text-zinc-200">{c.case_number || c.case_id || "—"}</td>
                                                         <td className="py-3 px-3">
                                                             <div className="font-medium text-zinc-100">{c.title}</div>
-                                                            <div className="text-[11px] text-zinc-500">{c.agency}</div>
+                                                            <div className="text-[11px] text-zinc-500">{c.agency || ""}</div>
                                                         </td>
-                                                        <td className="py-3 px-3 text-zinc-300">{c.investigator}</td>
+                                                        <td className="py-3 px-3 text-zinc-300">{c.investigator || "Assigned"}</td>
                                                         <td className="py-3 px-3">
                                                             <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                                                                 {c.status || "ACTIVE"}
@@ -1100,7 +1110,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                                             {new Date(c.created_at).toLocaleDateString()}
                                                         </td>
                                                         <td className="py-3 px-3 font-mono text-zinc-300">
-                                                            {c.evidence_items?.length || 0} items
+                                                            {c.evidence_count ?? c.evidence_items?.length ?? 0} items
                                                         </td>
                                                         <td className="py-3 px-3 text-right">
                                                             <button
@@ -1129,7 +1139,7 @@ const DashboardView = ({ onBackToLanding }) => {
                                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                                         <div className="p-3 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
                                             <p className="text-zinc-500 font-medium">Case Identifier</p>
-                                            <p className="font-mono text-zinc-200 mt-1">{selectedCase.case_id}</p>
+                                            <p className="font-mono text-zinc-200 mt-1">{selectedCase.case_number || selectedCase.case_id || selectedCase.id}</p>
                                         </div>
                                         <div className="p-3 bg-zinc-950/60 rounded-lg border border-zinc-800/60">
                                             <p className="text-zinc-500 font-medium">Description</p>
