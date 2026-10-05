@@ -433,7 +433,7 @@ class DriveWiperTab(ctk.CTkFrame):
                 import subprocess
                 try:
                     subprocess.run(
-                        ["format", f"{target_name}:", "/FS:FAT32", "/Q", "/Y", "/V:ZeroTrace"],
+                        ["format", f"{letter}:", "/FS:FAT32", "/Q", "/Y", "/V:ZeroTrace"],
                         shell=True,
                         capture_output=True,
                         timeout=15
@@ -444,9 +444,10 @@ class DriveWiperTab(ctk.CTkFrame):
                     pass
 
             if auto_formatted:
-                explorer_hint = f"\n\nDrive {target_name}: has been automatically formatted as a fresh, clean FAT32 volume labeled 'ZeroTrace' ready for immediate reuse in Windows!"
+                explorer_hint = f"\n\nDrive {letter}: has been automatically formatted as a fresh, clean FAT32 volume labeled 'ZeroTrace' ready for immediate reuse in Windows!"
             else:
-                explorer_hint = f"\n\nNote: If Windows Explorer still shows the old '{target_name}:' drive tile, click on '{target_name}:' or press F5 in File Explorer. Windows will confirm the filesystem is destroyed with: 'You need to format the disk'." if target_name else ""
+                drive_ref = f"{letter}:" if letter else target_name
+                explorer_hint = f"\n\nNote: If Windows Explorer still shows the old '{drive_ref}' drive tile, click on '{drive_ref}' or press F5 in File Explorer. Windows will confirm the filesystem is destroyed with: 'You need to format the disk'." if target_name else ""
 
             msg = f"Sanitization Successful!\n\nTarget: {result['target']}\nStandard: {result['method']}\nDuration: {result['duration_seconds']}s\nAverage Speed: {result['avg_speed_mb_s']} MB/s\nPost-Wipe Verification: PASSED{explorer_hint}"
             messagebox.showinfo("Sanitization Complete", msg)
