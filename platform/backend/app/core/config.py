@@ -76,7 +76,7 @@ class Settings(BaseSettings):
     LOG_FORMAT: str = "json"
 
     # ── CORS ─────────────────────────────────────────────
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+    CORS_ORIGINS: list[str] = ["*"]
 
     model_config = {
         "env_file": ".env",

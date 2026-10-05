@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { dashboardAPI, casesAPI, auditAPI } from "../services/api";
 
 // helper to calculate sha256 using web crypto api
 async function sha256Hex(str) {
@@ -413,47 +414,34 @@ const DashboardView = ({ onBackToLanding }) => {
         setTimeout(() => setCopiedHash(null), 2000);
     };
 
-    // poll data files every 2 seconds
     useEffect(() => {
         let isMounted = true;
-        const apiBase = import.meta.env.VITE_API_URL || "/api";
 
         const fetchRealData = async () => {
             try {
-                const casesRes = await fetch(`${apiBase}/cases`);
-                if (casesRes.ok) {
-                    const json = await casesRes.json();
-                    if (isMounted && Array.isArray(json)) {
-                        setCasesData(json);
-                    } else if (isMounted && json && json.cases) {
-                        setCasesData(Object.values(json.cases));
-                    }
+                const casesRes = await casesAPI.list();
+                if (isMounted && Array.isArray(casesRes.data)) {
+                    setCasesData(casesRes.data);
                 }
             } catch (e) {}
 
             try {
-                const auditRes = await fetch(`${apiBase}/audit`);
-                if (auditRes.ok) {
-                    const events = await auditRes.json();
-                    if (isMounted && Array.isArray(events)) {
-                        setAuditEvents(events);
-                        const hashes = events.map((ev) => ev.event_hash || ev.prev_hash || ev.current_hash || ev.previous_hash).filter(Boolean);
-                        computeRealMerkleRoot(hashes).then((root) => {
-                            if (isMounted) setMerkleRoot(root);
-                        });
-                    }
+                const auditRes = await auditAPI.list({ limit: 1000 });
+                if (isMounted && Array.isArray(auditRes.data)) {
+                    setAuditEvents(auditRes.data);
+                    const hashes = auditRes.data.map((ev) => ev.event_hash || ev.prev_hash || ev.current_hash || ev.previous_hash).filter(Boolean);
+                    computeRealMerkleRoot(hashes).then((root) => {
+                        if (isMounted) setMerkleRoot(root);
+                    });
                 }
             } catch (e) {}
 
             try {
-                const telemRes = await fetch(`${apiBase}/dashboard/stats`);
-                if (telemRes.ok) {
-                    const telem = await telemRes.json();
-                    if (isMounted && telem) {
-                        setTelemetry({ is_wiping: telem.active_jobs > 0, ...telem });
-                        setIsAgentOnline(true);
-                        setLastSyncTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
-                    }
+                const telemRes = await dashboardAPI.stats();
+                if (isMounted && telemRes.data) {
+                    setTelemetry({ is_wiping: telemRes.data.active_jobs > 0, ...telemRes.data });
+                    setIsAgentOnline(true);
+                    setLastSyncTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
                 }
             } catch (e) {
                 if (isMounted) setIsAgentOnline(false);
