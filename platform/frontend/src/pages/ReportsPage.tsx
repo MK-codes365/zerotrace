@@ -2,13 +2,6 @@ import { useState, useEffect } from 'react';
 import { FileText, Shield, Download, Lock, CheckCircle2, Hash, Database, ChevronDown, ChevronRight } from 'lucide-react';
 import { auditAPI } from '../services/api';
 
-const MOCK_BLOCKS = [
-  { id: '1004', operation: 'Sanitization (NIST 800-88)', hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', prevHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', time: '2026-10-05 17:50:00', status: 'VERIFIED' },
-  { id: '1003', operation: 'Forensic Extraction (Drive D)', hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', prevHash: '7d865e959b2466918c9863afca942d0fb89d7c9ac0c99bafc3749504ded97730', time: '2026-10-05 14:20:15', status: 'VERIFIED' },
-  { id: '1002', operation: 'Case Creation (CS-2026-004)', hash: '7d865e959b2466918c9863afca942d0fb89d7c9ac0c99bafc3749504ded97730', prevHash: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', time: '2026-10-05 09:10:00', status: 'VERIFIED' },
-  { id: '1001', operation: 'Genesis Block', hash: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', prevHash: '0000000000000000000000000000000000000000000000000000000000000000', time: '2026-10-01 00:00:00', status: 'VERIFIED' }
-];
-
 export default function ReportsPage() {
   const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
   const [blocks, setBlocks] = useState<any[]>([]);
@@ -23,8 +16,8 @@ export default function ReportsPage() {
         time: event.timestamp ? new Date(event.timestamp).toLocaleString() : 'N/A',
         status: 'VERIFIED'
       }));
-      setBlocks(mapped.length > 0 ? mapped : MOCK_BLOCKS);
-    }).catch(() => setBlocks(MOCK_BLOCKS));
+      setBlocks(mapped);
+    }).catch(console.error);
   }, []);
   return (
     <div className="space-y-6 zt-animate-slide-up">
