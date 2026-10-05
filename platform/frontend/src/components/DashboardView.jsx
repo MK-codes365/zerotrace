@@ -124,7 +124,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
                 ev.action?.includes("EXPORT") ||
                 ev.action?.includes("GENESIS")
         );
-        const count = Math.max(list.length, 7);
+        const count = list.length;
         const points = [];
         let cumCo2 = 0;
         let cumEwaste = 0;
@@ -151,7 +151,7 @@ const EnvironmentalImpactCard = ({ auditEvents, telemetry }) => {
         return points;
     }, [auditEvents]);
 
-    const latest = wipeEvents[wipeEvents.length - 1] || { co2: 281.2, ewaste: 8.55, drives: 19 };
+    const latest = wipeEvents[wipeEvents.length - 1] || { co2: 0, ewaste: 0, drives: 0 };
     const maxVal = Math.max(...wipeEvents.map((p) => p[selectedMetric])) * 1.15 || 100;
 
     const svgWidth = 720;
@@ -416,46 +416,41 @@ const DashboardView = ({ onBackToLanding }) => {
     // poll data files every 2 seconds
     useEffect(() => {
         let isMounted = true;
+        const apiBase = import.meta.env.VITE_API_URL || "/api";
 
         const fetchRealData = async () => {
             try {
-                // fetch cases
-                const casesRes = await fetch("/forensic_cases.json?" + Date.now());
+                const casesRes = await fetch(`${apiBase}/cases`);
                 if (casesRes.ok) {
                     const json = await casesRes.json();
-                    if (isMounted && json && json.cases) {
-                        const list = Object.values(json.cases);
-                        setCasesData(list);
+                    if (isMounted && Array.isArray(json)) {
+                        setCasesData(json);
+                    } else if (isMounted && json && json.cases) {
+                        setCasesData(Object.values(json.cases));
                     }
                 }
-            } catch (e) {
-                // quiet fallback
-            }
+            } catch (e) {}
 
             try {
-                // fetch audit trail
-                const auditRes = await fetch("/audit_trail.json?" + Date.now());
+                const auditRes = await fetch(`${apiBase}/audit`);
                 if (auditRes.ok) {
                     const events = await auditRes.json();
                     if (isMounted && Array.isArray(events)) {
                         setAuditEvents(events);
-                        const hashes = events.map((ev) => ev.event_hash || ev.prev_hash).filter(Boolean);
+                        const hashes = events.map((ev) => ev.event_hash || ev.prev_hash || ev.current_hash || ev.previous_hash).filter(Boolean);
                         computeRealMerkleRoot(hashes).then((root) => {
                             if (isMounted) setMerkleRoot(root);
                         });
                     }
                 }
-            } catch (e) {
-                // quiet fallback
-            }
+            } catch (e) {}
 
             try {
-                // fetch telemetry
-                const telemRes = await fetch("/live_wipe_telemetry.json?" + Date.now());
+                const telemRes = await fetch(`${apiBase}/dashboard/stats`);
                 if (telemRes.ok) {
                     const telem = await telemRes.json();
                     if (isMounted && telem) {
-                        setTelemetry(telem);
+                        setTelemetry({ is_wiping: telem.active_jobs > 0, ...telem });
                         setIsAgentOnline(true);
                         setLastSyncTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
                     }
