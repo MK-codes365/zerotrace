@@ -1427,256 +1427,262 @@ async def seed_mock_data(
     db: AsyncSession = Depends(get_db),
 ):
     """Seed comprehensive forensic mock cases, evidence, carved files, and chained audit ledger."""
-    from sqlalchemy import delete
-    from datetime import timedelta
-    from engines.integrity import compute_sha256
+    import traceback
+    try:
+        from sqlalchemy import delete
+        from datetime import timedelta
+        from engines.integrity import compute_sha256
+        from app.models import FileCategory, ValidationStatus, SanitizationStatus
 
-    # 1. Clear previous data
-    for model in [
-        RecoveredFile, SanitizationVerification, SanitizationOperation,
-        HashRecord, ChainOfCustody, AuditEvent, Report, Job, Evidence, Case, Device, User,
-    ]:
-        await db.execute(delete(model))
-    await db.commit()
+        # 1. Clear previous data
+        for model in [
+            RecoveredFile, SanitizationVerification, SanitizationOperation,
+            HashRecord, ChainOfCustody, AuditEvent, Report, Job, Evidence, Case, Device, User,
+        ]:
+            await db.execute(delete(model))
+        await db.commit()
 
-    now = datetime.now(timezone.utc)
+        now = datetime.now(timezone.utc)
 
-    # 2. Create lead investigator
-    lead_user = User(
-        id=uuid.uuid4(),
-        username="mukui",
-        email="mukui@zerotrace.ai",
-        password_hash=hash_password("admin123"),
-        full_name="mukui",
-        role=UserRole.ADMIN,
-    )
-    db.add(lead_user)
-    await db.flush()
-
-    # 3. Create realistic cases
-    cases_info = [
-        {
-            "number": "CASE-2026-0881",
-            "title": "Operation DarkVault - NVMe Extraction",
-            "desc": "Bitstream acquisition and file carving analysis on seized high-speed NVMe storage.",
-            "status": CaseStatus.IN_PROGRESS,
-            "agency": "Federal Cyber Defense Agency",
-            "created": now - timedelta(days=5),
-        },
-        {
-            "number": "CASE-2026-0942",
-            "title": "Project Ironclad - Cloud Host Array",
-            "desc": "NIST SP 800-88 purge compliance validation and cryptographic ledger certification.",
-            "status": CaseStatus.IN_PROGRESS,
-            "agency": "Special Investigations Unit",
-            "created": now - timedelta(days=3),
-        },
-        {
-            "number": "CASE-2026-1105",
-            "title": "Incident IR-402 - Financial Ledger Sanitization",
-            "desc": "Certified multi-pass disk wiping and forensic artifact recovery verification.",
-            "status": CaseStatus.CLOSED,
-            "agency": "Corporate Incident Response",
-            "created": now - timedelta(days=1),
-        },
-    ]
-
-    cases = []
-    for c in cases_info:
-        case = Case(
+        # 2. Create lead investigator
+        lead_user = User(
             id=uuid.uuid4(),
-            case_number=c["number"],
-            title=c["title"],
-            description=c["desc"],
-            status=c["status"],
-            investigator_id=lead_user.id,
-            created_at=c["created"],
-            updated_at=c["created"] + timedelta(hours=2),
+            username="mukui",
+            email="mukui@zerotrace.ai",
+            password_hash=hash_password("admin123"),
+            full_name="mukui",
+            role=UserRole.ADMIN,
         )
-        db.add(case)
-        cases.append(case)
-    await db.flush()
+        db.add(lead_user)
+        await db.flush()
 
-    # 4. Create Evidence items
-    evidence_info = [
-        {
-            "num": "EVD-2026-S980P",
-            "case_idx": 0,
-            "source": "Samsung 980 PRO 1TB NVMe M.2",
-            "type": DeviceType.SSD,
-            "cap": 1000204886016,
-            "sn": "S5GXNF0R102938K",
-            "path": "/dev/nvme0n1",
-            "hash": "9a8f4c2e6d1b8a53e0fa7281c9b4e5d6a7f8e9c0b1a2d3e4f5a6b7c8d9e0f1a2",
-            "status": EvidenceStatus.ANALYZED,
-        },
-        {
-            "num": "EVD-2026-IW400",
-            "case_idx": 1,
-            "source": "Seagate IronWolf Pro 4TB NAS HDD",
-            "type": DeviceType.HDD,
-            "cap": 4000787030016,
-            "sn": "WAP19482X-8802",
-            "path": "/dev/sda",
-            "hash": "1e4d7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f",
-            "status": EvidenceStatus.ANALYZED,
-        },
-        {
-            "num": "EVD-2026-SD128",
-            "case_idx": 0,
-            "source": "SanDisk Extreme 128GB Flash Drive",
-            "type": DeviceType.USB,
-            "cap": 128849018880,
-            "sn": "SD-948102-EXT",
-            "path": "/dev/sdb1",
-            "hash": "7f2b9c1d0e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
-            "status": EvidenceStatus.ANALYZED,
-        },
-        {
-            "num": "EVD-2026-KF200",
-            "case_idx": 2,
-            "source": "Kingston Fury Renegade 2TB SSD",
-            "type": DeviceType.SSD,
-            "cap": 2000398934016,
-            "sn": "KF2026-REN-441",
-            "path": "/dev/nvme1n1",
-            "hash": "3b8e21a4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2",
-            "status": EvidenceStatus.COMPLETED,
-        },
-        {
-            "num": "EVD-2026-WD500",
-            "case_idx": 1,
-            "source": "WD Black SN850X 500GB NVMe",
-            "type": DeviceType.SSD,
-            "cap": 500107862016,
-            "sn": "WDB-SN850-8910",
-            "path": "/dev/nvme2n1",
-            "hash": "4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d",
-            "status": EvidenceStatus.COMPLETED,
-        },
-    ]
+        # 3. Create realistic cases
+        cases_info = [
+            {
+                "number": "CASE-2026-0881",
+                "title": "Operation DarkVault - NVMe Extraction",
+                "desc": "Bitstream acquisition and file carving analysis on seized high-speed NVMe storage.",
+                "status": CaseStatus.IN_PROGRESS,
+                "agency": "Federal Cyber Defense Agency",
+                "created": now - timedelta(days=5),
+            },
+            {
+                "number": "CASE-2026-0942",
+                "title": "Project Ironclad - Cloud Host Array",
+                "desc": "NIST SP 800-88 purge compliance validation and cryptographic ledger certification.",
+                "status": CaseStatus.IN_PROGRESS,
+                "agency": "Special Investigations Unit",
+                "created": now - timedelta(days=3),
+            },
+            {
+                "number": "CASE-2026-1105",
+                "title": "Incident IR-402 - Financial Ledger Sanitization",
+                "desc": "Certified multi-pass disk wiping and forensic artifact recovery verification.",
+                "status": CaseStatus.CLOSED,
+                "agency": "Corporate Incident Response",
+                "created": now - timedelta(days=1),
+            },
+        ]
 
-    evidences = []
-    for ev in evidence_info:
-        evidence = Evidence(
-            id=uuid.uuid4(),
-            evidence_number=ev["num"],
-            case_id=cases[ev["case_idx"]].id,
-            source_device=ev["source"],
-            device_type=ev["type"],
-            serial_number=ev["sn"],
-            filesystem="NTFS / APFS",
-            capacity_bytes=ev["cap"],
-            acquisition_timestamp=now - timedelta(days=4),
-            investigator="mukui",
-            sha256_hash=ev["hash"],
-            original_hash=ev["hash"],
-            image_path=ev["path"],
-            acquisition_method="Physical Bitstream Copy (1:1)",
-            status=ev["status"],
-            is_read_only=True,
-            created_at=now - timedelta(days=4),
-        )
-        db.add(evidence)
-        evidences.append(evidence)
-    await db.flush()
+        cases = []
+        for c in cases_info:
+            case = Case(
+                id=uuid.uuid4(),
+                case_number=c["number"],
+                title=c["title"],
+                description=c["desc"],
+                status=c["status"],
+                investigator_id=lead_user.id,
+                created_at=c["created"],
+                updated_at=c["created"] + timedelta(hours=2),
+            )
+            db.add(case)
+            cases.append(case)
+        await db.flush()
 
-    # 5. Create realistic Recovered Files
-    files_info = [
-        {"name": "financial_ledger_2025_q4.xlsx", "type": "XLSX", "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "cat": "DOCUMENT", "size": 2415104, "conf": 0.96, "frag": False, "ev": 0},
-        {"name": "evidence_vault_keys.kdbx", "type": "KDBX", "mime": "application/x-keepass2", "cat": "DATABASE", "size": 1284900, "conf": 0.99, "frag": False, "ev": 0},
-        {"name": "surveillance_hallway_feed.mp4", "type": "MP4", "mime": "video/mp4", "cat": "VIDEO", "size": 18452010, "conf": 0.88, "frag": True, "ev": 1},
-        {"name": "encrypted_database_backup.sqlite", "type": "SQLITE", "mime": "application/x-sqlite3", "cat": "DATABASE", "size": 894200, "conf": 0.94, "frag": False, "ev": 0},
-        {"name": "confidential_acquisition_contract.pdf", "type": "PDF", "mime": "application/pdf", "cat": "DOCUMENT", "size": 4210400, "conf": 0.98, "frag": False, "ev": 2},
-        {"name": "network_traffic_dump.pcapng", "type": "PCAPNG", "mime": "application/vnd.tcpdump.pcap", "cat": "ARCHIVE", "size": 35192000, "conf": 0.91, "frag": True, "ev": 1},
-    ]
+        # 4. Create Evidence items
+        evidence_info = [
+            {
+                "num": "EVD-2026-S980P",
+                "case_idx": 0,
+                "source": "Samsung 980 PRO 1TB NVMe M.2",
+                "type": DeviceType.SSD,
+                "cap": 1000204886016,
+                "sn": "S5GXNF0R102938K",
+                "path": "/dev/nvme0n1",
+                "hash": "9a8f4c2e6d1b8a53e0fa7281c9b4e5d6a7f8e9c0b1a2d3e4f5a6b7c8d9e0f1a2",
+                "status": EvidenceStatus.ANALYZED,
+            },
+            {
+                "num": "EVD-2026-IW400",
+                "case_idx": 1,
+                "source": "Seagate IronWolf Pro 4TB NAS HDD",
+                "type": DeviceType.HDD,
+                "cap": 4000787030016,
+                "sn": "WAP19482X-8802",
+                "path": "/dev/sda",
+                "hash": "1e4d7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f",
+                "status": EvidenceStatus.ANALYZED,
+            },
+            {
+                "num": "EVD-2026-SD128",
+                "case_idx": 0,
+                "source": "SanDisk Extreme 128GB Flash Drive",
+                "type": DeviceType.USB,
+                "cap": 128849018880,
+                "sn": "SD-948102-EXT",
+                "path": "/dev/sdb1",
+                "hash": "7f2b9c1d0e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
+                "status": EvidenceStatus.ANALYZED,
+            },
+            {
+                "num": "EVD-2026-KF200",
+                "case_idx": 2,
+                "source": "Kingston Fury Renegade 2TB SSD",
+                "type": DeviceType.SSD,
+                "cap": 2000398934016,
+                "sn": "KF2026-REN-441",
+                "path": "/dev/nvme1n1",
+                "hash": "3b8e21a4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2",
+                "status": EvidenceStatus.COMPLETED,
+            },
+            {
+                "num": "EVD-2026-WD500",
+                "case_idx": 1,
+                "source": "WD Black SN850X 500GB NVMe",
+                "type": DeviceType.SSD,
+                "cap": 500107862016,
+                "sn": "WDB-SN850-8910",
+                "path": "/dev/nvme2n1",
+                "hash": "4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d",
+                "status": EvidenceStatus.COMPLETED,
+            },
+        ]
 
-    for idx, f in enumerate(files_info):
-        rf_hash = compute_sha256(f"{f['name']}|{f['size']}|{idx}".encode())
-        rf = RecoveredFile(
-            id=uuid.uuid4(),
-            evidence_id=evidences[f["ev"]].id,
-            artifact_id=f"ART-0881-{idx+1:03d}",
-            filename=f["name"],
-            file_type=f["type"],
-            mime_type=f["mime"],
-            category=f["cat"],
-            offset=1048576 * (idx + 1),
-            size_bytes=f["size"],
-            sha256_hash=rf_hash,
-            confidence_score=f["conf"],
-            is_fragmented=f["frag"],
-            fragment_count=2 if f["frag"] else 1,
-            recovery_method="Bi-Directional Graph Stitching" if f["frag"] else "Signature Header Carve",
-            validation_status="VALID",
-            extension_mismatch=False,
-            created_at=now - timedelta(days=3),
-        )
-        db.add(rf)
-    await db.flush()
+        evidences = []
+        for ev in evidence_info:
+            evidence = Evidence(
+                id=uuid.uuid4(),
+                evidence_number=ev["num"],
+                case_id=cases[ev["case_idx"]].id,
+                source_device=ev["source"],
+                device_type=ev["type"],
+                serial_number=ev["sn"],
+                filesystem="NTFS / APFS",
+                capacity_bytes=ev["cap"],
+                acquisition_timestamp=now - timedelta(days=4),
+                investigator="mukui",
+                sha256_hash=ev["hash"],
+                original_hash=ev["hash"],
+                image_path=ev["path"],
+                acquisition_method="Physical Bitstream Copy (1:1)",
+                status=ev["status"],
+                is_read_only=True,
+                created_at=now - timedelta(days=4),
+            )
+            db.add(evidence)
+            evidences.append(evidence)
+        await db.flush()
 
-    # 6. Create cryptographically chained Audit Events
-    audit_chain = [
-        {"action": "GENESIS_BLOCK_INIT", "type": "SYSTEM", "desc": "ZeroTrace cryptographic audit ledger initialized by mukui", "offset_hours": 96},
-        {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "NIST SP 800-88 3-pass purge on Samsung 980 PRO 1TB by mukui", "offset_hours": 80},
-        {"action": "FORENSIC_CARVE", "type": "RECOVERY", "desc": "Signature carving extracted 6 document & database artifacts by mukui", "offset_hours": 64},
-        {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "Cryptographic key erasure on Seagate IronWolf Pro 4TB by mukui", "offset_hours": 48},
-        {"action": "IMAGE_VERIFY_SHA256", "type": "INTEGRITY", "desc": "Bitstream integrity verified against original acquisition hash by mukui", "offset_hours": 36},
-        {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "Certified multi-pass overwrite on SanDisk Extreme 128GB by mukui", "offset_hours": 24},
-        {"action": "FORENSIC_CARVE", "type": "RECOVERY", "desc": "Bi-directional fragment graph reconstruction validated by mukui", "offset_hours": 16},
-        {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "NIST SP 800-88 Purge on Kingston Fury 2TB SSD by mukui", "offset_hours": 8},
-        {"action": "EVIDENCE_SECURED", "type": "CUSTODY", "desc": "ISO/IEC 27037 chain of custody seal verified by mukui", "offset_hours": 4},
-        {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "Substrate sanitization on WD Black SN850X 500GB by mukui", "offset_hours": 1},
-    ]
+        # 5. Create realistic Recovered Files
+        files_info = [
+            {"name": "financial_ledger_2025_q4.xlsx", "type": "XLSX", "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "cat": FileCategory.DOCUMENT, "size": 2415104, "conf": 0.96, "frag": False, "ev": 0},
+            {"name": "evidence_vault_keys.kdbx", "type": "KDBX", "mime": "application/x-keepass2", "cat": FileCategory.DATABASE, "size": 1284900, "conf": 0.99, "frag": False, "ev": 0},
+            {"name": "surveillance_hallway_feed.mp4", "type": "MP4", "mime": "video/mp4", "cat": FileCategory.VIDEO, "size": 18452010, "conf": 0.88, "frag": True, "ev": 1},
+            {"name": "encrypted_database_backup.sqlite", "type": "SQLITE", "mime": "application/x-sqlite3", "cat": FileCategory.DATABASE, "size": 894200, "conf": 0.94, "frag": False, "ev": 0},
+            {"name": "confidential_acquisition_contract.pdf", "type": "PDF", "mime": "application/pdf", "cat": FileCategory.DOCUMENT, "size": 4210400, "conf": 0.98, "frag": False, "ev": 2},
+            {"name": "network_traffic_dump.pcapng", "type": "PCAPNG", "mime": "application/vnd.tcpdump.pcap", "cat": FileCategory.ARCHIVE, "size": 35192000, "conf": 0.91, "frag": True, "ev": 1},
+        ]
 
-    current_prev = "0" * 64
-    for idx, item in enumerate(audit_chain):
-        event_time = now - timedelta(hours=item["offset_hours"])
-        hash_content = f"{current_prev}|{item['action']}|{item['desc']}|{event_time.isoformat()}"
-        block_hash = compute_sha256(hash_content.encode())
-        
-        ae = AuditEvent(
-            id=uuid.uuid4(),
-            case_id=cases[idx % len(cases)].id,
-            evidence_id=evidences[idx % len(evidences)].id,
-            user_id=lead_user.id,
-            event_type=item["type"],
-            action=item["action"],
-            description=item["desc"],
-            severity="INFO",
-            previous_hash=current_prev,
-            current_hash=block_hash,
-            timestamp=event_time,
-        )
-        db.add(ae)
-        current_prev = block_hash
+        for idx, f in enumerate(files_info):
+            rf_hash = compute_sha256(f"{f['name']}|{f['size']}|{idx}".encode())
+            rf = RecoveredFile(
+                id=uuid.uuid4(),
+                evidence_id=evidences[f["ev"]].id,
+                artifact_id=f"ART-0881-{idx+1:03d}",
+                filename=f["name"],
+                file_type=f["type"],
+                mime_type=f["mime"],
+                category=f["cat"],
+                offset=1048576 * (idx + 1),
+                size_bytes=f["size"],
+                sha256_hash=rf_hash,
+                confidence_score=f["conf"],
+                is_fragmented=f["frag"],
+                fragment_count=2 if f["frag"] else 1,
+                recovery_method="Bi-Directional Graph Stitching" if f["frag"] else "Signature Header Carve",
+                validation_status=ValidationStatus.VALID,
+                extension_mismatch=False,
+                created_at=now - timedelta(days=3),
+            )
+            db.add(rf)
+        await db.flush()
 
-    # 7. Add sanitization operations to match metrics
-    for idx in range(5):
-        op = SanitizationOperation(
-            id=uuid.uuid4(),
-            case_id=cases[idx % len(cases)].id,
-            target_path=evidences[idx].image_path,
-            target_type="DRIVE",
-            method=SanitizationMethod.NIST_800_88_PURGE,
-            status=SanitizationStatus.VERIFIED,
-            passes_total=3,
-            passes_completed=3,
-            bytes_total=evidences[idx].capacity_bytes,
-            bytes_processed=evidences[idx].capacity_bytes,
-            operator="mukui",
-            completed_at=now - timedelta(hours=(5 - idx) * 16),
-            is_simulated=False,
-        )
-        db.add(op)
+        # 6. Create cryptographically chained Audit Events
+        audit_chain = [
+            {"action": "GENESIS_BLOCK_INIT", "type": "SYSTEM", "desc": "ZeroTrace cryptographic audit ledger initialized by mukui", "offset_hours": 96},
+            {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "NIST SP 800-88 3-pass purge on Samsung 980 PRO 1TB by mukui", "offset_hours": 80},
+            {"action": "FORENSIC_CARVE", "type": "RECOVERY", "desc": "Signature carving extracted 6 document & database artifacts by mukui", "offset_hours": 64},
+            {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "Cryptographic key erasure on Seagate IronWolf Pro 4TB by mukui", "offset_hours": 48},
+            {"action": "IMAGE_VERIFY_SHA256", "type": "INTEGRITY", "desc": "Bitstream integrity verified against original acquisition hash by mukui", "offset_hours": 36},
+            {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "Certified multi-pass overwrite on SanDisk Extreme 128GB by mukui", "offset_hours": 24},
+            {"action": "FORENSIC_CARVE", "type": "RECOVERY", "desc": "Bi-directional fragment graph reconstruction validated by mukui", "offset_hours": 16},
+            {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "NIST SP 800-88 Purge on Kingston Fury 2TB SSD by mukui", "offset_hours": 8},
+            {"action": "EVIDENCE_SECURED", "type": "CUSTODY", "desc": "ISO/IEC 27037 chain of custody seal verified by mukui", "offset_hours": 4},
+            {"action": "NIST_800_88_PURGE", "type": "SANITIZATION", "desc": "Substrate sanitization on WD Black SN850X 500GB by mukui", "offset_hours": 1},
+        ]
 
-    await db.commit()
+        current_prev = "0" * 64
+        for idx, item in enumerate(audit_chain):
+            event_time = now - timedelta(hours=item["offset_hours"])
+            hash_content = f"{current_prev}|{item['action']}|{item['desc']}|{event_time.isoformat()}"
+            block_hash = compute_sha256(hash_content.encode())
+            
+            ae = AuditEvent(
+                id=uuid.uuid4(),
+                case_id=cases[idx % len(cases)].id,
+                evidence_id=evidences[idx % len(evidences)].id,
+                user_id=lead_user.id,
+                event_type=item["type"],
+                action=item["action"],
+                description=item["desc"],
+                severity="INFO",
+                previous_hash=current_prev,
+                current_hash=block_hash,
+                timestamp=event_time,
+            )
+            db.add(ae)
+            current_prev = block_hash
 
-    return {
-        "status": "seeded",
-        "message": "Realistic mock forensic data created successfully",
-        "cases_count": len(cases),
-        "evidence_count": len(evidences),
-        "files_count": len(files_info),
-        "audit_events_count": len(audit_chain),
-    }
+        # 7. Add sanitization operations to match metrics
+        for idx in range(5):
+            op = SanitizationOperation(
+                id=uuid.uuid4(),
+                case_id=cases[idx % len(cases)].id,
+                target_path=evidences[idx].image_path,
+                target_type="DRIVE",
+                method=SanitizationMethod.NIST_800_88_PURGE,
+                status=SanitizationStatus.COMPLETED,
+                passes_total=3,
+                passes_completed=3,
+                bytes_total=evidences[idx].capacity_bytes,
+                bytes_processed=evidences[idx].capacity_bytes,
+                operator="mukui",
+                completed_at=now - timedelta(hours=(5 - idx) * 16),
+                is_simulated=False,
+            )
+            db.add(op)
+
+        await db.commit()
+
+        return {
+            "status": "seeded",
+            "message": "Realistic mock forensic data created successfully",
+            "cases_count": len(cases),
+            "evidence_count": len(evidences),
+            "files_count": len(files_info),
+            "audit_events_count": len(audit_chain),
+        }
+    except Exception as e:
+        await db.rollback()
+        return {"status": "error", "error": str(e), "traceback": traceback.format_exc()}
