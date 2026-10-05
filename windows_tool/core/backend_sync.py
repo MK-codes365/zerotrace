@@ -11,7 +11,7 @@ import urllib.request
 import urllib.error
 from typing import Dict, Any, Optional
 
-DEFAULT_BACKEND_URL = os.environ.get("ZEROTRACE_API_URL", "http://localhost:8000/api")
+DEFAULT_BACKEND_URL = os.environ.get("ZEROTRACE_API_URL", "https://zerotrace-b688.onrender.com/api")
 DASHBOARD_URLS = [
     os.environ.get("ZEROTRACE_DASHBOARD_URL", "http://localhost:5174/api/live-wipe"),
     "http://localhost:5173/api/live-wipe",

@@ -42,9 +42,14 @@ export const casesAPI = {
 // ═══════════════════════════════════════════════════════
 
 export const evidenceAPI = {
+  list: (params?: Record<string, unknown>) => api.get('/evidence', { params }),
   get: (id: string) => api.get(`/evidence/${id}`),
   create: (data: Record<string, unknown>) => api.post('/evidence', data),
   hash: (id: string) => api.post(`/evidence/${id}/hash`),
+};
+
+export const filesAPI = {
+  list: (params?: Record<string, unknown>) => api.get('/files', { params }),
 };
 
 // ═══════════════════════════════════════════════════════
