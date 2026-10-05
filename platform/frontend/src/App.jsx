@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import { CartProvider } from "./context/CartContext";
+import { Analytics } from "@vercel/analytics/react";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -45,6 +46,7 @@ function App() {
             <Router>
                 <Layout />
             </Router>
+            <Analytics />
         </CartProvider>
     );
 }
