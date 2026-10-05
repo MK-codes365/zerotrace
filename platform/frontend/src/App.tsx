@@ -13,6 +13,7 @@ import RecoveryPage from './pages/RecoveryPage';
 import ReportsPage from './pages/ReportsPage';
 import DemoPage from './pages/DemoPage';
 import LoginPage from './pages/LoginPage';
+import RecoveryAdvisorChat from './components/RecoveryAdvisorChat';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('zt_token'));
@@ -157,6 +158,7 @@ function App() {
           </div>
         </main>
       </div>
+      <RecoveryAdvisorChat />
     </BrowserRouter>
   );
 }
