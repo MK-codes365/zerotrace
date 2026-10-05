@@ -81,11 +81,12 @@ class CarverRecoveryTab(ctk.CTkFrame):
             values=[
                 "Scalpel Deep Signature Carving (Raw Unallocated Space)",
                 "SleuthKit Filesystem Undelete (NTFS $MFT / FAT Records)",
-                "Hybrid Consensus Mode (Both Scalpel + SleuthKit)"
+                "Native exFAT Undelete (Boot Region + 0x85/0xC0/0xC1 Sets)",
+                "Hybrid Consensus Mode (Scalpel + SleuthKit + exFAT)"
             ],
-            width=430
+            width=460
         )
-        self.engine_dropdown.set("Hybrid Consensus Mode (Both Scalpel + SleuthKit)")
+        self.engine_dropdown.set("Hybrid Consensus Mode (Scalpel + SleuthKit + exFAT)")
         self.engine_dropdown.pack(side="left", padx=5)
 
         # Scan limits
@@ -93,6 +94,31 @@ class CarverRecoveryTab(ctk.CTkFrame):
         self.scan_size_dropdown = ctk.CTkComboBox(row2, values=["100 MB", "250 MB", "500 MB", "1 GB", "2 GB", "5 GB", "Full Media"], width=110)
         self.scan_size_dropdown.set("Full Media")
         self.scan_size_dropdown.pack(side="left")
+
+        # Filesystem architecture banner (populated at scan time)
+        fs_card = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=8, border_width=1, border_color=COLOR_BORDER)
+        fs_card.pack(fill="x", padx=10, pady=5)
+
+        fs_inner = ctk.CTkFrame(fs_card, fg_color="transparent")
+        fs_inner.pack(fill="x", padx=15, pady=7)
+
+        self.fs_arch_label = ctk.CTkLabel(
+            fs_inner,
+            text="Filesystem Architecture: not yet identified",
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=COLOR_ACCENT_BLUE,
+            anchor="w",
+        )
+        self.fs_arch_label.pack(side="left")
+
+        self.fs_engine_label = ctk.CTkLabel(
+            fs_inner,
+            text="Native undelete engine: —",
+            font=ctk.CTkFont(size=10, weight="bold"),
+            text_color=COLOR_TEXT_SECONDARY,
+            anchor="e",
+        )
+        self.fs_engine_label.pack(side="right")
 
         # Telemetry Bar
         t_bar = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=8, border_width=1, border_color=COLOR_BORDER)
@@ -331,16 +357,24 @@ class CarverRecoveryTab(ctk.CTkFrame):
         error_msg = None
         try:
             case = self.case_manager.get_active_case()
+            case_id = case.get("case_id", "CASE-ZT-2026-001")
             self.audit_service.log_event(
                 action="FORENSIC_CARVE_STARTED",
                 target=target_path,
                 details={"strategy": strategy, "max_scan_bytes": max_bytes},
-                case_id=case.get("case_id", "CASE-ZT-2026-001")
+                case_id=case_id
             )
 
-            # 1. Run SleuthKit filesystem scan if requested
-            if ("SleuthKit" in strategy or "Hybrid" in strategy) and not self.tsk_recoverer.is_cancelled:
-                tsk_items = self.tsk_recoverer.scan_deleted_files(target_path)
+            # 0. Identify the volume architecture (NTFS / exFAT / FAT32) so the
+            #    correct native undelete engine is selected and reported.
+            architecture = self.tsk_recoverer.detect_filesystem_architecture(target_path)
+            self.after(0, lambda: self._apply_fs_architecture(architecture))
+
+            # 1. Run SleuthKit / native filesystem scan if requested
+            if "SleuthKit" in strategy or "Hybrid" in strategy or "exFAT" in strategy:
+                tsk_items = self.tsk_recoverer.scan_deleted_files(
+                    target_path, filesystem_architecture=architecture
+                )
                 for item in tsk_items:
                     if self.tsk_recoverer.is_cancelled:
                         break
@@ -377,11 +411,71 @@ class CarverRecoveryTab(ctk.CTkFrame):
                     file_found_callback=self._on_file_discovered
                 )
 
+            # 3. Record filesystem architecture, cluster runs and allocation states
+            final_arch = dict(self.tsk_recoverer.filesystem_architecture or architecture)
+            final_arch.update(architecture or {})
+            self._log_filesystem_telemetry(target_path, final_arch, case_id)
+
         except Exception as e:
             error_msg = str(e)
         finally:
             was_cancelled = getattr(self.scalpel_carver, "is_cancelled", False) or getattr(self.tsk_recoverer, "is_cancelled", False)
             self.after(0, lambda: self._on_scan_finished(was_cancelled=was_cancelled, error_msg=error_msg))
+
+    def _log_filesystem_telemetry(self, target_path: str, architecture: dict, case_id: str):
+        """
+        Append exFAT/FAT/NTFS cluster-run and allocation-state evidence to the
+        tamper-evident audit_trail.json (SHA-256 hash chained).
+        """
+        try:
+            telemetry = self.tsk_recoverer.exfat_telemetry or {}
+            architecture = dict(architecture or {})
+            architecture.update({k: v for k, v in telemetry.items() if k not in architecture})
+            architecture["recovered_files"] = sum(
+                1 for f in self.discovered_files if getattr(f, "category", "") == "FILE_SYSTEM"
+            )
+            self.audit_service.log_filesystem_analysis(
+                target=target_path,
+                architecture=architecture,
+                cluster_runs=telemetry.get("cluster_runs", []),
+                records_recovered=architecture["recovered_files"],
+                case_id=case_id,
+            )
+        except Exception:
+            pass
+
+    def _apply_fs_architecture(self, arch: dict):
+        """Render the detected filesystem architecture in the scan view."""
+        if not hasattr(self, "fs_arch_label"):
+            return
+
+        fs = (arch or {}).get("filesystem", "UNKNOWN")
+        badge = {
+            "exFAT": "🟠 exFAT (Extended FAT — native 0x85/0xC0/0xC1 undelete)",
+            "NTFS": "🔵 NTFS (Master File Table undelete)",
+            "FAT32": "🟢 FAT32 (0xE5 directory-table undelete)",
+            "FAT16": "🟢 FAT16",
+            "FAT12": "🟢 FAT12",
+        }.get(fs, f"⚪ {fs}")
+
+        detail = f"  •  {arch.get('target', '')}" if arch.get("target") else ""
+        if fs == "exFAT":
+            alloc = arch.get("allocation") or {}
+            detail = (
+                f"  •  cluster {format_size(int(arch.get('cluster_size', 0) or 0))}"
+                f"  •  {arch.get('cluster_count', 0):,} clusters"
+                f"  •  boot checksum {arch.get('boot_checksum', '?')}"
+            )
+            if alloc:
+                detail += f"  •  alloc {alloc.get('allocated', 0):,} / free {alloc.get('free', 0):,}"
+            if arch.get("serial_number"):
+                detail += f"  •  SN {arch['serial_number']}"
+
+        self.fs_arch_label.configure(text=f"Filesystem Architecture: {badge}{detail}")
+        self.fs_engine_label.configure(
+            text=f"Native undelete engine: {', '.join(arch.get('native_undelete', [])) or 'signature carving only'}",
+            text_color=COLOR_ACCENT_GREEN if arch.get("native_undelete") else COLOR_TEXT_SECONDARY,
+        )
 
     def _update_progress(self, data: dict):
         self.after(0, lambda: self._apply_telemetry(data))
@@ -404,8 +498,33 @@ class CarverRecoveryTab(ctk.CTkFrame):
         self.scan_pb.set(min(1.0, max(0.0, pct)))
 
     def _on_file_discovered(self, c_file: CarvedFile):
+        meta = c_file.metadata if isinstance(c_file.metadata, dict) else {}
+
+        # Filesystem undelete records: confidence comes from directory-entry
+        # validation (checksum + up-case name hash) and cluster allocation state,
+        # not from signature matching.
+        if meta.get("filesystem") or "checksum_valid" in meta:
+            confidence = 1.0
+            if meta.get("checksum_valid") is False or meta.get("name_hash_valid") is False:
+                confidence = min(confidence, 0.55)
+            if str(meta.get("integrity_state", "")).startswith("Partial"):
+                confidence = min(confidence, 0.75)
+            if meta.get("truncated_chain"):
+                confidence = min(confidence, 0.6)
+            c_file.confidence = confidence
+            c_file.metadata["validation"] = {
+                "confidence": confidence,
+                "confidence_percent": int(confidence * 100),
+                "structural_check": confidence >= 0.5,
+                "source": "Filesystem metadata validation",
+                "diagnostics": [
+                    f"entry_set_checksum={'valid' if meta.get('checksum_valid') else 'invalid'}",
+                    f"upcase_name_hash={'valid' if meta.get('name_hash_valid') else 'invalid'}",
+                    f"clusters={len(meta.get('cluster_runs', []) or [])} fragment run(s)",
+                ],
+            }
         # Validate structure if data available
-        if c_file.data:
+        elif c_file.data:
             val = RecoveryStructureValidator.validate_and_score(
                 c_file.file_type, c_file.data, footer_matched=c_file.metadata.get("footer_matched", False)
             )
@@ -500,8 +619,7 @@ class CarverRecoveryTab(ctk.CTkFrame):
         ).pack(side="right", padx=6)
 
     def _inspect_file(self, item: CarvedFile):
-        if self.on_files_recovered_callback and self.discovered_files:
-            self.on_files_recovered_callback(self.discovered_files)
+        self._push_to_workbench(item)
         # Switch to workbench tab and pre-select this file
         parent = self.master
         while parent and not hasattr(parent, "workbench_view"):
@@ -517,6 +635,20 @@ class CarverRecoveryTab(ctk.CTkFrame):
                 parent.workbench_view._filter_and_render_list()
                 parent.workbench_view._select_file(item)
 
+    def _current_architecture(self) -> dict:
+        return dict(self.tsk_recoverer.filesystem_architecture or {})
+
+    def _push_to_workbench(self, item=None):
+        """Hand discovered artifacts plus volume architecture to the Workbench."""
+        if self.on_files_recovered_callback and self.discovered_files:
+            self.on_files_recovered_callback(self.discovered_files, self._current_architecture())
+        # Notify master window to switch to workbench tab
+        parent = self.master
+        while parent and not hasattr(parent, "select_tab"):
+            parent = getattr(parent, "master", None)
+        if parent and hasattr(parent, "select_tab"):
+            parent.select_tab("workbench")
+
     def _on_scan_finished(self, was_cancelled: bool = False, error_msg: Optional[str] = None):
         self.scan_btn.configure(state="normal")
         self.stop_btn.configure(state="disabled")
@@ -526,7 +658,7 @@ class CarverRecoveryTab(ctk.CTkFrame):
         self._apply_table_filters()
 
         if self.on_files_recovered_callback:
-            self.on_files_recovered_callback(self.discovered_files)
+            self.on_files_recovered_callback(self.discovered_files, self._current_architecture())
 
         if error_msg:
             messagebox.showerror("Carving Error", f"An error occurred during forensic extraction:\n{error_msg}")
@@ -536,22 +668,14 @@ class CarverRecoveryTab(ctk.CTkFrame):
                 f"Forensic scan was stopped by operator.\nDiscovered {len(self.discovered_files)} candidate artifacts.\nFiles are now available for inspection and export in the Recovery Workbench."
             )
         else:
+            fs = self._current_architecture().get("filesystem", "UNKNOWN")
             messagebox.showinfo(
                 "Carving Completed",
-                f"Forensic extraction finished!\nDiscovered {len(self.discovered_files)} candidate artifacts across the evidence volume.\nFiles are now ready for inspection and export in the Recovery Workbench."
+                f"Forensic scan finished!\n"
+                f"Detected filesystem: {fs}\n"
+                f"Discovered {len(self.discovered_files)} candidate artifacts.\n"
+                "Files are now ready for inspection and export in the Recovery Workbench."
             )
 
     def _open_workbench(self):
-        # Ensure discovered files are passed to workbench
-        if self.on_files_recovered_callback:
-            self.on_files_recovered_callback(self.discovered_files)
-        # Notify master window to switch to workbench tab
-        parent = self.master
-        while parent and not hasattr(parent, "select_tab"):
-            parent = getattr(parent, "master", None)
-        if parent:
-            if hasattr(parent, "workbench_view"):
-                parent.workbench_view.set_recovered_files(self.discovered_files)
-                parent.workbench_view._filter_and_render_list()
-            if hasattr(parent, "select_tab"):
-                parent.select_tab("workbench")
+        self._push_to_workbench()
