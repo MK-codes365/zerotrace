@@ -20,19 +20,18 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Demo data for charts when backend isn't connected
-  const demoStats = stats || {
-    active_jobs: 2, completed_jobs: 15, recovery_jobs: 8,
-    sanitization_jobs: 5, failed_jobs: 1, evidence_items: 12,
-    total_cases: 6, recovered_files_count: 247, throughput_mbps: 45.8,
-    workers_active: 3, integrity_status: 'VERIFIED',
+  const actualStats = stats || {
+    active_jobs: 0, completed_jobs: 0, recovery_jobs: 0,
+    sanitization_jobs: 0, failed_jobs: 0, evidence_items: 0,
+    total_cases: 0, recovered_files_count: 0, throughput_mbps: 0.0,
+    workers_active: 0, integrity_status: 'VERIFIED',
   };
 
   const jobChart = [
-    { name: 'Recovery', value: demoStats.recovery_jobs, color: '#06b6d4' },
-    { name: 'Sanitization', value: demoStats.sanitization_jobs, color: '#f59e0b' },
-    { name: 'Completed', value: demoStats.completed_jobs, color: '#10b981' },
-    { name: 'Failed', value: demoStats.failed_jobs, color: '#ef4444' },
+    { name: 'Recovery', value: actualStats.recovery_jobs, color: '#06b6d4' },
+    { name: 'Sanitization', value: actualStats.sanitization_jobs, color: '#f59e0b' },
+    { name: 'Completed', value: actualStats.completed_jobs, color: '#10b981' },
+    { name: 'Failed', value: actualStats.failed_jobs, color: '#ef4444' },
   ];
 
   const recoveryTimeline = [
@@ -52,12 +51,12 @@ export default function Dashboard() {
   ];
 
   const statCards = [
-    { icon: Activity, label: 'Active Jobs', value: demoStats.active_jobs, color: 'text-zt-cyan', bg: 'from-zt-cyan/10 to-zt-cyan/5' },
-    { icon: CheckCircle2, label: 'Completed', value: demoStats.completed_jobs, color: 'text-zt-emerald', bg: 'from-zt-emerald/10 to-zt-emerald/5' },
-    { icon: Database, label: 'Evidence Items', value: demoStats.evidence_items, color: 'text-zt-blue', bg: 'from-zt-blue/10 to-zt-blue/5' },
-    { icon: FileSearch, label: 'Recovered Files', value: demoStats.recovered_files_count, color: 'text-zt-indigo', bg: 'from-zt-indigo/10 to-zt-indigo/5' },
-    { icon: HardDrive, label: 'Sanitizations', value: demoStats.sanitization_jobs, color: 'text-zt-amber', bg: 'from-zt-amber/10 to-zt-amber/5' },
-    { icon: Shield, label: 'Cases', value: demoStats.total_cases, color: 'text-zt-rose', bg: 'from-zt-rose/10 to-zt-rose/5' },
+    { icon: Activity, label: 'Active Jobs', value: actualStats.active_jobs, color: 'text-zt-cyan', bg: 'from-zt-cyan/10 to-zt-cyan/5' },
+    { icon: CheckCircle2, label: 'Completed', value: actualStats.completed_jobs, color: 'text-zt-emerald', bg: 'from-zt-emerald/10 to-zt-emerald/5' },
+    { icon: Database, label: 'Evidence Items', value: actualStats.evidence_items, color: 'text-zt-blue', bg: 'from-zt-blue/10 to-zt-blue/5' },
+    { icon: FileSearch, label: 'Recovered Files', value: actualStats.recovered_files_count, color: 'text-zt-indigo', bg: 'from-zt-indigo/10 to-zt-indigo/5' },
+    { icon: HardDrive, label: 'Sanitizations', value: actualStats.sanitization_jobs, color: 'text-zt-amber', bg: 'from-zt-amber/10 to-zt-amber/5' },
+    { icon: Shield, label: 'Cases', value: actualStats.total_cases, color: 'text-zt-rose', bg: 'from-zt-rose/10 to-zt-rose/5' },
   ];
 
   return (
@@ -75,7 +74,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zt-surface border border-zt-border">
             <Cpu className="w-3.5 h-3.5 text-zt-cyan" />
-            <span className="text-xs text-zt-text-muted">{demoStats.throughput_mbps.toFixed(1)} MB/s</span>
+            <span className="text-xs text-zt-text-muted">{actualStats.throughput_mbps.toFixed(1)} MB/s</span>
           </div>
         </div>
       </div>
