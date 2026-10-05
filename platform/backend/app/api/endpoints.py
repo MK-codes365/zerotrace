@@ -203,7 +203,6 @@ async def create_case(
 @router.get("/cases", response_model=list[CaseResponse], tags=["Cases"])
 async def list_cases(
     db: AsyncSession = Depends(get_db),
-    user: dict = Depends(get_current_user),
     status_filter: Optional[str] = None,
     limit: int = Query(50, le=200),
     offset: int = 0,
@@ -1176,6 +1175,18 @@ async def generate_report(
     return {"report_id": str(report.id), "status": "generated", "report": report_data}
 
 
+@router.get("/audit", response_model=list[AuditEventResponse], tags=["Audit"])
+async def list_audit_events(
+    db: AsyncSession = Depends(get_db),
+    limit: int = Query(100, le=1000),
+    offset: int = 0,
+):
+    result = await db.execute(
+        select(AuditEvent).order_by(AuditEvent.timestamp.desc()).limit(limit).offset(offset)
+    )
+    return [AuditEventResponse.model_validate(ae) for ae in result.scalars().all()]
+
+
 @router.get("/reports/{report_id}", tags=["Reports"])
 async def get_report(
     report_id: str,
@@ -1198,7 +1209,6 @@ async def get_report(
 @router.get("/dashboard/stats", response_model=DashboardStats, tags=["Dashboard"])
 async def get_dashboard_stats(
     db: AsyncSession = Depends(get_db),
-    user: dict = Depends(get_current_user),
 ):
     active = await db.execute(
         select(func.count()).select_from(Job).where(Job.status == JobStatus.RUNNING)
