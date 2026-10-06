@@ -1,16 +1,30 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+// Resolve API base URL properly:
+// 1. If VITE_API_URL is unset, default to '/api' (proxied by Vite in dev)
+// 2. If VITE_API_URL is provided (e.g., deployed backend 'https://zerotrace-backend.onrender.com'),
+//    ensure it ends with '/api' so all endpoint routes correctly hit the backend prefix.
+const getApiBase = (): string => {
+  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
+  if (!envUrl) return '/api';
+  const cleanUrl = envUrl.replace(/\/+$/, '');
+  if (cleanUrl === '/api') return '/api';
+  return cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
+};
+
+const API_BASE = getApiBase();
 
 const api = axios.create({
   baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 30000,
 });
 
 // Attach JWT token to every request if available
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('zt_token');
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('zt_token') : null;
   if (token) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
@@ -35,6 +49,7 @@ export const casesAPI = {
   list: (params?: Record<string, unknown>) => api.get('/cases', { params }),
   get: (id: string) => api.get(`/cases/${id}`),
   create: (data: { title: string; description?: string }) => api.post('/cases', data),
+  update: (id: string, data: Record<string, unknown>) => api.patch(`/cases/${id}`, data),
 };
 
 // ═══════════════════════════════════════════════════════
@@ -83,6 +98,7 @@ export const sanitizationAPI = {
     confirmation_text: string; second_confirmation: boolean; operator: string;
   }) => api.post('/sanitization/execute', data),
   verify: (operationId: string) => api.post(`/sanitization/${operationId}/verify`),
+  sync: (data: Record<string, unknown>) => api.post('/sanitization/sync', data),
 };
 
 // ═══════════════════════════════════════════════════════
@@ -125,6 +141,15 @@ export const dashboardAPI = {
 
 export const demoAPI = {
   run: (data?: { scenario?: string }) => api.post('/demo/run', data || {}),
+};
+
+// ═══════════════════════════════════════════════════════
+// Admin
+// ═══════════════════════════════════════════════════════
+
+export const adminAPI = {
+  reset: () => api.post('/admin/reset'),
+  seed: () => api.post('/admin/seed'),
 };
 
 // ═══════════════════════════════════════════════════════
@@ -185,4 +210,5 @@ export const advisorAPI = {
 };
 
 export default api;
+
 
